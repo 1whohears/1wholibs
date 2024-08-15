@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.onewhohears.dscombat.util.UtilItem;
+import com.onewhohears.onewholibs.util.UtilItem;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;

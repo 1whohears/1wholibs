@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.data.jsonpreset;
 
 import com.google.gson.JsonObject;
-import com.onewhohears.dscombat.util.UtilMCText;
+import com.onewhohears.onewholibs.util.UtilMCText;
 
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;

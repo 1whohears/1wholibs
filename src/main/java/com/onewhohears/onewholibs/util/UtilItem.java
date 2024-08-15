@@ -1,10 +1,10 @@
-package com.onewhohears.dscombat.util;
+package com.onewhohears.onewholibs.util;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.onewhohears.dscombat.crafting.IngredientStack;
+import com.onewhohears.onewholibs.data.crafting.IngredientStack;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;

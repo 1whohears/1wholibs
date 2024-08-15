@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.onewhohears.dscombat.util.UtilGsonMerge;
-import com.onewhohears.dscombat.util.UtilGsonMerge.ConflictStrategy;
-import com.onewhohears.dscombat.util.UtilGsonMerge.JsonObjectExtensionConflictException;
-import com.onewhohears.dscombat.util.UtilMCText;
-import com.onewhohears.dscombat.util.UtilParse;
+import com.onewhohears.onewholibs.util.UtilGsonMerge;
+import com.onewhohears.onewholibs.util.UtilGsonMerge.ConflictStrategy;
+import com.onewhohears.onewholibs.util.UtilGsonMerge.JsonObjectExtensionConflictException;
+import com.onewhohears.onewholibs.util.UtilMCText;
+import com.onewhohears.onewholibs.util.UtilParse;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,9 +21,6 @@ import net.minecraft.resources.ResourceLocation;
  * see {@link JsonPresetReloadListener} for how the presets are read from datapacks.
  * see {@link JsonPresetGenerator} for how presets are built by minecraft data generators.
  * see {@link PresetBuilder} for an abstract preset builder for the generator to use.
- * see {@link AircraftPreset},
- * {@link com.onewhohears.dscombat.data.weapon.WeaponData},
- * and {@link com.onewhohears.dscombat.data.radar.RadarData} for examples.
  * @author 1whohears
  */
 public abstract class JsonPresetStats {

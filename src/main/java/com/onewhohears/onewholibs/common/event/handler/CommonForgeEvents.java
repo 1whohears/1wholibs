@@ -31,7 +31,7 @@ public final class CommonForgeEvents {
         if (event.getPlayer() == null) target = PacketDistributor.ALL.noArg();
         else target = PacketDistributor.PLAYER.with(event::getPlayer);
         UtilSync.syncPresets(target);
-        UtilSync.syncGameRules(target);
+        UtilSync.syncGameRules(target, event.getPlayer().getServer());
     }
 
 }

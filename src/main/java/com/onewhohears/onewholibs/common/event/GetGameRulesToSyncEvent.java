@@ -1,5 +1,6 @@
 package com.onewhohears.onewholibs.common.event;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.eventbus.api.Event;
 
 import java.util.HashMap;
@@ -7,10 +8,12 @@ import java.util.Map;
 
 public class GetGameRulesToSyncEvent extends Event {
 
+    private final MinecraftServer server;
     private final Map<String, Boolean> bools = new HashMap<>();
     private final Map<String, Integer> ints = new HashMap<>();
 
-    public GetGameRulesToSyncEvent() {
+    public GetGameRulesToSyncEvent(MinecraftServer server) {
+        this.server = server;
     }
 
     public void addBool(String id, boolean bool) {
@@ -27,5 +30,9 @@ public class GetGameRulesToSyncEvent extends Event {
 
     public Map<String, Integer> getInts() {
         return ints;
+    }
+
+    public MinecraftServer getServer() {
+        return server;
     }
 }
