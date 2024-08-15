@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.common.event;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.eventbus.api.Event;
 
 import java.util.HashMap;
@@ -24,6 +25,14 @@ public class GetGameRulesToSyncEvent extends Event {
         ints.put(id, integer);
     }
 
+    public void addBool(GameRules.Key<GameRules.BooleanValue> key) {
+        addBool(key.getId(), server.getGameRules().getBoolean(key));
+    }
+
+    public void addInt(GameRules.Key<GameRules.IntegerValue> key) {
+        addInt(key.getId(), server.getGameRules().getInt(key));
+    }
+
     public Map<String, Boolean> getBools() {
         return bools;
     }
@@ -35,4 +44,5 @@ public class GetGameRulesToSyncEvent extends Event {
     public MinecraftServer getServer() {
         return server;
     }
+
 }

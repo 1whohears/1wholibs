@@ -12,10 +12,9 @@ import net.minecraft.world.entity.Entity;
 public class CustomAnims {
 	
 	private static final Map<String, AnimationFactory> map = new HashMap<>();
-	
-	public static void copyAnimMap(Map<String, AnimationFactory> animMap) {
-		map.clear();
-		map.putAll(animMap);
+
+	public static void addAnim(String id, AnimationFactory animationFactory) {
+		map.put(id, animationFactory);
 	}
 	
 	@Nullable
@@ -25,7 +24,7 @@ public class CustomAnims {
 		return map.get(anim_id).create(json);
 	}
 	
-	public interface AnimationFactory {
-		<T extends Entity> EntityModelTransform<T> create(JsonObject json);
+	public interface AnimationFactory<T extends Entity> {
+		EntityModelTransform<T> create(JsonObject json);
 	}
 }

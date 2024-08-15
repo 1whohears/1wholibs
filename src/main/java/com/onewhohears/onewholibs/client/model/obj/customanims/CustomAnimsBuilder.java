@@ -12,9 +12,9 @@ public class CustomAnimsBuilder {
 		return new CustomAnimsBuilder();
 	}
 	
-	private final JsonArray anims = new JsonArray();
+	protected final JsonArray anims = new JsonArray();
 	
-	private CustomAnimsBuilder() {
+	protected CustomAnimsBuilder() {
 	}
 	
 	public JsonArray build() {

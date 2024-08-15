@@ -22,7 +22,10 @@ public final class CommonForgeEvents {
         MinecraftForge.EVENT_BUS.post(new RegisterPresetTypesEvent());
         GetJsonPresetListenersEvent listenersEvent = new GetJsonPresetListenersEvent();
         MinecraftForge.EVENT_BUS.post(listenersEvent);
-        listenersEvent.getListeners().forEach(event::addListener);
+        listenersEvent.getListeners().forEach((listener -> {
+            listener.registerDefaultPresetTypes();
+            event.addListener(listener);
+        }));
     }
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
