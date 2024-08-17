@@ -6,6 +6,11 @@ import java.util.List;
 import com.mojang.math.Matrix4f;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * You will not need to override this ever. {@link CustomAnimsEntityModel} combines
+ * {@link EntityModelTransform} automatically if multiple transforms manipulate the same model part.
+ * @author 1whohears
+ */
 public class EntityModelTransformGroup<T extends Entity> extends EntityModelTransform<T> {
 	
 	private final List<EntityModelTransform<T>> transforms = new ArrayList<>();

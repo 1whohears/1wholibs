@@ -2,6 +2,12 @@ package com.onewhohears.onewholibs.data.jsonpreset;
 
 import net.minecraft.nbt.CompoundTag;
 
+/**
+ * {@link JsonPresetStats} are meant to be immutable. Thus, {@link JsonPresetInstance} are
+ * their dynamic counterparts. Save and load NBT data with {@link #writeNBT()} and
+ * {@link #readNBT(CompoundTag)}. See {@link JsonPresetReloadListener#createInstanceFromNbt(CompoundTag)}.
+ * @author 1whohears
+ */
 public abstract class JsonPresetInstance<T extends JsonPresetStats> {
 	
 	private final T stats;

@@ -7,7 +7,7 @@ import net.minecraft.world.item.Item;
 /**
  * this util class needs to exist if I want to have hair left when down porting to 1.18.2.
  * the convenient Component#translatable static functions don't exist in 1.18.2.
- * @author 1whoh
+ * @author 1whohears
  */
 public class UtilMCText {
 	

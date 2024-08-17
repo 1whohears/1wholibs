@@ -21,6 +21,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.registries.ForgeRegistries;
 
+/**
+ * @author 1whohears
+ */
 public class UtilItem {
 
 	public static Item getItem(String itemKey, Item alt) {
@@ -41,7 +44,11 @@ public class UtilItem {
 	public static String getItemKeyString(Item item) {
 		return getItemKey(item).toString();
 	}
-	
+
+	/**
+	 * designed to be compatible with {@link IngredientStack}
+	 * @return true if the container has all the ingredients in recipeItems
+	 */
 	public static boolean testRecipe(NonNullList<Ingredient> recipeItems, Container container) {
 		for (int i = 0; i < recipeItems.size(); ++i) {
 			Ingredient ingredient = recipeItems.get(i);
@@ -58,7 +65,8 @@ public class UtilItem {
 		return true;
 	}
 	/**
-	 * returns the indexes of items that failed the test
+	 * designed to be compatible with {@link IngredientStack}
+	 * @return returns the indexes of items within recipeItems that were not found in container
 	 */
 	public static List<Integer> testRecipeFails(NonNullList<Ingredient> recipeItems, Container container) {
 		List<Integer> fails = new ArrayList<Integer>();
@@ -76,14 +84,18 @@ public class UtilItem {
 		return fails;
 	}
 	/**
-	 * test the recipe before use!
+	 * test the recipe with {@link #testRecipe(NonNullList, Container)} before use!
+	 * designed to be compatible with {@link IngredientStack}
+	 * @return a list of items that is the same as container, but items from ingredients are removed.
 	 */
 	public static NonNullList<ItemStack> getRemainingItemsStackIngredients(Container container, NonNullList<Ingredient> ingredients) {
 		NonNullList<ItemStack> remainItems = NonNullList.withSize(container.getContainerSize(), ItemStack.EMPTY);
 		for(int i = 0; i < remainItems.size(); ++i) remainItems.set(i, container.getItem(i));
 		for (int i = 0; i < ingredients.size(); ++i) {
-			if (ingredients.get(i).getClass() != IngredientStack.class) continue;
-			IngredientStack ing = (IngredientStack) ingredients.get(i);
+			Ingredient ingredient = ingredients.get(i);
+			IngredientStack ing;
+			if (ingredient.getClass() == IngredientStack.class) ing = (IngredientStack) ingredient;
+			else ing = IngredientStack.fromIngredient(ingredient);
 			int found = 0;
 			for (int j = 0; j < remainItems.size(); ++j) {
 				ItemStack item = remainItems.get(j);
@@ -100,7 +112,15 @@ public class UtilItem {
 		}
 		return remainItems;
 	}
-	
+
+	/**
+	 * If player has recipe items in their inventory, take the recipe items out of the player inventory
+	 * and spawn the result item at pos.
+	 * designed to be compatible with {@link IngredientStack}.
+	 * @param player check player's inventory for the recipe items
+	 * @param recipe check player's inventory for the recipe's items
+	 * @param pos the position the crafted item should land
+	 */
 	public static void handleInventoryRecipe(Player player, Recipe<Inventory> recipe, BlockPos pos) {
 		if (!recipe.matches(player.getInventory(), player.level)) return;
 		NonNullList<ItemStack> remainingItems = getRemainingItemsStackIngredients(player.getInventory(), recipe.getIngredients());

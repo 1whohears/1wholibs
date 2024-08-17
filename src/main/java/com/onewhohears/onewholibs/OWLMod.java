@@ -11,6 +11,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+/**
+ * @author 1whohears
+ */
 @Mod(OWLMod.MODID)
 public class OWLMod {
 

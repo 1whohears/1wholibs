@@ -24,10 +24,12 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 /**
- * a json file from datapacks reader for this mod's preset system.
- * comes with ways to sort the presets and synch the preset info with the client.
- * 
+ * A json file from datapacks reader for 1whohears mod's preset system.
+ * Can sort the presets, has a built-in preset inheritance system, and server-client syncing system
  * see {@link JsonPresetGenerator} for a way to generate json presets.
+ * Your custom JsonPresetReloadListeners must be registered in
+ * {@link com.onewhohears.onewholibs.common.event.GetJsonPresetListenersEvent}.
+ * Child classes should have a static getInstance style method!
  * 
  * @author 1whohears
  * @param <T> the type of preset this reader builds from json files
@@ -71,7 +73,10 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	public boolean has(String id) {
 		return presetMap.containsKey(id);
 	}
-	
+
+	/**
+	 * @return an array containing all presets
+	 */
 	public abstract T[] getAll();
 	
 	public String[] getAllIds() {
@@ -80,7 +85,9 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 			names[i] = getAll()[i].getId();
 		return names;
 	}
-	
+	/**
+	 * Clear the array created for {@link #getAll()}
+	 */
 	protected abstract void resetCache();
 	
 	public int getNum() {
@@ -154,16 +161,14 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 		return type.createStats(key, json);
 	}
 	/**
-	 * to add a custom preset type, call this in the {@link net.minecraftforge.event.AddReloadListenerEvent} event.
+	 * to add a custom preset type, call this in the
+	 * {@link com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent} event.
 	 * that event gets called on every reload, so you can register the preset type, 
 	 * and then this reload listener reads all the json files.
-	 * so for example if you want to register a custom vehicle type then call VehiclePresets.get().addPresetType(...);
-	 * @param type
 	 */
 	public void addPresetType(JsonPresetType type) {
 		typeMap.put(type.getId(), type);
 	}
-	
 	/**
 	 * used to add a bunch of default preset types. 
 	 * call {@link #addPresetType(JsonPresetType)} 

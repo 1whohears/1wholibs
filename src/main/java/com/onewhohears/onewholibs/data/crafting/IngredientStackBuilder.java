@@ -11,6 +11,9 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 
+/**
+ * @author 1whohears
+ */
 public abstract class IngredientStackBuilder<C extends IngredientStackBuilder<C>> extends PresetBuilder<C> {
 	
 	public static NonNullList<Ingredient> getIngredients(JsonObject jsonPresetData, String listName) {

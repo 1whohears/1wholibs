@@ -27,34 +27,86 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+/**
+ * @author 1whohears
+ */
 public class UtilEntity {
 	
 	public static final Random random = new Random();
-	
-	public static boolean canPosSeeEntity(Vec3 pos, Entity entity, int maxBlockCheckDepth, double throWater, double throBlock) {
-		Level level = entity.getLevel();
-		Vec3 diff = entity.getEyePosition().subtract(pos);
+	/**
+	 * @param level the level blocks should be checked in
+	 * @param start_pos the start position of the raycast
+	 * @param end_pos the end position of the raycast
+	 * @param maxBlockCheckDepth the raycast will not check more than this many blocks for obstruction.
+	 *                           if this distance between start_pos and the entity is larger,
+	 *                           will check maxBlockCheckDepth/2 blocks after start_pos and
+	 *                           maxBlockCheckDepth/2 blocks before the entity. there can be extreme
+	 *                           performance issues if this is more than 500 depending on specs.
+	 * @param throWater max number of blocks of water the raycast can go through without returning false
+	 * @param throBlock max number of solid blocks the raycast can go through without returning false
+	 * @return true if there is direct line of sight between pos and the eye position of entity
+	 */
+	public static boolean canPosSeePos(Level level, Vec3 start_pos, Vec3 end_pos, int maxBlockCheckDepth, double throWater, double throBlock) {
+		Vec3 diff = end_pos.subtract(start_pos);
 		Vec3 look = diff.normalize();
 		double distance = diff.length();
 		double[] through = new double[] {throWater, throBlock};
 		if (distance <= maxBlockCheckDepth) {
-			if (!checkBlocksByRange(level, pos, look, (int)distance, through)) return false;
+			if (!checkBlocksByRange(level, start_pos, look, (int)distance, through)) return false;
 		} else {
 			int maxCheckDist = maxBlockCheckDepth / 2;
-			if (!checkBlocksByRange(level, pos, look, maxCheckDist, through)) return false;
-			if (!checkBlocksByRange(level, 
-				pos.add(look.scale(distance-maxCheckDist).subtract(look)), 
-				look, maxCheckDist, through)) return false;
+			if (!checkBlocksByRange(level, start_pos, look, maxCheckDist, through)) return false;
+			if (!checkBlocksByRange(level,
+					start_pos.add(look.scale(distance-maxCheckDist).subtract(look)),
+					look, maxCheckDist, through)) return false;
 		}
 		return true;
 	}
-	
-	public static boolean canEntitySeeEntity(Entity e1, Entity e2, int maxBlockCheckDepth) {
-		return canEntitySeeEntity(e1, e2, maxBlockCheckDepth, 0, 0);
+
+	/**
+	 * @param start_pos the start position of the ray cast
+	 * @param entity the eye position of this entity is the end point of the raycast
+	 * @param maxBlockCheckDepth the raycast will not check more than this many blocks for obstruction.
+	 *                           if this distance between start_pos and the entity is larger,
+	 *                           will check maxBlockCheckDepth/2 blocks after start_pos and
+	 *                           maxBlockCheckDepth/2 blocks before the entity. there can be extreme
+	 *                           performance issues if this is more than 500 depending on specs.
+	 * @param throWater max number of blocks of water the raycast can go through without returning false
+	 * @param throBlock max number of solid blocks the raycast can go through without returning false
+	 * @return true if there is direct line of sight between pos and the eye position of entity
+	 */
+	public static boolean canPosSeeEntity(Vec3 start_pos, Entity entity, int maxBlockCheckDepth, double throWater, double throBlock) {
+		return canPosSeePos(entity.getLevel(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
 	}
-	
-	public static boolean canEntitySeeEntity(Entity e1, Entity e2, int maxBlockCheckDepth, double throWater, double throBlock) {
-		return canPosSeeEntity(e1.getEyePosition(), e2, maxBlockCheckDepth, throWater, throBlock);
+
+	/**
+	 * @param entity1 the eye position is the start position of the raycast
+	 * @param entity2 the eye position of this entity is the end point of the raycast
+	 * @param maxBlockCheckDepth the raycast will not check more than this many blocks for obstruction.
+	 *                           if this distance between start_pos and the entity is larger,
+	 *                           will check maxBlockCheckDepth/2 blocks after start_pos and
+	 *                           maxBlockCheckDepth/2 blocks before the entity. there can be extreme
+	 *                           performance issues if this is more than 500 depending on specs.
+	 * @return true if there is direct line of sight between pos and the eye position of entity
+	 */
+	public static boolean canEntitySeeEntity(Entity entity1, Entity entity2, int maxBlockCheckDepth) {
+		return canEntitySeeEntity(entity1, entity2, maxBlockCheckDepth, 0, 0);
+	}
+
+	/**
+	 * @param entity1 the eye position is the start position of the raycast
+	 * @param entity2 the eye position of this entity is the end point of the raycast
+	 * @param maxBlockCheckDepth the raycast will not check more than this many blocks for obstruction.
+	 *                           if this distance between start_pos and the entity is larger,
+	 *                           will check maxBlockCheckDepth/2 blocks after start_pos and
+	 *                           maxBlockCheckDepth/2 blocks before the entity. there can be extreme
+	 *                           performance issues if this is more than 500 depending on specs.
+	 * @param throWater max number of blocks of water the raycast can go through without returning false
+	 * @param throBlock max number of solid blocks the raycast can go through without returning false
+	 * @return true if there is direct line of sight between pos and the eye position of entity
+	 */
+	public static boolean canEntitySeeEntity(Entity entity1, Entity entity2, int maxBlockCheckDepth, double throWater, double throBlock) {
+		return canPosSeeEntity(entity1.getEyePosition(), entity2, maxBlockCheckDepth, throWater, throBlock);
 	}
 	
 	private static boolean checkBlocksByRange(Level level, Vec3 pos, Vec3 look, int dist, double[] through) {
@@ -81,7 +133,13 @@ public class UtilEntity {
 		}
 		return true;
 	}
-	
+
+	/**
+	 * @param level the level blocks are checked in
+	 * @param start the start pos of the raycast
+	 * @param end the end pos of the raycast
+	 * @return the position of a block between start and end
+	 */
 	@Nullable
 	public static Vec3 raycastBlock(Level level, Vec3 start, Vec3 end) {
 		Vec3 diff = end.subtract(start);
@@ -96,7 +154,12 @@ public class UtilEntity {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * @param level the level the block is checked in
+	 * @param pos the pos of the block being checked
+	 * @return true if the chunk is loaded and there is a block at pos.
+	 */
 	public static boolean posBlocksMotion(Level level, Vec3 pos) {
 		BlockPos bp = new BlockPos(pos);
 		ChunkPos cp = new ChunkPos(bp);
@@ -105,10 +168,14 @@ public class UtilEntity {
 		if (block == null || block.isAir()) return false;
 		return block.getMaterial().blocksMotion();
 	}
-	
-	public static int getDistFromGround(Entity e) {
-		Level l = e.getLevel();
-		int[] pos = {e.getBlockX(), e.getBlockY(), e.getBlockZ()};
+
+	/**
+	 * @param entity distance from the entities feet
+	 * @return entity's vertical distance from the ground. positive integer
+	 */
+	public static int getDistFromGround(Entity entity) {
+		Level l = entity.getLevel();
+		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
 		int dist = 0;
 		while (pos[1] >= -64) {
 			BlockState block = l.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
@@ -132,11 +199,16 @@ public class UtilEntity {
 		if (level.dimensionType().natural()) return 64;
 		return 0;
 	}
-	
-	public static Vec3 getLookingAtBlockPos(Entity e, int max) {
-		Level level = e.level;
-		Vec3 look = e.getLookAngle();
-		Vec3 pos = e.position();
+
+	/**
+	 * @param entity start pos of raycast is entity eye position
+	 * @param max the max distance of the raycast
+	 * @return returns the position of a block the entity is looking at
+	 */
+	public static Vec3 getLookingAtBlockPos(Entity entity, int max) {
+		Level level = entity.level;
+		Vec3 look = entity.getLookAngle();
+		Vec3 pos = entity.getEyePosition();
 		for (int i = 0; i < max; ++i) {
 			BlockState block = level.getBlockState(new BlockPos(pos));
 			if (block != null && !block.isAir()) return pos;
@@ -146,7 +218,7 @@ public class UtilEntity {
 	}
 	
 	/**
-	 * @param entity
+	 * @param entity air pressure at entity position
 	 * @return between 0 (no air pressure) and 1
 	 */
 	public static double getAirPressure(Entity entity) {
@@ -170,8 +242,16 @@ public class UtilEntity {
 	public static boolean isHeadAboveWater(Entity entity) {
 		return entity.isInWater() && !entity.isUnderWater();
 	}
-	
-	public static void entityLookAtPos(Entity entity, Vec3 pos, float headTurnRate) {
+
+	/**
+	 * turns the entity's head towards pos at headTurnRate degrees per tick.
+	 * call this function every tick until the rotation is complete.
+	 * @param entity
+	 * @param pos
+	 * @param headTurnRate
+	 * @return true if the entity is looking at pos
+	 */
+	public static boolean entityLookAtPos(Entity entity, Vec3 pos, float headTurnRate) {
 		Vec3 diff = pos.subtract(entity.getEyePosition());
 		float yRot = UtilAngles.getYaw(diff);
 		float xRot = UtilAngles.getPitch(diff);
@@ -179,6 +259,7 @@ public class UtilEntity {
 		float newXRot = UtilAngles.rotLerp(entity.getXRot(), xRot, headTurnRate);
 		entity.setYRot(newYRot);
 		entity.setXRot(newXRot);
+		return xRot == newXRot && yRot == newYRot;
 	}
 	
 	public static void mobLookAtPos(Mob mob, Vec3 pos, float headTurnRate) {

@@ -6,6 +6,14 @@ import com.onewhohears.onewholibs.util.UtilMCText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * See {@link JsonPresetReloadListener#addPresetType(JsonPresetType) for how to add a custom preset type.
+ * Preset Types can each generate one child class of {@link JsonPresetStats}} with
+ * {@link #createStats(ResourceLocation, JsonObject)}. One should create public static INSTANCE fields
+ * for each preset type for easy access throughout your mod.
+ *
+ * @author 1whohears
+ */
 public abstract class JsonPresetType {
 	
 	private static int defaultSortFactorCount = 0;

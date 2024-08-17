@@ -12,6 +12,11 @@ import com.onewhohears.onewholibs.client.model.obj.ObjEntityModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
 
+/**
+ * Use this instead of {@link ObjEntityModel} if your entity has custom animations
+ * defined by json asset files. See {@link EntityModelTransform}.
+ * @author 1whohears
+ */
 public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> {
 	
 	private final Map<String, EntityModelTransform<T>> transforms = new HashMap<>();

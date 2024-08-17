@@ -7,10 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * the parent class for json preset builders. usually called within a {@link JsonPresetGenerator}.
  * 
- * see {@link AircraftPreset},
- * {@link com.onewhohears.dscombat.data.weapon.AbstractWeaponBuilders},
- * and {@link com.onewhohears.dscombat.data.radar.RadarStats} for example builders.
- * 
  * @author 1whohears
  * @param <C>
  */
@@ -36,7 +32,9 @@ public abstract class PresetBuilder<C extends PresetBuilder<C>> {
 		copyData = new JsonObject();
 		setupJsonData();
 	}
-	
+	/**
+	 * use this constructor if you want this preset to "inherit" the data from copy.
+	 */
 	public PresetBuilder(String namespace, String name, JsonPresetType type, JsonObject copy) {
 		this.name = name;
 		key = new ResourceLocation(namespace, name);

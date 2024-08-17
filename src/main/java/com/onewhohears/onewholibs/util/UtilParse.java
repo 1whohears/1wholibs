@@ -23,6 +23,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * @author 1whohears
+ */
 public class UtilParse {
 	
 	private static final Logger LOGGER = LogUtils.getLogger();

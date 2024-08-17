@@ -16,6 +16,12 @@ import net.minecraftforge.client.model.renderable.CompositeRenderable;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
 import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
 
+/**
+ * See {@link com.onewhohears.onewholibs.client.renderer.RendererObjEntity}.
+ * An obj and mtl file with the same name as {@link #modelId} must be put in
+ * //assets/[mod_id]/models/entity/[{@link #modelId}].obj
+ * @author 1whohears
+ */
 public class ObjEntityModel<T extends Entity> {
 	
 	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);

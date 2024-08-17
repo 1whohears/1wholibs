@@ -18,7 +18,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
 /**
  * a json file from asset pack reader for this mod's asset system.
- * 
  * see {@link JsonPresetGenerator} for a way to generate json assets.
  * 
  * @author 1whohears

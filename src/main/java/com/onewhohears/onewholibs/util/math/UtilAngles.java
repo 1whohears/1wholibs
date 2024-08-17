@@ -9,6 +9,9 @@ import com.mojang.math.Vector3f;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * @author 1whohears
+ */
 public class UtilAngles {
 	
 	public static double getHorizontalDistanceSqr(Vec3 vec3) {

@@ -2,25 +2,25 @@ package com.onewhohears.onewholibs.common.network.toclient;
 
 import java.util.function.Supplier;
 
-import com.onewhohears.onewholibs.common.event.GetGameRulesToSyncEvent;
+import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.common.event.OnSyncBoolGameRuleEvent;
 import com.onewhohears.onewholibs.common.event.OnSyncIntGameRuleEvent;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class ToClientSyncGameRules {
 
-	private final GetGameRulesToSyncEvent event;
+	private final MinecraftServer server;
 
 	public ToClientSyncGameRules(MinecraftServer server) {
-		event = new GetGameRulesToSyncEvent(server);
+		this.server = server;
 	}
 	
 	public ToClientSyncGameRules(FriendlyByteBuf buffer) {
-		event = null;
+		server = null;
 		int boolNum = buffer.readInt();
 		for (int i = 0; i < boolNum; ++i) {
 			String id = buffer.readUtf();
@@ -36,16 +36,16 @@ public class ToClientSyncGameRules {
 	}
 
 	public void encode(FriendlyByteBuf buffer) {
-		MinecraftForge.EVENT_BUS.post(event);
-		buffer.writeInt(event.getBools().size());
-		event.getBools().forEach((id, bool) -> {
-			buffer.writeUtf(id);
-			buffer.writeBoolean(bool);
+		GameRules gamerules = server.getGameRules();
+		buffer.writeInt(CustomGameRules.getSyncBools().size());
+		CustomGameRules.getSyncBools().forEach((booleanValueKey) -> {
+			buffer.writeUtf(booleanValueKey.getId());
+			buffer.writeBoolean(gamerules.getBoolean(booleanValueKey));
 		});
-		buffer.writeInt(event.getInts().size());
-		event.getInts().forEach((id, integer) -> {
-			buffer.writeUtf(id);
-			buffer.writeInt(integer);
+		buffer.writeInt(CustomGameRules.getSyncInts().size());
+		CustomGameRules.getSyncInts().forEach((integerValueKey) -> {
+			buffer.writeUtf(integerValueKey.getId());
+			buffer.writeInt(gamerules.getInt(integerValueKey));
 		});
 	}
 

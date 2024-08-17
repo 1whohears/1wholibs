@@ -9,10 +9,17 @@ import com.google.gson.JsonObject;
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * @author 1whohears
+ */
 public class CustomAnims {
 	
 	private static final Map<String, AnimationFactory> map = new HashMap<>();
 
+	/**
+	 * Add custom {@link EntityModelTransform} in
+	 * {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent}
+	 */
 	public static void addAnim(String id, AnimationFactory animationFactory) {
 		map.put(id, animationFactory);
 	}

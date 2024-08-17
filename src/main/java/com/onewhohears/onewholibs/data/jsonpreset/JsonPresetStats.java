@@ -131,9 +131,8 @@ public abstract class JsonPresetStats {
 	}
 	
 	@Nullable public abstract JsonPresetInstance<?> createPresetInstance();
-	
 	/**
-	 * override this in your custom vehicle stats class if you want to skip the cast
+	 * override this in your custom child class if you want to skip the cast
 	 * @return null if not the same type
 	 */
 	@Nullable 

@@ -11,6 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * Use this renderer to put obj models over entities.
+ * See {@link ObjEntityModel}. Register this renderer in the
+ * {@link net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers} event.
+ * @author 1whohears
+ */
 public class RendererObjEntity<T extends Entity> extends EntityRenderer<T> {
 	
 	protected final ObjEntityModel<T> model;

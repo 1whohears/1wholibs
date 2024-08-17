@@ -13,7 +13,6 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class ToClientDataPackSync {
 	
 	public ToClientDataPackSync() {
-		
 	}
 	
 	public ToClientDataPackSync(FriendlyByteBuf buffer) {

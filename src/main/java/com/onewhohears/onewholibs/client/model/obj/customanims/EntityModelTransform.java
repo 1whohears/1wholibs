@@ -7,8 +7,23 @@ import com.onewhohears.onewholibs.util.UtilParse;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 
+/**
+ * Forge's obj model render allows the manipulation of individual groups/folders/bones within the model.
+ * See {@link net.minecraftforge.client.model.renderable.CompositeRenderable#render} and
+ * {@link net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms}.
+ * I call the names of these groups the {@link #model_part_key}.
+ * Instead of hard coding these Transforms, my CustomAnims system allows you to define animations with
+ * json assets. 1wholibs doesn't come with many premade animations, but it should be fairly straight forward
+ * to make your own. Simply call {@link CustomAnims#addAnim(String, CustomAnims.AnimationFactory)} in
+ * {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent}.
+ * You'll also have to set up a {@link com.onewhohears.onewholibs.data.jsonpreset.JsonPresetAssetReader}
+ * using {@link com.onewhohears.onewholibs.data.jsonpreset.CustomAnimStats} to read the anims.
+ * Then {@link CustomAnimsEntityModel} can use
+ * {@link com.onewhohears.onewholibs.data.jsonpreset.CustomAnimStats#getModel()}.
+ * See Diamond Star Combat for additional custom animation examples.
+ * @author 1whohears
+ */
 public abstract class EntityModelTransform<T extends Entity> {
 	
 	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
@@ -32,18 +47,14 @@ public abstract class EntityModelTransform<T extends Entity> {
 	
 	public static abstract class Translation<T extends Entity> extends EntityModelTransform<T> {
 		private final Vector3f bounds;
-
 		public Translation(JsonObject data) {
 			super(data);
 			bounds = UtilParse.readVec3f(data, "bounds");
 		}
-
 		public Vector3f getBounds() {
 			return bounds;
 		}
-
 		public abstract float getTranslationProgress(T entity, float partialTicks);
-
 		@Override
 		public Matrix4f getTransform(T entity, float partialTicks) {
 			float p = getTranslationProgress(entity, partialTicks);
@@ -92,16 +103,13 @@ public abstract class EntityModelTransform<T extends Entity> {
 	
 	public static class ContinuousRotation<T extends Entity> extends AxisRotation<T> {
 		private final float rot_rate;
-
 		public ContinuousRotation(JsonObject data) {
 			super(data);
 			rot_rate = UtilParse.getFloatSafe(data, "rot_rate", 0);
 		}
-
 		public float getRotRate() {
 			return rot_rate;
 		}
-
 		@Override
 		public float getRotDeg(T entity, float partialTicks) {
 			return UtilAngles.lerpAngle(partialTicks, entity.tickCount * getRotRate(), (entity.tickCount + 1) * getRotRate());

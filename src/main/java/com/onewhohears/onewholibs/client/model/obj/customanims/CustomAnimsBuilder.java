@@ -6,6 +6,9 @@ import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransform.RotationAxis;
 import com.onewhohears.onewholibs.util.UtilParse;
 
+/**
+ * @author 1whohears
+ */
 public class CustomAnimsBuilder {
 	
 	public static CustomAnimsBuilder create() {

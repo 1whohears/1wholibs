@@ -22,7 +22,6 @@ import net.minecraft.resources.ResourceLocation;
  * call {@link JsonPresetGenerator#addPresetToGenerate(JsonPresetStats)} inside a
  * {@link JsonPresetGenerator#registerPresets()} override.
  * use a {@link PresetBuilder} to make the presets to register.
- *
  * see {@link JsonPresetReloadListener} for a way to read these json presets.
  * 
  * @author 1whohears
@@ -33,20 +32,16 @@ public abstract class JsonPresetGenerator<T extends JsonPresetStats> implements 
 	protected final Logger LOGGER = LogUtils.getLogger();
 	protected final DataGenerator.PathProvider pathProvider;
     public final Map<ResourceLocation, T> GEN_MAP = new HashMap<>();
-    
     /**
      * for data pack data generation
-     * @param output
-     * @param kind
      */
     public JsonPresetGenerator(DataGenerator output, String kind) {
         this(output, kind, DataGenerator.Target.DATA_PACK);
     }
     
     public JsonPresetGenerator(DataGenerator output, String kind, DataGenerator.Target target) {
-        this.pathProvider = output.createPathProvider(target, kind);
-    }
-	
+		this.pathProvider = output.createPathProvider(target, kind);
+	}
     /**
      * override this method if you want to add your own default presets
      */

@@ -1,7 +1,3 @@
-/**
- * code stolen from here
- * https://github.com/endorh/lazulib/blob/1.19/src/main/java/endorh/util/nbt/JsonToNBTUtil.java
- */
 package com.onewhohears.onewholibs.util;
 
 import java.io.Reader;
@@ -43,6 +39,10 @@ import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
+/**
+ * code stolen from here
+ * https://github.com/endorh/lazulib/blob/1.19/src/main/java/endorh/util/nbt/JsonToNBTUtil.java
+ */
 public class JsonToNBTUtil {
 	
 	public static CompoundTag getTagFromJson(JsonElement element) {

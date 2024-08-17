@@ -20,6 +20,11 @@ import net.minecraftforge.client.model.obj.ObjModel.ModelSettings;
 import net.minecraftforge.client.model.obj.ObjTokenizer;
 import net.minecraftforge.client.model.renderable.CompositeRenderable;
 
+/**
+ * {@link ObjEntityModel} uses {@link CompositeRenderable} to render obj models.
+ * ObjEntityModels is where all {@link CompositeRenderable} are baked and stored.
+ * @author 1whohears
+ */
 public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	private static final Logger LOGGER = LogUtils.getLogger();
@@ -74,7 +79,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 			StandaloneGeometryBakingContext ctx = StandaloneGeometryBakingContext.create(obj.modelLocation);
 			CompositeRenderable comp = obj.bakeRenderable(ctx);
 			models.put(key, comp);
-			LOGGER.debug("BAKED "+key+" "+obj.getRootComponentNames().size()+" "+obj.getConfigurableComponentNames());
+            LOGGER.debug("BAKED {} {} {}", key, obj.getRootComponentNames().size(), obj.getConfigurableComponentNames());
 		});
 	}
 	
@@ -94,7 +99,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 			try {
 				String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
 				if (unbakedModels.containsKey(name)) {
-					LOGGER.warn("ERROR: Can't have 2 models with the same name! "+key);
+                    LOGGER.warn("ERROR: Can't have 2 models with the same name! {}", key);
 					return;
 				}
 				ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
@@ -104,9 +109,9 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 							null));
 				tokenizer.close();
 				unbakedModels.putIfAbsent(name, model);
-				LOGGER.debug("ADDING MODEL = "+key);
+                LOGGER.debug("ADDING MODEL = {}", key);
 			} catch (Exception e) {
-				LOGGER.warn("ERROR: SKIPPING "+key);
+                LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());
 				e.printStackTrace();
 			}
 		});
@@ -120,14 +125,14 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 			try {
 				String name = new File(key.getPath()).getName().replace(OVERRIDE_FILE_TYPE, "");
 				if (modelOverrides.containsKey(name)) {
-					LOGGER.warn("ERROR: Can't have 2 model overrides with the same name! "+key);
+                    LOGGER.warn("ERROR: Can't have 2 model overrides with the same name! {}", key);
 					return;
 				}
 				JsonObject json = UtilParse.GSON.fromJson(resource.openAsReader(), JsonObject.class);
 				modelOverrides.put(name, new ModelOverrides(json));
-				LOGGER.debug("ADDING OVERRIDE = "+key);
+                LOGGER.debug("ADDING OVERRIDE = {}", key);
 			} catch (Exception e) {
-				LOGGER.warn("ERROR: SKIPPING "+key.toString());
+                LOGGER.warn("ERROR: SKIPPING {} because {}", key.toString(), e.getMessage());
 				e.printStackTrace();
 			}
 		});
