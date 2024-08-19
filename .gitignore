@@ -47,3 +47,4 @@ aoa_graphs/~$aoa_graphs.xlsx
 !.idea/
 .idea/*
 !.idea/icon.svg
+/local.properties
