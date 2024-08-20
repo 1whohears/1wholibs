@@ -55,5 +55,16 @@ public class CustomAnimsBuilder {
 		anim.addProperty("rot_rate", rot_rate);
 		return this;
 	}
+
+	public CustomAnimsBuilder addAlwaysHideAnim(String model_part_key) {
+		JsonObject anim = createAnimJson(model_part_key);
+		anim.addProperty("anim_id", "always_hide");
+		return this;
+	}
+
+	public CustomAnimsBuilder addAlwaysHideAnims(String... model_part_keys) {
+		for (String key : model_part_keys) addAlwaysHideAnim(key);
+		return this;
+	}
 	
 }

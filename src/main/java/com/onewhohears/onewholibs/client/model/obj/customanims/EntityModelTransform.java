@@ -44,6 +44,16 @@ public abstract class EntityModelTransform<T extends Entity> {
 	public boolean isGroup() {
 		return false;
 	}
+
+	public static class AlwaysHide<T extends Entity> extends EntityModelTransform<T> {
+		public AlwaysHide(JsonObject data) {
+			super(data);
+		}
+		@Override
+		public Matrix4f getTransform(T entity, float partialTicks) {
+			return INVISIBLE;
+		}
+	}
 	
 	public static abstract class Translation<T extends Entity> extends EntityModelTransform<T> {
 		private final Vector3f bounds;

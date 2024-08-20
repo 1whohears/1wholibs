@@ -33,6 +33,7 @@ public class OWLMod {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         CustomAnims.addAnim("continuous_rotation", EntityModelTransform.ContinuousRotation::new);
+        CustomAnims.addAnim("always_hide", EntityModelTransform.AlwaysHide::new);
     }
 
 }
