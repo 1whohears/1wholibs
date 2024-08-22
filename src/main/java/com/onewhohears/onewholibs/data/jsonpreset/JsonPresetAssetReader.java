@@ -36,26 +36,30 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 	
 	@Override
 	public void onResourceManagerReload(ResourceManager manager) {
-		LOGGER.info("RELOAD ASSET: "+directory);
+        LOGGER.info("RELOAD ASSETS: {}", directory);
 		presetMap.clear();
 		registerPresetTypes();
-		manager.listResources(directory, (key) -> {
-            return key.getPath().endsWith(".json");
-		}).forEach((key, resource) -> {
-			LOGGER.debug("key = "+key);
+		manager.listResources(directory, (key) -> {return key.getPath().endsWith(".json");}).forEach((key, resource) -> {
 			try {
+				LOGGER.info("ADD: {}", key.toString());
 				JsonObject json = UtilParse.GSON.fromJson(resource.openAsReader(), JsonObject.class);
 				T data = getFromJson(key, json);
 				if (data == null) {
-					LOGGER.warn("ERROR: failed to parse preset "+key.toString());
+					LOGGER.error("ERROR: failed to parse preset {}", key.toString());
 					return;
 				}
 				if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), data);
 				else {
-					LOGGER.warn("ERROR: Can't have 2 presets with the same name! "+key.toString());
+					T otherData = presetMap.get(data.getId());
+					if (data.getPriority() >= otherData.getPriority()) {
+						presetMap.put(data.getId(), data);
+						LOGGER.debug("Preset {} is overriding {}!", key.toString(), otherData.getKey().toString());
+					} else {
+						LOGGER.debug("Preset {} was overriden by {}.", key.toString(), otherData.getKey().toString());
+					}
 				}
-			} catch (IOException e) {
-				LOGGER.warn("ERROR: SKIPPING "+key.toString());
+			} catch (Exception e) {
+				LOGGER.error("ERROR: SKIPPING {} because {}", key.toString(), e.getMessage());
 				e.printStackTrace();
 			}
 		});

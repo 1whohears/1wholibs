@@ -93,22 +93,18 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	public void readUnbakedModels(ResourceManager manager) {
 		unbakedModels.clear();
-		manager.listResources(DIRECTORY, (key) -> {
-            return key.getPath().endsWith(MODEL_FILE_TYPE);
+		manager.listResources(DIRECTORY, (key) -> {return key.getPath().endsWith(MODEL_FILE_TYPE);
         }).forEach((key, resource) -> {
 			try {
 				String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
 				if (unbakedModels.containsKey(name)) {
-                    LOGGER.warn("ERROR: Can't have 2 models with the same name! {}", key);
-					return;
+                    LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name).modelLocation);
 				}
 				ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
-				ObjModel model = ObjModel.parse(tokenizer, 
-						new ModelSettings(key, 
-							false, false, true, false, 
-							null));
+				ObjModel model = ObjModel.parse(tokenizer, new ModelSettings(key,
+						false, false, true, false, null));
 				tokenizer.close();
-				unbakedModels.putIfAbsent(name, model);
+				unbakedModels.put(name, model);
                 LOGGER.debug("ADDING MODEL = {}", key);
 			} catch (Exception e) {
                 LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());

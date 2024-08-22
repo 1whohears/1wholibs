@@ -100,23 +100,29 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager manager, ProfilerFiller profiler) {
-		LOGGER.info("APPLYING PRESETS TO COMMON CACHE "+getName());
+        LOGGER.info("APPLYING PRESETS TO COMMON CACHE {}", getName());
 		setup = false;
 		presetMap.clear();
 		map.forEach((key, je) -> { try {
-			LOGGER.info("ADD: "+key.toString()/*+" "+je.toString()*/);
+            LOGGER.info("ADD: {}", key.toString());
 			JsonObject json = UtilParse.GSON.fromJson(je, JsonObject.class);
 			T data = getFromJson(key, json);
 			if (data == null) {
-				LOGGER.warn("ERROR: failed to parse preset "+key.toString());
+                LOGGER.error("ERROR: failed to parse preset {}", key.toString());
 				return;
 			}
 			if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), data);
 			else {
-				LOGGER.warn("ERROR: Can't have 2 presets with the same name! "+key.toString());
+				T otherData = presetMap.get(data.getId());
+				if (data.getPriority() >= otherData.getPriority()) {
+					presetMap.put(data.getId(), data);
+					LOGGER.debug("Preset {} is overriding {}!", key.toString(), otherData.getKey().toString());
+				} else {
+					LOGGER.debug("Preset {} was overriden by {}.", key.toString(), otherData.getKey().toString());
+				}
 			}
 		} catch (Exception e) {
-			LOGGER.warn("ERROR: SKIPPING "+key.toString());
+            LOGGER.error("ERROR: SKIPPING {} because {}", key.toString(), e.getMessage());
 			e.printStackTrace();
 		}});
 		mergeCopyWithParentPresets();

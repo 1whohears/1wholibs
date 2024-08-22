@@ -33,6 +33,7 @@ public abstract class JsonPresetStats {
 	private final String displayName;
 	private final int sort_factor;
 	private final String copyId;
+	private final int priority;
 	private boolean hasBeenMerged = false;
 	
 	public JsonPresetStats(ResourceLocation key, JsonObject json) {
@@ -42,6 +43,7 @@ public abstract class JsonPresetStats {
 		this.displayName = UtilParse.getStringSafe(json, "displayName", "preset.dscombat."+id);
 		this.sort_factor = UtilParse.getIntSafe(json, "sort_factor", 0);
 		this.copyId = UtilParse.getStringSafe(json, "copyId", "");
+		this.priority = UtilParse.getIntSafe(json, "priority", 0);
 	}
 	
 	public abstract JsonPresetType getType();
@@ -140,5 +142,8 @@ public abstract class JsonPresetStats {
 		if (getType().is(type)) return (T) this;
 		return null;
 	}
-	
+
+    public int getPriority() {
+        return priority;
+    }
 }
