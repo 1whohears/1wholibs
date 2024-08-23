@@ -15,7 +15,6 @@ public class ObjLoaderMixin {
     @Shadow(remap = false)
     private ResourceManager manager;
 
-    //@Inject(method = "onResourceManagerReload(Lnet/minecraft/server/packs/resources/ResourceManager)V", remap = false, at = @At("TAIL"))
     @Inject(method = "onResourceManagerReload", at = @At("TAIL"))
     private void onewholibs_LoadMtlFix(ResourceManager resourceManager, CallbackInfo info) {
         manager = Minecraft.getInstance().getResourceManager();
