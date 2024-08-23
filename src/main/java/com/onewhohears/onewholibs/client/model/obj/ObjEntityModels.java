@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonObject;
@@ -93,7 +94,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	public void readUnbakedModels(ResourceManager manager) {
 		unbakedModels.clear();
-		manager.listResources(DIRECTORY, (key) -> {return key.getPath().endsWith(MODEL_FILE_TYPE);
+		manager.listResources(DIRECTORY, (key) -> { return key.getPath().endsWith(MODEL_FILE_TYPE);
         }).forEach((key, resource) -> {
 			try {
 				String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
@@ -101,8 +102,9 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
                     LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name).modelLocation);
 				}
 				ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
+				String mtlOverride = key.toString().replace(".obj", ".mtl");
 				ObjModel model = ObjModel.parse(tokenizer, new ModelSettings(key,
-						false, false, true, false, null));
+						false, false, true, false, mtlOverride));
 				tokenizer.close();
 				unbakedModels.put(name, model);
                 LOGGER.debug("ADDING MODEL = {}", key);

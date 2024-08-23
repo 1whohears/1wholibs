@@ -1,12 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.onewhohears.onewholibs.mixin",
+  "package": "com.onewhohears.onewholibs.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "onewholibs.refmap.json",
   "mixins": [
   ],
   "client": [
+    "ObjLoaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
