@@ -20,8 +20,10 @@ public class ToClientDataPackSync {
 		GetJsonPresetListenersEvent event = new GetJsonPresetListenersEvent();
 		MinecraftForge.EVENT_BUS.post(event);
 		List<JsonPresetReloadListener<?>> listeners = event.getListeners();
-		for (JsonPresetReloadListener<?> listener : listeners)
+		for (JsonPresetReloadListener<?> listener : listeners) {
+			listener.registerDefaultPresetTypes();
 			listener.readBuffer(buffer);
+		}
 	}
 
 	public void encode(FriendlyByteBuf buffer) {
