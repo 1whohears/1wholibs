@@ -10,14 +10,14 @@ import net.minecraft.nbt.CompoundTag;
  */
 public abstract class JsonPresetInstance<T extends JsonPresetStats> {
 	
-	private final T stats;
+	private final PresetStatsHolder<T> stats;
 	
-	protected JsonPresetInstance(T stats) {
+	protected JsonPresetInstance(PresetStatsHolder<T> stats) {
 		this.stats = stats;
 	}
 	
 	public T getStats() {
-		return stats;
+		return stats.get();
 	}
 	
 	public String getStatsId() {

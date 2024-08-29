@@ -2,13 +2,13 @@ package com.onewhohears.onewholibs.data.jsonpreset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonElement;
@@ -37,7 +37,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extends SimpleJsonResourceReloadListener {
 	
 	protected final Logger LOGGER = LogUtils.getLogger();
-	protected final Map<String, T> presetMap = new HashMap<>();
+	protected final Map<String, PresetStatsHolder<T>> presetMap = new HashMap<>();
 	protected final Map<String, JsonPresetType> typeMap = new HashMap<>();
 	protected boolean setup = false;
 	
@@ -50,6 +50,13 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	 */
 	@Nullable
 	public T get(String id) {
+		if (id == null) return null;
+		if (!has(id)) return null;
+		return presetMap.get(id).get();
+	}
+
+	@Nullable
+	public PresetStatsHolder<T> getHolder(String id) {
 		if (id == null) return null;
 		if (!has(id)) return null;
 		return presetMap.get(id);
@@ -99,10 +106,9 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager manager, ProfilerFiller profiler) {
+	protected void apply(Map<ResourceLocation, JsonElement> map, @NotNull ResourceManager manager, @NotNull ProfilerFiller profiler) {
         LOGGER.info("APPLYING PRESETS TO COMMON CACHE {}", getName());
 		setup = false;
-		presetMap.clear();
 		map.forEach((key, je) -> { try {
             LOGGER.info("ADD: {}", key.toString());
 			JsonObject json = UtilParse.GSON.fromJson(je, JsonObject.class);
@@ -111,11 +117,11 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
                 LOGGER.error("ERROR: failed to parse preset {}", key.toString());
 				return;
 			}
-			if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), data);
+			if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), new PresetStatsHolder<>(data));
 			else {
-				T otherData = presetMap.get(data.getId());
+				T otherData = presetMap.get(data.getId()).get();
 				if (data.getPriority() >= otherData.getPriority()) {
-					presetMap.put(data.getId(), data);
+					presetMap.put(data.getId(), new PresetStatsHolder<>(data));
 					LOGGER.debug("Preset {} is overriding {}!", key.toString(), otherData.getKey().toString());
 				} else {
 					LOGGER.debug("Preset {} was overriden by {}.", key.toString(), otherData.getKey().toString());
@@ -131,28 +137,32 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	}
 	
 	protected void mergeCopyWithParentPresets() {
-		LOGGER.info("MERGING COPYS WITH PARENT PRESETS "+getName());
-		presetMap.forEach((id, preset) -> mergeWithParent(id, preset));
+        LOGGER.info("MERGING COPIES WITH PARENT PRESETS {}", getName());
+		presetMap.forEach((id, preset) -> mergeWithParent(id, preset.get()));
 		presetMap.forEach((id, preset) -> { 
-			if (preset.isCopy()) presetMap.put(id, 
-				preset.getType().createStats(preset.getKey(), preset.copyJsonData()));
+			if (preset.get().isCopy()) presetMap.put(id, new PresetStatsHolder<>(
+					preset.get().getType().createStats(preset.get().getKey(), preset.get().copyJsonData())));
 		});
 	}
 	
 	protected void mergeWithParent(String id, T preset) {
 		if (!preset.isCopy() || preset.hasBeenMerged()) return;
 		if (!has(preset.getCopyId())) {
-			LOGGER.warn("ERROR: Preset "+preset.getCopyId()+" does not exist so "+id+" can't be merged!");
+            LOGGER.warn("ERROR: Preset {} does not exist so {} can't be merged!", preset.getCopyId(), id);
 			return;
 		}
 		T copy = get(preset.getCopyId());
+		if (copy == null) {
+            LOGGER.warn("MERGE FAIL: {} can't merge because {} doesn't exist!", id, preset.getCopyId());
+			return;
+		}
 		if (copy.isCopy() && !copy.hasBeenMerged()) 
 			mergeWithParent(copy.getId(), copy);
 		if (!preset.mergeWithParent(copy)) {
-			LOGGER.warn("MERGE FAIL: "+id+" with "+copy.getId());
+            LOGGER.warn("MERGE FAIL: {} with {}", id, copy.getId());
 			return;
 		}
-		LOGGER.info("MERGED: "+id+" with "+copy.getId());
+        LOGGER.info("MERGED: {} with {}", id, copy.getId());
 	}
 	
 	@Nullable
@@ -186,13 +196,13 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	public void writeToBuffer(FriendlyByteBuf buffer) {
 		buffer.writeInt(getNum());
 		presetMap.forEach((id, preset) -> {
-			buffer.writeUtf(preset.getKey().toString());
-			buffer.writeUtf(preset.getJsonData().toString());
+			buffer.writeUtf(preset.get().getKey().toString());
+			buffer.writeUtf(preset.get().getJsonData().toString());
 		});
 	}
 	
 	public void readBuffer(FriendlyByteBuf buffer) {
-		LOGGER.debug("RECIEVING DATA FROM SERVER "+getName());
+        LOGGER.debug("RECEIVING DATA FROM SERVER {}", getName());
 		setup = false;
 		int length = buffer.readInt();
 		for (int i = 0; i < length; ++i) {
@@ -201,27 +211,28 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 			ResourceLocation key = new ResourceLocation(key_string);
 			JsonObject json = UtilParse.GSON.fromJson(json_string, JsonObject.class);
 			T data = getFromJson(key, json);
-			LOGGER.debug("ADD: "+key.toString());
-			presetMap.put(data.getId(), data);
+			if (data == null) continue;
+            LOGGER.debug("ADD: {}", key.toString());
+			presetMap.put(data.getId(), new PresetStatsHolder<>(data));
 		}
 		resetCache();
 		setup = true;
 	}
 	
 	public void sort(List<T> presets) {
-		Collections.sort(presets, (a, b) -> a.compare(b));
+		presets.sort(JsonPresetStats::compare);
 	}
 	
 	public void sort(T[] presets) {
-		Arrays.sort(presets, (a, b) -> a.compare(b));
+		Arrays.sort(presets, JsonPresetStats::compare);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <K extends T> List<K> getPresetsOfType(JsonPresetType type) {
 		List<K> presets = new ArrayList<>();
 		presetMap.forEach((id, preset) -> {
-			if (preset.getType().is(type)) 
-				presets.add((K) preset);
+			if (preset.get().getType().is(type))
+				presets.add((K) preset.get());
 		});
 		return presets;
 	}

@@ -1,6 +1,5 @@
 package com.onewhohears.onewholibs.data.jsonpreset;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implements ResourceManagerReloadListener {
 	
 	protected final Logger LOGGER = LogUtils.getLogger();
-	protected final Map<String, T> presetMap = new HashMap<>();
+	protected final Map<String, PresetStatsHolder<T>> presetMap = new HashMap<>();
 	protected final Map<String, JsonPresetType> typeMap = new HashMap<>();
 	protected final String directory;
 	
@@ -37,7 +36,6 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 	@Override
 	public void onResourceManagerReload(ResourceManager manager) {
         LOGGER.info("RELOAD ASSETS: {}", directory);
-		presetMap.clear();
 		registerPresetTypes();
 		manager.listResources(directory, (key) -> {return key.getPath().endsWith(".json");}).forEach((key, resource) -> {
 			try {
@@ -48,11 +46,11 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 					LOGGER.error("ERROR: failed to parse preset {}", key.toString());
 					return;
 				}
-				if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), data);
+				if (!presetMap.containsKey(data.getId())) presetMap.put(data.getId(), new PresetStatsHolder<>(data));
 				else {
-					T otherData = presetMap.get(data.getId());
+					T otherData = presetMap.get(data.getId()).get();
 					if (data.getPriority() >= otherData.getPriority()) {
-						presetMap.put(data.getId(), data);
+						presetMap.put(data.getId(), new PresetStatsHolder<>(data));
 						LOGGER.debug("Preset {} is overriding {}!", key.toString(), otherData.getKey().toString());
 					} else {
 						LOGGER.debug("Preset {} was overriden by {}.", key.toString(), otherData.getKey().toString());
@@ -73,6 +71,13 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 	@Nullable
 	public T get(String id) {
 		if (!presetMap.containsKey(id)) return null;
+		return presetMap.get(id).get();
+	}
+
+	@Nullable
+	public PresetStatsHolder<T> getHolder(String id) {
+		if (id == null) return null;
+		if (!presetMap.containsKey(id)) return null;
 		return presetMap.get(id);
 	}
 	
@@ -82,7 +87,7 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 		String presetType = json.get("presetType").getAsString();
 		JsonPresetType type = typeMap.get(presetType);
 		if (type == null) {
-			LOGGER.warn("ERROR: Preset Type "+presetType+" has not been registered!");
+            LOGGER.warn("ERROR: Preset Type {} has not been registered!", presetType);
 			return null;
 		}
 		return type.createStats(key, json);
