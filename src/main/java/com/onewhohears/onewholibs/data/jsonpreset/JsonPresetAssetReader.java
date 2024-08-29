@@ -55,6 +55,7 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 				e.printStackTrace();
 			}
 		});
+		mergeCopyWithParentPresets();
 		resetCache();
 		++reloads;
 	}
