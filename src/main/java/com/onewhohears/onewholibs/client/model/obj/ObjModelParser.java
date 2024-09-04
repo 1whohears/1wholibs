@@ -1,0 +1,206 @@
+package com.onewhohears.onewholibs.client.model.obj;
+
+import com.onewhohears.onewholibs.mixin.ModelGroupAccess;
+import com.onewhohears.onewholibs.mixin.ModelObjectAccess;
+import com.onewhohears.onewholibs.mixin.ObjModelAccess;
+import com.onewhohears.onewholibs.util.UtilClientReflection;
+import com.onewhohears.onewholibs.util.UtilParse;
+import joptsimple.internal.Strings;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.model.obj.ObjLoader;
+import net.minecraftforge.client.model.obj.ObjMaterialLibrary;
+import net.minecraftforge.client.model.obj.ObjModel;
+import net.minecraftforge.client.model.obj.ObjTokenizer;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+
+public class ObjModelParser {
+
+    public static ObjModel parse(ObjTokenizer tokenizer, ObjModel.ModelSettings settings) throws IOException {
+        System.out.println("ModifiedObjParse START");
+        Map<String, String> deprecationWarnings = Map.of();
+        ResourceLocation modelLocation = settings.modelLocation();
+        String materialLibraryOverrideLocation = settings.mtlOverride();
+        ObjModel model = UtilClientReflection.createNewObjModel(settings, deprecationWarnings);
+        String modelDomain = modelLocation.getNamespace();
+        String modelPath = modelLocation.getPath();
+        int lastSlash = modelPath.lastIndexOf(47);
+        if (lastSlash >= 0) {
+            modelPath = modelPath.substring(0, lastSlash + 1);
+        } else {
+            modelPath = "";
+        }
+        ObjMaterialLibrary mtllib = ObjMaterialLibrary.EMPTY;
+        ObjMaterialLibrary.Material currentMat = null;
+        String currentSmoothingGroup = null;
+        ObjModel.ModelGroup currentGroup = null;
+        ObjModel.ModelObject currentObject = null;
+        Object currentMesh = null;
+        boolean objAboveGroup = false;
+        if (materialLibraryOverrideLocation != null) {
+            if (materialLibraryOverrideLocation.contains(":")) {
+                mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(materialLibraryOverrideLocation));
+            } else {
+                mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(modelDomain, modelPath + materialLibraryOverrideLocation));
+            }
+        }
+        String[] line;
+        while ((line = tokenizer.readAndSplitLine(true)) != null) {
+            System.out.println("line = " + Arrays.toString(line));
+            String lib;
+            String var10003;
+            switch (line[0]) {
+                case "mtllib":
+                    if (materialLibraryOverrideLocation == null) {
+                        lib = line[1];
+                        if (lib.contains(":")) {
+                            mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(lib));
+                        } else {
+                            mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(modelDomain, modelPath + lib));
+                        }
+                    }
+                    break;
+                case "usemtl":
+                    lib = Strings.join((String[]) Arrays.copyOfRange(line, 1, line.length), " ");
+                    ObjMaterialLibrary.Material newMat = mtllib.getMaterial(lib);
+                    if (Objects.equals(newMat, currentMat)) {
+                        break;
+                    }
+
+                    currentMat = newMat;
+                    if (currentMesh != null && UtilClientReflection.getModelMeshMat(currentMesh) == null && UtilClientReflection.getModelMeshFaces(currentMesh).isEmpty()) {
+                        UtilClientReflection.setModelMeshMat(currentMesh, currentMat);
+                        break;
+                    }
+
+                    currentMesh = null;
+                    break;
+                case "v":
+                    ((ObjModelAccess)model).getPositions().add(UtilParse.parseVector4To3(line));
+                    break;
+                case "vt":
+                    ((ObjModelAccess)model).getTexCoords().add(UtilParse.parseVector2(line));
+                    break;
+                case "vn":
+                    ((ObjModelAccess)model).getNormals().add(UtilParse.parseVector3(line));
+                    break;
+                case "vc":
+                    ((ObjModelAccess)model).getColors().add(UtilParse.parseVector4(line));
+                    break;
+                case "f":
+                    if (currentMesh == null) {
+                        Objects.requireNonNull(model);
+                        currentMesh = UtilClientReflection.createNewModelMesh(model, currentMat, currentSmoothingGroup);
+                        if (currentObject != null) {
+                            ((ModelObjectAccess) currentObject).getMeshes().add(currentMesh);
+                        } else {
+                            if (currentGroup == null) {
+                                Objects.requireNonNull(model);
+                                currentGroup = UtilClientReflection.createModelGroup(model, "");
+                                ((ObjModelAccess)model).getParts().put("", currentGroup);
+                            }
+
+                            ((ModelObjectAccess) currentGroup).getMeshes().add(currentMesh);
+                        }
+                    }
+
+                    int[][] vertices = new int[line.length - 1][];
+
+                    for (int i = 0; i < vertices.length; ++i) {
+                        String vertexData = line[i + 1];
+                        String[] vertexParts = vertexData.split("/");
+                        int[] vertex = Arrays.stream(vertexParts).mapToInt((num) -> {
+                            return Strings.isNullOrEmpty(num) ? 0 : Integer.parseInt(num);
+                        }).toArray();
+                        int var10002;
+                        if (vertex[0] < 0) {
+                            vertex[0] += ((ObjModelAccess)model).getPositions().size();
+                        } else {
+                            var10002 = vertex[0]--;
+                        }
+
+                        if (vertex.length > 1) {
+                            if (vertex[1] < 0) {
+                                vertex[1] += ((ObjModelAccess)model).getTexCoords().size();
+                            } else {
+                                var10002 = vertex[1]--;
+                            }
+
+                            if (vertex.length > 2) {
+                                if (vertex[2] < 0) {
+                                    vertex[2] += ((ObjModelAccess)model).getNormals().size();
+                                } else {
+                                    var10002 = vertex[2]--;
+                                }
+
+                                if (vertex.length > 3) {
+                                    if (vertex[3] < 0) {
+                                        vertex[3] += ((ObjModelAccess)model).getColors().size();
+                                    } else {
+                                        var10002 = vertex[3]--;
+                                    }
+                                }
+                            }
+                        }
+
+                        vertices[i] = vertex;
+                    }
+
+                    UtilClientReflection.getModelMeshFaces(currentMesh).add(vertices);
+                    break;
+                case "s":
+                    lib = "off".equals(line[1]) ? null : line[1];
+                    if (Objects.equals(currentSmoothingGroup, lib)) {
+                        break;
+                    }
+
+                    currentSmoothingGroup = lib;
+                    if (currentMesh != null && UtilClientReflection.getModelMeshSmoothingGroup(currentMesh) == null && UtilClientReflection.getModelMeshFaces(currentMesh).isEmpty()) {
+                        UtilClientReflection.setModelMeshSmoothingGroup(currentMesh, currentSmoothingGroup);
+                        break;
+                    }
+
+                    currentMesh = null;
+                    break;
+                case "g":
+                    lib = line[1];
+                    if (objAboveGroup) {
+                        Objects.requireNonNull(model);
+                        var10003 = currentGroup.name();
+                        currentObject = UtilClientReflection.createModelObject(model, var10003 + "/" + lib);
+                        ((ModelGroupAccess)currentGroup).getParts().put(lib, currentObject);
+                    } else {
+                        Objects.requireNonNull(model);
+                        currentGroup = UtilClientReflection.createModelGroup(model, lib);
+                        ((ObjModelAccess)model).getParts().put(lib, currentGroup);
+                        currentObject = null;
+                    }
+
+                    currentMesh = null;
+                    break;
+                case "o":
+                    lib = line[1];
+                    if (!objAboveGroup && currentGroup != null) {
+                        Objects.requireNonNull(model);
+                        var10003 = currentGroup.name();
+                        currentObject = UtilClientReflection.createModelObject(model, var10003 + "/" + lib);
+                        ((ModelGroupAccess) currentGroup).getParts().put(lib, currentObject);
+                    } else {
+                        objAboveGroup = true;
+                        Objects.requireNonNull(model);
+                        currentGroup = UtilClientReflection.createModelGroup(model, lib);
+                        ((ObjModelAccess)model).getParts().put(lib, currentGroup);
+                        currentObject = null;
+                    }
+
+                    currentMesh = null;
+            }
+        }
+        System.out.println("ModifiedObjParse END");
+        return model;
+    }
+
+}

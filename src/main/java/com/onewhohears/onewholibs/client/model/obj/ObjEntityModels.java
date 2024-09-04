@@ -103,7 +103,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 				}
 				ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
 				String mtlOverride = key.toString().replace(".obj", ".mtl");
-				ObjModel model = ObjModel.parse(tokenizer, new ModelSettings(key,
+				ObjModel model = ObjModelParser.parse(tokenizer, new ModelSettings(key,
 						false, false, true, false, mtlOverride));
 				tokenizer.close();
 				unbakedModels.put(name, model);

@@ -4,9 +4,11 @@
   "package": "com.onewhohears.onewholibs.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "onewholibs.refmap.json",
-  "mixins": [
-  ],
+  "mixins": [],
   "client": [
+    "ModelObjectAccess",
+    "ModelGroupAccess",
+    "ObjModelAccess",
     "ObjLoaderMixin"
   ],
   "injectors": {

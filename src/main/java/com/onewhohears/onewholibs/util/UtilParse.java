@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
+import com.mojang.math.Vector4f;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -273,6 +274,47 @@ public class UtilParse {
 		v.addProperty("y", vec.y());
 		v.addProperty("z", vec.z());
 		json.add(name, v);
+	}
+
+	public static Vector3f parseVector4To3(String[] line) {
+		Vector4f vec4 = parseVector4(line);
+		return new Vector3f(vec4.x() / vec4.w(), vec4.y() / vec4.w(), vec4.z() / vec4.w());
+	}
+
+	public static Vec2 parseVector2(String[] line) {
+		Vec2 var10000;
+		switch (line.length) {
+			case 1 -> var10000 = new Vec2(0.0F, 0.0F);
+			case 2 -> var10000 = new Vec2(Float.parseFloat(line[1]), 0.0F);
+			default -> var10000 = new Vec2(Float.parseFloat(line[1]), Float.parseFloat(line[2]));
+		}
+
+		return var10000;
+	}
+
+	public static Vector3f parseVector3(String[] line) {
+		Vector3f var10000;
+		switch (line.length) {
+			case 1 -> var10000 = new Vector3f(0.0F, 0.0F, 0.0F);
+			case 2 -> var10000 = new Vector3f(Float.parseFloat(line[1]), 0.0F, 0.0F);
+			case 3 -> var10000 = new Vector3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F);
+			default -> var10000 = new Vector3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]));
+		}
+
+		return var10000;
+	}
+
+	public static Vector4f parseVector4(String[] line) {
+		Vector4f var10000;
+		switch (line.length) {
+			case 1 -> var10000 = new Vector4f(0.0F, 0.0F, 0.0F, 1.0F);
+			case 2 -> var10000 = new Vector4f(Float.parseFloat(line[1]), 0.0F, 0.0F, 1.0F);
+			case 3 -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F, 1.0F);
+			case 4 -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), 1.0F);
+			default -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), Float.parseFloat(line[4]));
+		}
+
+		return var10000;
 	}
 	
 }
