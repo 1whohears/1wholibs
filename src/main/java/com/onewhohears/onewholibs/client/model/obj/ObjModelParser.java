@@ -64,7 +64,7 @@ public class ObjModelParser {
                     }
                     break;
                 case "usemtl":
-                    lib = Strings.join((String[]) Arrays.copyOfRange(line, 1, line.length), " ");
+                    lib = Strings.join(Arrays.copyOfRange(line, 1, line.length), " ");
                     ObjMaterialLibrary.Material newMat = mtllib.getMaterial(lib);
                     if (Objects.equals(newMat, currentMat)) {
                         break;
@@ -112,35 +112,33 @@ public class ObjModelParser {
                     for (int i = 0; i < vertices.length; ++i) {
                         String vertexData = line[i + 1];
                         String[] vertexParts = vertexData.split("/");
-                        int[] vertex = Arrays.stream(vertexParts).mapToInt((num) -> {
-                            return Strings.isNullOrEmpty(num) ? 0 : Integer.parseInt(num);
-                        }).toArray();
-                        int var10002;
+                        int[] vertex = Arrays.stream(vertexParts).mapToInt(
+                                (num) -> Strings.isNullOrEmpty(num) ? 0 : Integer.parseInt(num)).toArray();
                         if (vertex[0] < 0) {
                             vertex[0] += ((ObjModelAccess)model).getPositions().size();
                         } else {
-                            var10002 = vertex[0]--;
+                            vertex[0]--;
                         }
 
                         if (vertex.length > 1) {
                             if (vertex[1] < 0) {
                                 vertex[1] += ((ObjModelAccess)model).getTexCoords().size();
                             } else {
-                                var10002 = vertex[1]--;
+                                vertex[1]--;
                             }
 
                             if (vertex.length > 2) {
                                 if (vertex[2] < 0) {
                                     vertex[2] += ((ObjModelAccess)model).getNormals().size();
                                 } else {
-                                    var10002 = vertex[2]--;
+                                    vertex[2]--;
                                 }
 
                                 if (vertex.length > 3) {
                                     if (vertex[3] < 0) {
                                         vertex[3] += ((ObjModelAccess)model).getColors().size();
                                     } else {
-                                        var10002 = vertex[3]--;
+                                        vertex[3]--;
                                     }
                                 }
                             }
