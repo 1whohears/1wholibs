@@ -35,7 +35,6 @@ public class UtilClientReflection {
 
     public static Object createNewModelMesh(ObjModel model, @Nullable ObjMaterialLibrary.@Nullable Material currentMat, String currentSmoothingGroup) {
         if (modelMeshConstructor == null) {
-            System.out.println("ObjModel declared classes "+Arrays.toString(ObjModel.class.getDeclaredClasses()));
             Class<?> modelMeshClass = ObjModel.class.getDeclaredClasses()[1];
             modelMeshConstructor = modelMeshClass.getDeclaredConstructors()[0];
             modelMeshConstructor.setAccessible(true);

@@ -18,9 +18,12 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ObjModelParser {
-
+    /**
+     * forge's obj model parse code does not correctly deal with multi layered groups.
+     * so I copied forge's obj model parse code, made some accessor mixins/reflection code,
+     * and modified how it handles objects (o) and groups (g).
+     */
     public static ObjModel parse(ObjTokenizer tokenizer, ObjModel.ModelSettings settings) throws IOException {
-        System.out.println("ModifiedObjParse START");
         Map<String, String> deprecationWarnings = Map.of();
         ResourceLocation modelLocation = settings.modelLocation();
         String materialLibraryOverrideLocation = settings.mtlOverride();
@@ -39,7 +42,6 @@ public class ObjModelParser {
         ObjModel.ModelGroup currentGroup = null;
         ObjModel.ModelObject currentObject = null;
         Object currentMesh = null;
-        boolean objAboveGroup = false;
         if (materialLibraryOverrideLocation != null) {
             if (materialLibraryOverrideLocation.contains(":")) {
                 mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(materialLibraryOverrideLocation));
@@ -49,9 +51,7 @@ public class ObjModelParser {
         }
         String[] line;
         while ((line = tokenizer.readAndSplitLine(true)) != null) {
-            System.out.println("line = " + Arrays.toString(line));
             String lib;
-            String var10003;
             switch (line[0]) {
                 case "mtllib":
                     if (materialLibraryOverrideLocation == null) {
@@ -166,40 +166,41 @@ public class ObjModelParser {
                     currentMesh = null;
                     break;
                 case "g":
-                    lib = line[1];
-                    if (objAboveGroup) {
-                        Objects.requireNonNull(model);
-                        var10003 = currentGroup.name();
-                        currentObject = UtilClientReflection.createModelObject(model, var10003 + "/" + lib);
-                        ((ModelGroupAccess)currentGroup).getParts().put(lib, currentObject);
+                    String groupName = line[line.length-1];
+                    Objects.requireNonNull(model);
+                    if (((ObjModelAccess)model).getParts().containsKey(groupName)) {
+                        currentGroup = ((ObjModelAccess) model).getParts().get(groupName);
                     } else {
-                        Objects.requireNonNull(model);
-                        currentGroup = UtilClientReflection.createModelGroup(model, lib);
-                        ((ObjModelAccess)model).getParts().put(lib, currentGroup);
-                        currentObject = null;
+                        currentGroup = UtilClientReflection.createModelGroup(model, groupName);
+                        ((ObjModelAccess)model).getParts().put(groupName, currentGroup);
                     }
-
+                    for (int i = line.length-2; i >= 1; --i) {
+                        groupName = line[i];
+                        ObjModel.ModelGroup prevGroup = currentGroup;
+                        if (((ModelGroupAccess)prevGroup).getParts().containsKey(groupName)) {
+                            currentGroup = (ObjModel.ModelGroup) ((ModelGroupAccess)prevGroup).getParts().get(groupName);
+                        } else {
+                            currentGroup = UtilClientReflection.createModelGroup(model, groupName);
+                        }
+                        ((ModelGroupAccess)prevGroup).getParts().put(groupName, currentGroup);
+                    }
+                    currentObject = null;
                     currentMesh = null;
                     break;
                 case "o":
                     lib = line[1];
-                    if (!objAboveGroup && currentGroup != null) {
-                        Objects.requireNonNull(model);
-                        var10003 = currentGroup.name();
-                        currentObject = UtilClientReflection.createModelObject(model, var10003 + "/" + lib);
+                    Objects.requireNonNull(model);
+                    if (currentGroup != null) {
+                        currentObject = UtilClientReflection.createModelObject(model, lib);
                         ((ModelGroupAccess) currentGroup).getParts().put(lib, currentObject);
                     } else {
-                        objAboveGroup = true;
-                        Objects.requireNonNull(model);
-                        currentGroup = UtilClientReflection.createModelGroup(model, lib);
-                        ((ObjModelAccess)model).getParts().put(lib, currentGroup);
-                        currentObject = null;
+                        currentObject = UtilClientReflection.createModelGroup(model, lib);
+                        ((ObjModelAccess)model).getParts().put(lib, (ObjModel.ModelGroup) currentObject);
                     }
-
                     currentMesh = null;
+                    break;
             }
         }
-        System.out.println("ModifiedObjParse END");
         return model;
     }
 
