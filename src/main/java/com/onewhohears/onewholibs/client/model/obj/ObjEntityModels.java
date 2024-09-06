@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonObject;
@@ -86,7 +85,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	@Override
 	public void onResourceManagerReload(ResourceManager manager) {
-		LOGGER.info("RELOAD ASSET: "+DIRECTORY);
+		LOGGER.info("RELOAD ASSETS: "+DIRECTORY);
 		readUnbakedModels(manager);
 		readModelOverrides(manager);
 		bakeModels();
@@ -94,8 +93,8 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	public void readUnbakedModels(ResourceManager manager) {
 		unbakedModels.clear();
-		manager.listResources(DIRECTORY, (key) -> { return key.getPath().endsWith(MODEL_FILE_TYPE);
-        }).forEach((key, resource) -> {
+		manager.listResources(DIRECTORY, (key) -> key.getPath().endsWith(MODEL_FILE_TYPE))
+				.forEach((key, resource) -> {
 			try {
 				String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
 				if (unbakedModels.containsKey(name)) {
@@ -117,9 +116,8 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 	
 	public void readModelOverrides(ResourceManager manager) {
 		modelOverrides.clear();
-		manager.listResources(DIRECTORY, (key) -> {
-            return key.getPath().endsWith(OVERRIDE_FILE_TYPE);
-		}).forEach((key, resource) -> {
+		manager.listResources(DIRECTORY, (key) -> key.getPath().endsWith(OVERRIDE_FILE_TYPE))
+				.forEach((key, resource) -> {
 			try {
 				String name = new File(key.getPath()).getName().replace(OVERRIDE_FILE_TYPE, "");
 				if (modelOverrides.containsKey(name)) {

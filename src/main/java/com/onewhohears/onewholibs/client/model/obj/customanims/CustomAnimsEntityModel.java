@@ -19,7 +19,7 @@ import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms
  */
 public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> {
 	
-	private final Map<String, EntityModelTransform<T>> transforms = new HashMap<>();
+	protected final Map<String, EntityModelTransform<T>> transforms = new HashMap<>();
 	
 	public CustomAnimsEntityModel(String model_id, JsonArray anims) {
 		super(model_id);
@@ -41,7 +41,7 @@ public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> 
 	
 	@Override
 	protected Transforms getComponentTransforms(T entity, float partialTicks) {
-		ImmutableMap.Builder<String, Matrix4f> builder = ImmutableMap.<String, Matrix4f>builder();
+		ImmutableMap.Builder<String, Matrix4f> builder = ImmutableMap.builder();
 		for (EntityModelTransform<T> trans : transforms.values())
 			builder.put(trans.getKey(), trans.getTransform(entity, partialTicks));
 		return Transforms.of(builder.build());
