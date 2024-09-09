@@ -2,10 +2,14 @@ package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.math.Matrix4f;
-import net.minecraft.world.entity.Entity;
 
-public interface KeyframeAnimation<T extends Entity> {
-    boolean isAnimationActive(T entity);
-    void applyAnimation(ImmutableMap.Builder<String, Matrix4f> builder, T entity, float partialTicks);
+public interface KeyframeAnimation {
+    /**
+     * @return animation length in seconds
+     */
     float getAnimationLength();
+    void applyAnimationAtSecond(ImmutableMap.Builder<String, Matrix4f> builder, float seconds);
+    default void applyAnimationAtPercent(ImmutableMap.Builder<String, Matrix4f> builder, float percent) {
+        applyAnimationAtSecond(builder, getAnimationLength() * percent);
+    }
 }

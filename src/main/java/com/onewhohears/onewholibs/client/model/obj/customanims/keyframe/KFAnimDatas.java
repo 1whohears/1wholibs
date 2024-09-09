@@ -32,7 +32,7 @@ public class KFAnimDatas implements ResourceManagerReloadListener {
 
     private KFAnimDatas() {}
 
-    Override
+    @Override
     public void onResourceManagerReload(ResourceManager manager) {
         LOGGER.info("RELOAD ASSETS: "+DIRECTORY);
         manager.listResources(DIRECTORY, (key) -> key.getPath().endsWith(FILE_TYPE))
