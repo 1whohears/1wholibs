@@ -1,41 +1,44 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe;
 
 import com.google.gson.JsonObject;
+import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetInstance;
+import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.util.UtilParse;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
-public class KFAnimData {
+public abstract class KFAnimData extends JsonPresetStats {
 
-    private final String id;
+    private final String animation_player;
     private final String animation_id;
-    private final String animation_type;
-    private final String trigger;
-    private final String controller;
 
-    public KFAnimData(String id, JsonObject json) {
-        this.id = id;
+    private KeyframeAnimationPlayer<?> player;
+
+    public KFAnimData(ResourceLocation key, JsonObject json) {
+        super(key, json);
+        animation_player = UtilParse.getStringSafe(json, "animation_player", "");
         animation_id = UtilParse.getStringSafe(json, "animation_id", "");
-        animation_type = UtilParse.getStringSafe(json, "animation_type", "");
-        trigger = UtilParse.getStringSafe(json, "trigger", "");
-        controller = UtilParse.getStringSafe(json, "controller", "");
     }
 
-    public String getId() {
-        return id;
+    @Override
+    public @Nullable JsonPresetInstance<?> createPresetInstance() {
+        return null;
     }
 
-    public String getAnimationType() {
-        return animation_type;
-    }
-
-    public String getTriggerId() {
-        return trigger;
-    }
-
-    public String getControllerId() {
-        return controller;
+    public String getAnimationPlayerId() {
+        return animation_player;
     }
 
     public String getAnimationId() {
         return animation_id;
     }
+
+    public abstract KeyframeAnimation getAnimation();
+
+    public <T extends Entity> KeyframeAnimationPlayer<T> getAnimationPlayer() {
+        if (player == null) player = KFAnimPlayers.createAnimationPlayer(getAnimationPlayerId(), this);
+        return (KeyframeAnimationPlayer<T>) player;
+    }
+
 }

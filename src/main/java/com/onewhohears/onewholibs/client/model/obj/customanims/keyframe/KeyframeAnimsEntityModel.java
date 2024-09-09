@@ -12,11 +12,26 @@ import java.util.List;
 
 public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntityModel<T> {
 
-    protected final List<KeyframeAnimationPlayer<T>> keyframeAnimations;
+    private List<KeyframeAnimationPlayer<T>> keyframeAnimations;
+    private String[] anim_data_ids;
 
     public KeyframeAnimsEntityModel(String model_id, JsonArray transforms, List<KeyframeAnimationPlayer<T>> keyframeAnimations) {
         super(model_id, transforms);
         this.keyframeAnimations = keyframeAnimations;
+    }
+
+    public KeyframeAnimsEntityModel(String model_id, List<KeyframeAnimationPlayer<T>> keyframeAnimations) {
+        this(model_id, new JsonArray(), keyframeAnimations);
+    }
+
+    public KeyframeAnimsEntityModel(String model_id, JsonArray transforms, String... anim_data_ids) {
+        super(model_id, transforms);
+        this.anim_data_ids = anim_data_ids;
+    }
+
+    public KeyframeAnimsEntityModel(String model_id, String... anim_data_ids) {
+        super(model_id, new JsonArray());
+        this.anim_data_ids = anim_data_ids;
     }
 
     @Override
@@ -24,9 +39,15 @@ public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntit
         ImmutableMap.Builder<String, Matrix4f> builder = ImmutableMap.builder();
         for (EntityModelTransform<T> trans : transforms.values())
             builder.put(trans.getKey(), trans.getTransform(entity, partialTicks));
-        for (KeyframeAnimationPlayer<T> anim : keyframeAnimations)
+        for (KeyframeAnimationPlayer<T> anim : getKeyframeAnimations())
             if (anim.isAnimationActive(entity))
                 anim.applyAnimation(builder, entity, partialTicks);
         return CompositeRenderable.Transforms.of(builder.build());
+    }
+
+    public List<KeyframeAnimationPlayer<T>> getKeyframeAnimations() {
+        if (keyframeAnimations == null && anim_data_ids != null)
+            keyframeAnimations = KFAnimPlayers.getAnimPlayersFromDataIds(anim_data_ids);
+        return keyframeAnimations;
     }
 }

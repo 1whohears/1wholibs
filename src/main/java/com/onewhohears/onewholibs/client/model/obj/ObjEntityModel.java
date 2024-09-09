@@ -48,11 +48,11 @@ public class ObjEntityModel<T extends Entity> {
 		Quaternion yRot = Vector3f.YN.rotationDegrees(entity.getViewYRot(partialTicks));
 		Quaternion xRot = Vector3f.XP.rotationDegrees(entity.getViewXRot(partialTicks));
 		if (!UtilGeometry.isZero(pivot)) {
-			poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, yRot));
-			poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, xRot));
+			if (globalRotateY()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, yRot));
+			if (globalRotateX()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, xRot));
 		} else {
-			poseStack.mulPose(yRot);
-			poseStack.mulPose(xRot);
+			if (globalRotateY()) poseStack.mulPose(yRot);
+			if (globalRotateX()) poseStack.mulPose(xRot);
 		}
 	}
 	
@@ -90,6 +90,14 @@ public class ObjEntityModel<T extends Entity> {
 	
 	public Vector3f getGlobalPivot() {
 		return getModelOverride().translate;
+	}
+
+	public boolean globalRotateX() {
+		return true;
+	}
+
+	public boolean globalRotateY() {
+		return true;
 	}
 	
 }

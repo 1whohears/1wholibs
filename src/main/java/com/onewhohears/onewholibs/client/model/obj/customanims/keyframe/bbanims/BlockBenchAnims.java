@@ -10,13 +10,10 @@ import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class BlockBenchAnims implements KeyframeAnimParser {
@@ -57,7 +54,10 @@ public class BlockBenchAnims implements KeyframeAnimParser {
                 String pivotLoc = key.getNamespace()+":"+DIRECTORY+"/"+name+PIVOTS_FILE_TYPE;
                 Optional<Resource> pivotRec = manager.getResource(new ResourceLocation(pivotLoc));
                 Map<String, Vector3f> pivots = new HashMap<>();
-                if (pivotRec.isPresent()) readPivots(pivotRec.get(), pivots);
+                if (pivotRec.isPresent()) {
+                    readPivots(pivotRec.get(), pivots);
+                    LOGGER.debug("PIVOTS: {} {}", name, pivots.size());
+                }
                 processBBJson(name, json, pivots);
             } catch (Exception e) {
                 LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());
@@ -91,6 +91,7 @@ public class BlockBenchAnims implements KeyframeAnimParser {
         for (Map.Entry<String, JsonElement> animJson : animJsons) {
             String animName = fileName + "." + animJson.getKey();
             animMap.put(animName, getBBAnimFromJson(animJson.getValue().getAsJsonObject(), pivots));
+            LOGGER.debug("ADD: {}", animName);
         }
     }
 

@@ -7,5 +7,11 @@ import net.minecraft.world.entity.Entity;
 public interface KeyframeAnimationPlayer<T extends Entity> {
     boolean isAnimationActive(T entity);
     void applyAnimation(ImmutableMap.Builder<String, Matrix4f> builder, T entity, float partialTicks);
-    KeyframeAnimation getAnimation();
+    KFAnimData getAnimationStats();
+    default float getAnimationLength() {
+        return getAnimationStats().getAnimation().getAnimationLength();
+    }
+    default KeyframeAnimation getAnimation() {
+        return getAnimationStats().getAnimation();
+    }
 }

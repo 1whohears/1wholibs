@@ -53,7 +53,7 @@ public abstract class JsonPresetGenerator<T extends JsonPresetStats> implements 
 		registerPresets();
 		Set<ResourceLocation> set = Sets.newHashSet();
 		Consumer<T> consumer = (preset) -> {
-			LOGGER.debug("GENERATING: "+preset.getKey().toString());
+            LOGGER.debug("GENERATING: {}", preset.getKey().toString());
 			if (!set.add(preset.getKey())) {
 				throw new IllegalStateException("Duplicate Preset! " + preset.getKey());
 			} else {

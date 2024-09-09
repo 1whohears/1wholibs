@@ -4,12 +4,15 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.math.Matrix4f;
 import net.minecraft.world.entity.Entity;
 
-public abstract class ControllableAnimPlayer<T extends Entity> extends TriggerableAnimPlayer<T> {
+public class ControllableAnimPlayer<T extends Entity> extends TriggerableAnimPlayer<T> {
 
+    private final KFAnimData stats;
     private final KeyframeAnimationController<T> controller;
 
-    public ControllableAnimPlayer(KeyframeAnimationTrigger<T> trigger, KeyframeAnimationController<T> controller) {
+    public ControllableAnimPlayer(KFAnimData stats, KeyframeAnimationTrigger<T> trigger,
+                                  KeyframeAnimationController<T> controller) {
         super(trigger);
+        this.stats = stats;
         this.controller = controller;
     }
 
@@ -22,8 +25,12 @@ public abstract class ControllableAnimPlayer<T extends Entity> extends Triggerab
         applyAnimationAtTime(builder, getAnimationTime(entity, partialTicks));
     }
 
-    public float getAnimationTime(T entity, float partialTicks) {
-        return controller.getAnimationSeconds(entity, partialTicks, getAnimation().getAnimationLength());
+    @Override
+    public KFAnimData getAnimationStats() {
+        return stats;
     }
 
+    public float getAnimationTime(T entity, float partialTicks) {
+        return controller.getAnimationSeconds(entity, partialTicks, getAnimationLength());
+    }
 }

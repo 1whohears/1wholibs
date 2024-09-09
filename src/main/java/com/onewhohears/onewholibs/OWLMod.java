@@ -3,7 +3,11 @@ package com.onewhohears.onewholibs;
 import com.mojang.logging.LogUtils;
 import com.onewhohears.onewholibs.client.model.obj.customanims.CustomAnims;
 import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransform;
+import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.BasicControllers;
+import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.ControllableAnimPlayer;
+import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
 import com.onewhohears.onewholibs.common.network.PacketHandler;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -34,6 +38,14 @@ public class OWLMod {
     private void clientSetup(final FMLClientSetupEvent event) {
         CustomAnims.addAnim("continuous_rotation", EntityModelTransform.ContinuousRotation::new);
         CustomAnims.addAnim("always_hide", EntityModelTransform.AlwaysHide::new);
+        KFAnimPlayers.addAnimationPlayerFactory("always", (data) -> new ControllableAnimPlayer<>(data,
+                entity -> true, BasicControllers.continuous()));
+        KFAnimPlayers.addAnimationPlayerFactory("ground_move", (data) -> new ControllableAnimPlayer<>(data,
+                entity -> entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                BasicControllers.continuous()));
+        KFAnimPlayers.addAnimationPlayerFactory("air_move", (data) -> new ControllableAnimPlayer<>(data,
+                entity -> !entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                BasicControllers.continuous()));
     }
 
 }

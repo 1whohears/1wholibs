@@ -6,6 +6,7 @@
   "refmap": "onewholibs.refmap.json",
   "mixins": [],
   "client": [
+    "CompositeRenderableBuilderMixin",
     "ModelObjectAccess",
     "ModelGroupAccess",
     "ObjModelAccess",
