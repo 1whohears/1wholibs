@@ -38,13 +38,12 @@ public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> 
 			} else transforms.put(model_part_key, t);
 		}
 	}
-	
+
 	@Override
-	protected Transforms getComponentTransforms(T entity, float partialTicks) {
-		ImmutableMap.Builder<String, Matrix4f> builder = ImmutableMap.builder();
-		for (EntityModelTransform<T> trans : transforms.values())
-			builder.put(trans.getKey(), trans.getTransform(entity, partialTicks));
-		return Transforms.of(builder.build());
+	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+		super.addComponentTransforms(transforms, entity, partialTicks);
+		for (EntityModelTransform<T> trans : this.transforms.values())
+			transforms.put(trans.getKey(), trans.getTransform(entity, partialTicks));
 	}
-	
+
 }

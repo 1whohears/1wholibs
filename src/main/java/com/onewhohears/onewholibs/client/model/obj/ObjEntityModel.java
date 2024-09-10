@@ -1,5 +1,6 @@
 package com.onewhohears.onewholibs.client.model.obj;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
@@ -16,6 +17,9 @@ import net.minecraftforge.client.model.renderable.CompositeRenderable;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
 import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * See {@link com.onewhohears.onewholibs.client.renderer.RendererObjEntity}.
  * An obj and mtl file with the same name as {@link #modelId} must be put in
@@ -27,6 +31,8 @@ public class ObjEntityModel<T extends Entity> {
 	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
 	
 	public final String modelId;
+
+	private final Map<String, Matrix4f> transforms = new HashMap<>();
 	
 	private CompositeRenderable model;
 	private ModelOverrides modelOverride;
@@ -73,7 +79,14 @@ public class ObjEntityModel<T extends Entity> {
 	}
 	
 	protected Transforms getComponentTransforms(T entity, float partialTicks) {
-		return Transforms.EMPTY;
+		transforms.clear();
+		addComponentTransforms(transforms, entity, partialTicks);
+		if (transforms.isEmpty()) return Transforms.EMPTY;
+		return Transforms.of(ImmutableMap.<String,Matrix4f>builder().putAll(transforms).build());
+	}
+
+	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+
 	}
 	
 	protected ITextureRenderTypeLookup getTextureRenderTypeLookup(T entity) {

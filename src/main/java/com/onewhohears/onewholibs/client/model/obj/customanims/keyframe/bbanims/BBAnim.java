@@ -34,8 +34,8 @@ public class BBAnim implements KeyframeAnimation {
     }
 
     @Override
-    public void applyAnimationAtSecond(ImmutableMap.Builder<String, Matrix4f> builder, float seconds) {
-        bones.forEach((bone) -> bone.applyAnimationAtSecond(builder, seconds));
+    public void applyAnimationAtSecond(Map<String, Matrix4f> transforms, float seconds) {
+        bones.forEach((bone) -> bone.applyAnimationAtSecond(transforms, seconds));
     }
 
     public Map<String, Vector3f> getPivots() {
@@ -63,13 +63,13 @@ public class BBAnim implements KeyframeAnimation {
             this.translation = new Translation(UtilParse.getJsonSafe(json, "position"));
             this.scale = new Scale(UtilParse.getJsonSafe(json, "scale"));
         }
-        public void applyAnimationAtSecond(ImmutableMap.Builder<String, Matrix4f> builder, float seconds) {
+        public void applyAnimationAtSecond(Map<String, Matrix4f> transforms, float seconds) {
             Matrix4f mat = new Matrix4f();
             mat.setIdentity();
             if (!rotation.isEmpty) mat.multiply(rotation.getTransformAtSecond(seconds, pivotX, pivotY, pivotZ));
             if (!translation.isEmpty) mat.multiply(translation.getTransformAtSecond(seconds, pivotX, pivotY, pivotZ));
             if (!scale.isEmpty) mat.multiply(scale.getTransformAtSecond(seconds, pivotX, pivotY, pivotZ));
-            builder.put(name, mat);
+            transforms.put(name, mat);
         }
     }
 

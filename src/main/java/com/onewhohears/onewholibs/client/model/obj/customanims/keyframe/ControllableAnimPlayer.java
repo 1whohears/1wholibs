@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.math.Matrix4f;
 import net.minecraft.world.entity.Entity;
 
+import java.util.Map;
+
 public class ControllableAnimPlayer<T extends Entity> extends TriggerableAnimPlayer<T> {
 
     private final KFAnimData stats;
@@ -16,13 +18,13 @@ public class ControllableAnimPlayer<T extends Entity> extends TriggerableAnimPla
         this.controller = controller;
     }
 
-    public void applyAnimationAtTime(ImmutableMap.Builder<String, Matrix4f> builder, float animationTime) {
-        getAnimation().applyAnimationAtSecond(builder, animationTime);
+    public void applyAnimationAtTime(Map<String, Matrix4f> transforms, float animationTime) {
+        getAnimation().applyAnimationAtSecond(transforms, animationTime);
     }
 
     @Override
-    public void applyAnimation(ImmutableMap.Builder<String, Matrix4f> builder, T entity, float partialTicks) {
-        applyAnimationAtTime(builder, getAnimationTime(entity, partialTicks));
+    public void applyAnimation(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+        applyAnimationAtTime(transforms, getAnimationTime(entity, partialTicks));
     }
 
     @Override

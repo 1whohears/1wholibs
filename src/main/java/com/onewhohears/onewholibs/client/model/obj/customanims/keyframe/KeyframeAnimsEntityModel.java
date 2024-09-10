@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.model.renderable.CompositeRenderable;
 
 import java.util.List;
+import java.util.Map;
 
 public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntityModel<T> {
 
@@ -35,14 +36,11 @@ public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntit
     }
 
     @Override
-    protected CompositeRenderable.Transforms getComponentTransforms(T entity, float partialTicks) {
-        ImmutableMap.Builder<String, Matrix4f> builder = ImmutableMap.builder();
-        for (EntityModelTransform<T> trans : transforms.values())
-            builder.put(trans.getKey(), trans.getTransform(entity, partialTicks));
+    protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+        super.addComponentTransforms(transforms, entity, partialTicks);
         for (KeyframeAnimationPlayer<T> anim : getKeyframeAnimations())
             if (anim.isAnimationActive(entity))
-                anim.applyAnimation(builder, entity, partialTicks);
-        return CompositeRenderable.Transforms.of(builder.build());
+                anim.applyAnimation(transforms, entity, partialTicks);
     }
 
     public List<KeyframeAnimationPlayer<T>> getKeyframeAnimations() {
