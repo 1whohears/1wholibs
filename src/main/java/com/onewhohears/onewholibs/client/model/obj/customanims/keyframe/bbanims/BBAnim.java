@@ -1,6 +1,5 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,7 +8,9 @@ import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
+import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,40 +75,94 @@ public class BBAnim implements KeyframeAnimation {
     }
 
     public abstract static class Transform {
-        public final List<Float> times = new ArrayList<>();
-        public final List<Vector3f> transforms = new ArrayList<>();
+        public final List<Keyframe> keyframes = new ArrayList<>();
         public final boolean isEmpty;
         public Transform(JsonObject json) {
             Set<Map.Entry<String, JsonElement>> jsons = json.entrySet();
             for (Map.Entry<String, JsonElement> t : jsons) {
-                times.add(Float.parseFloat(t.getKey()));
-                JsonArray trans = t.getValue().getAsJsonArray();
-                float x = trans.get(0).getAsFloat();
-                float y = trans.get(1).getAsFloat();
-                float z = trans.get(2).getAsFloat();
-                transforms.add(new Vector3f(x, y, z));
+                float time = Float.parseFloat(t.getKey());
+                if (t.getValue().isJsonArray())
+                    keyframes.add(new Keyframe(time, t.getValue().getAsJsonArray()));
+                else if (t.getValue().isJsonObject())
+                    keyframes.add(new Keyframe(time, t.getValue().getAsJsonObject()));
             }
-            isEmpty = times.isEmpty();
+            isEmpty = keyframes.isEmpty();
         }
         public Vector3f interpolate(float time) {
             if (isEmpty) return getDefaultTransform();
-            if (time <= times.get(0)) return transforms.get(0);
-            for (int i = 1; i < times.size(); ++i) {
-                float t = times.get(i);
-                if (time == t) return transforms.get(i);
+            if (time <= keyframes.get(0).time) return keyframes.get(0).pre;
+            for (int i = 1; i < keyframes.size(); ++i) {
+                Keyframe keyframe = keyframes.get(i);
+                float t = keyframe.time;
+                if (time == t) return keyframes.get(i).post;
                 if (time > t) continue;
-                float to = times.get(i-1);
-                float p = (time - to) / (t - to);
-                Vector3f trans = transforms.get(i);
-                Vector3f transo = transforms.get(i-1);
-                return new Vector3f(Mth.lerp(p,transo.x(),trans.x()),
-                        Mth.lerp(p,transo.y(),trans.y()),
-                        Mth.lerp(p,transo.z(),trans.z()));
+
+                return keyframe.lerpWithEnd(keyframes.get(i-1), time);
             }
-            return transforms.get(transforms.size()-1);
+            return keyframes.get(keyframes.size()-1).post;
         }
         public abstract Matrix4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ);
         public abstract Vector3f getDefaultTransform();
+    }
+
+    public static class Keyframe {
+        public final float time;
+        public final Vector3f pre, post;
+        public final LerpMode lerp_mode;
+        private Vec2[][] cmrs;
+        public Keyframe(float time, JsonArray json) {
+            this.time = time;
+            pre = post = fromJsonArray(json);
+            lerp_mode = LerpMode.LINEAR;
+        }
+        public Keyframe(float time, JsonObject json) {
+            this.time = time;
+            if (json.has("post"))
+                post = fromJsonArray(json.getAsJsonArray("post"));
+            else post = Vector3f.ZERO;
+            if (json.has("pre"))
+                pre = fromJsonArray(json.getAsJsonArray("pre"));
+            else pre = post;
+            String mode = UtilParse.getStringSafe(json, "lerp_mode", "");
+            if (mode.equals("catmullrom")) lerp_mode = LerpMode.CATMULLROM;
+            else lerp_mode = LerpMode.LINEAR;
+        }
+        public Vector3f lerpWithEnd(Keyframe before, float animTime, Keyframe... surrounding) {
+            if (before.lerp_mode == LerpMode.CATMULLROM && surrounding.length == 2) {
+                if (cmrs == null) cmrs = calcCMRs(surrounding[0], before, this, surrounding[1]);
+                return new Vector3f(UtilGeometry.findYInCatmullromArray(animTime, cmrs[0]),
+                        UtilGeometry.findYInCatmullromArray(animTime, cmrs[1]),
+                        UtilGeometry.findYInCatmullromArray(animTime, cmrs[2]));
+            }
+            float p = (animTime - before.time) / (time - before.time);
+            return new Vector3f(Mth.lerp(p,before.post.x(),pre.x()),
+                    Mth.lerp(p,before.post.y(),pre.y()),
+                    Mth.lerp(p,before.post.z(),pre.z()));
+        }
+    }
+
+    private static Vec2[][] calcCMRs(Keyframe... kfs) {
+        int points = (int) ((kfs[3].time - kfs[0].time) * 30f);
+        Vec2[][] cmrs = new Vec2[3][points];
+        cmrs[0] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.x(),
+                kfs[1].time, kfs[1].post.x(), kfs[2].time, kfs[2].post.x(), kfs[3].time, kfs[3].post.x());
+        cmrs[1] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.y(),
+                kfs[1].time, kfs[1].post.y(), kfs[2].time, kfs[2].post.y(), kfs[3].time, kfs[3].post.y());
+        cmrs[2] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.z(),
+                kfs[1].time, kfs[1].post.z(), kfs[2].time, kfs[2].post.z(), kfs[3].time, kfs[3].post.z());
+        return cmrs;
+    }
+
+    public static Vector3f fromJsonArray(JsonArray json) {
+        float x = json.get(0).getAsFloat();
+        float y = json.get(1).getAsFloat();
+        float z = json.get(2).getAsFloat();
+        return new Vector3f(x, y, z);
+    }
+
+    public enum LerpMode {
+        LINEAR,
+        CATMULLROM
     }
 
     public static class Rotation extends Transform {

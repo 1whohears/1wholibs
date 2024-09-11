@@ -369,5 +369,77 @@ public class UtilGeometry {
 		float u = (D.y * bd.x - D.x * bd.y) / det;
 		return as.add(ad.scale(u));
 	}
-	
+
+	public static float[] calcCatmullromTs(float a, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
+		if (a < 0) a = 0;
+		else if (a > 1) a = 1;
+		float t0 = 0;
+		float t1 = calcT(x0, x1, y0, y1, t0, a);
+		float t2 = calcT(x1, x2, y1, y2, t1, a);
+		float t3 = calcT(x2, x3, y2, y3, t2, a);
+		return new float[] {t0, t1, t2, t3};
+	}
+
+	public static float[] calcCatmullromTs(float a, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3) {
+		return calcCatmullromTs(a, P0.x, P0.y, P1.x, P1.y, P2.x, P2.y, P3.x, P3.y);
+	}
+
+	public static float findYInCatmullromArray(float x, Vec2[] cmr) {
+		if (cmr.length == 0) return 0;
+		if (x <= cmr[0].x) return cmr[0].y;
+		for (int i = 1; i < cmr.length; ++i) {
+			Vec2 now = cmr[i];
+			if (x == now.x) return now.y;
+			if (x > now.x) continue;
+			Vec2 prev = cmr[i-1];
+			float p = (x - prev.x) / (now.x / prev.x);
+			return p * (now.y - prev.y) + prev.y;
+		}
+		return cmr[cmr.length-1].y;
+	}
+
+	public static Vec2[] catmullromArray(int points, float a, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3) {
+		if (a < 0) a = 0;
+		else if (a > 1) a = 1;
+		float[] ts = calcCatmullromTs(a, P0, P1, P2, P3);
+		float t1 = ts[1], t2 = ts[2];
+		float tDiff = t2 - t1;
+		float tStep = tDiff / (float)points;
+		Vec2[] array = new Vec2[points];
+		for (int i = 0; i < array.length; ++i)
+			array[i] = catmullrom(t1 + tStep*i, P0, P1, P2, P3, ts);
+		return array;
+	}
+
+	public static Vec2[] catmullromArray(int points, float a, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3) {
+		return catmullromArray(points, a, new Vec2(x0, y0), new Vec2(x1, y1), new Vec2(x2, y2), new Vec2(x3, y3));
+	}
+
+	public static Vec2 catmullrom(float t, float a, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3) {
+		if (a < 0) a = 0;
+		else if (a > 1) a = 1;
+		float[] ts = calcCatmullromTs(a, P0, P1, P2, P3);
+		return catmullrom(t, P0, P1, P2, P3, ts);
+	}
+
+	private static Vec2 catmullrom(float t, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3, float[] ts) {
+		float t0 = ts[0], t1 = ts[1], t2 = ts[2], t3 = ts[3];
+		if (t == t1) return P1;
+		if (t == t2) return P2;
+		Vec2 A1 = P0.scale(slope(t1, t, t1, t0)).add(P1.scale(slope(t, t0, t1, t0)));
+		Vec2 A2 = P1.scale(slope(t2, t, t2, t1)).add(P2.scale(slope(t, t1, t2, t1)));
+		Vec2 A3 = P2.scale(slope(t3, t, t3, t2)).add(P3.scale(slope(t, t2, t3, t2)));
+		Vec2 B1 = A1.scale(slope(t2, t, t2, t0)).add(A2.scale(slope(t, t0, t2, t0)));
+		Vec2 B2 = A2.scale(slope(t3, t, t3, t1)).add(A3.scale(slope(t, t1, t3, t1)));
+		return B1.scale(slope(t2, t, t2, t1)).add(B2.scale(slope(t, t1, t2, t1)));
+	}
+
+	private static float slope(float y1, float y0, float x1, float x0) {
+		return (y1 - y0) / (x1 - x0);
+	}
+
+	private static float calcT(float x0, float x1, float y0, float y1, float t0, float a) {
+		return (float)Math.pow(Mth.sqrt((float)(Math.pow(x1-x0, 2) + Math.pow(y1-y0, 2))), a) + t0;
+	}
+
 }
