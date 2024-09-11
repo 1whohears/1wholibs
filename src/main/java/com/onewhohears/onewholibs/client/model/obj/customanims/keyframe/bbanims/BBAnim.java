@@ -108,7 +108,7 @@ public class BBAnim implements KeyframeAnimation {
     }
 
     public static class Keyframe {
-        public final float time;
+        public final float time, alpha;
         public final Vector3f pre, post;
         public final LerpMode lerp_mode;
         private Vec2[][] cmrs;
@@ -116,6 +116,7 @@ public class BBAnim implements KeyframeAnimation {
             this.time = time;
             pre = post = fromJsonArray(json);
             lerp_mode = LerpMode.LINEAR;
+            alpha = 0.5f;
         }
         public Keyframe(float time, JsonObject json) {
             this.time = time;
@@ -128,16 +129,11 @@ public class BBAnim implements KeyframeAnimation {
             String mode = UtilParse.getStringSafe(json, "lerp_mode", "");
             if (mode.equals("catmullrom")) lerp_mode = LerpMode.CATMULLROM;
             else lerp_mode = LerpMode.LINEAR;
+            alpha = UtilParse.getFloatSafe(json, "alpha", 0.15f);
         }
         public Vector3f lerpWithEnd(Keyframe before, float animTime, Keyframe... surrounding) {
             if (before.lerp_mode == LerpMode.CATMULLROM && surrounding.length == 2) {
-                if (cmrs == null) {
-                    cmrs = calcCMRs(surrounding[0], before, this, surrounding[1]);
-                    System.out.println("cmrs = ");
-                    for (int i = 0; i < cmrs[1].length; ++i)
-                        System.out.print(" "+UtilParse.prettyVec2(cmrs[1][i]));
-                    System.out.println();
-                }
+                if (cmrs == null) cmrs = calcCMRs(before.alpha, surrounding[0], before, this, surrounding[1]);
                 return new Vector3f(UtilGeometry.findYInCatmullromArray(animTime, cmrs[0]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[1]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[2]));
@@ -157,15 +153,17 @@ public class BBAnim implements KeyframeAnimation {
         }
     }
 
-    private static Vec2[][] calcCMRs(Keyframe... kfs) {
-        int points = (int) ((kfs[3].time - kfs[0].time) * 30f);
+    private static Vec2[][] calcCMRs(float alpha, Keyframe... kfs) {
+        float pointsPerSecond = 30;
+        int points = (int) ((kfs[3].time - kfs[0].time) * pointsPerSecond);
         Vec2[][] cmrs = new Vec2[3][points];
-        float a = 0.5f;
-        cmrs[0] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.x(),
+        cmrs[0] = UtilGeometry.catmullromArray(points, alpha, kfs[0].time, kfs[0].post.x(),
                 kfs[1].time, kfs[1].post.x(), kfs[2].time, kfs[2].post.x(), kfs[3].time, kfs[3].post.x());
-        cmrs[1] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.y(),
+        //UtilGeometry.DEBUG_CATMULLROM = true;
+        cmrs[1] = UtilGeometry.catmullromArray(points, alpha, kfs[0].time, kfs[0].post.y(),
                 kfs[1].time, kfs[1].post.y(), kfs[2].time, kfs[2].post.y(), kfs[3].time, kfs[3].post.y());
-        cmrs[2] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.z(),
+        //UtilGeometry.DEBUG_CATMULLROM = false;
+        cmrs[2] = UtilGeometry.catmullromArray(points, alpha, kfs[0].time, kfs[0].post.z(),
                 kfs[1].time, kfs[1].post.z(), kfs[2].time, kfs[2].post.z(), kfs[3].time, kfs[3].post.z());
         return cmrs;
     }

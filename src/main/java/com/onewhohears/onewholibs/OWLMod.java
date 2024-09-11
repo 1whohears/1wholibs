@@ -7,7 +7,7 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.BasicCon
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.ControllableAnimPlayer;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
 import com.onewhohears.onewholibs.common.network.PacketHandler;
-import net.minecraft.world.entity.Entity;
+import com.onewhohears.onewholibs.init.ModEntities;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -26,6 +26,8 @@ public class OWLMod {
 
     public OWLMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ModEntities.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);

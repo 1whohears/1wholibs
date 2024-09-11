@@ -1,5 +1,6 @@
 package com.onewhohears.onewholibs.util.math;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -8,6 +9,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 
+import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
@@ -398,16 +400,25 @@ public class UtilGeometry {
 		return cmr[cmr.length-1].y;
 	}
 
+	public static boolean DEBUG_CATMULLROM = false;
+
 	public static Vec2[] catmullromArray(int points, float a, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3) {
 		if (a < 0) a = 0;
 		else if (a > 1) a = 1;
+		if (DEBUG_CATMULLROM) System.out.println("CALC CMR array: ");
+		if (DEBUG_CATMULLROM) System.out.println("points = "+points+UtilParse.prettyVec2(P0)
+			+UtilParse.prettyVec2(P1)+UtilParse.prettyVec2(P2)+UtilParse.prettyVec2(P3));
 		float[] ts = calcCatmullromTs(a, P0, P1, P2, P3);
+		if (DEBUG_CATMULLROM) System.out.println("ts = "+ Arrays.toString(ts));
 		float tStep = 1f / (float)points;
 		Vec2[] array = new Vec2[points];
-		for (int i = 0; i < array.length; ++i) {
+		for (int i = 0; i < array.length; ++i)
 			array[i] = catmullrom(tStep * i, P0, P1, P2, P3, ts);
-			if (i > 0 && array[i].x < array[i-1].x)
-				array[i] = new Vec2(array[i-1].x, array[i-1].y);
+		if (DEBUG_CATMULLROM) {
+			System.out.print("cmrs =");
+			for (int i = 0; i < array.length; ++i)
+				System.out.print(" "+UtilParse.prettyVec2(array[i]));
+			System.out.println();
 		}
 		return array;
 	}
