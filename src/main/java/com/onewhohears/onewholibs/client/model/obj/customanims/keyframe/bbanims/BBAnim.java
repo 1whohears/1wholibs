@@ -96,8 +96,13 @@ public class BBAnim implements KeyframeAnimation {
                 float t = keyframe.time;
                 if (time == t) return keyframes.get(i).post;
                 if (time > t) continue;
-
-                return keyframe.lerpWithEnd(keyframes.get(i-1), time);
+                Keyframe before = keyframes.get(i-1);
+                if (before.lerp_mode == LerpMode.CATMULLROM) {
+                    Keyframe beforeBefore = (i >= 2) ? keyframes.get(i-2) : before;
+                    Keyframe after = (i <= keyframes.size()-2) ? keyframes.get(i+1) : keyframe;
+                    return keyframe.lerpWithEnd(before, time, beforeBefore, after);
+                }
+                return keyframe.lerpWithEnd(before, time);
             }
             return keyframes.get(keyframes.size()-1).post;
         }
