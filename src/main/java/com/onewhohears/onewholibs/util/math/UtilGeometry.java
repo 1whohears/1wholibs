@@ -392,8 +392,8 @@ public class UtilGeometry {
 			if (x == now.x) return now.y;
 			if (x > now.x) continue;
 			Vec2 prev = cmr[i-1];
-			float p = (x - prev.x) / (now.x / prev.x);
-			return p * (now.y - prev.y) + prev.y;
+			float p = (x - prev.x) / (now.x - prev.x);
+			return Mth.lerp(p, prev.y, now.y);
 		}
 		return cmr[cmr.length-1].y;
 	}
@@ -402,12 +402,13 @@ public class UtilGeometry {
 		if (a < 0) a = 0;
 		else if (a > 1) a = 1;
 		float[] ts = calcCatmullromTs(a, P0, P1, P2, P3);
-		float t1 = ts[1], t2 = ts[2];
-		float tDiff = t2 - t1;
-		float tStep = tDiff / (float)points;
+		float tStep = 1f / (float)points;
 		Vec2[] array = new Vec2[points];
-		for (int i = 0; i < array.length; ++i)
-			array[i] = catmullrom(t1 + tStep*i, P0, P1, P2, P3, ts);
+		for (int i = 0; i < array.length; ++i) {
+			array[i] = catmullrom(tStep * i, P0, P1, P2, P3, ts);
+			if (i > 0 && array[i].x < array[i-1].x)
+				array[i] = new Vec2(array[i-1].x, array[i-1].y);
+		}
 		return array;
 	}
 
@@ -423,14 +424,25 @@ public class UtilGeometry {
 	}
 
 	private static Vec2 catmullrom(float t, Vec2 P0, Vec2 P1, Vec2 P2, Vec2 P3, float[] ts) {
+		if (t == 0) return P1;
+		if (t == 1) return P2;
 		float t0 = ts[0], t1 = ts[1], t2 = ts[2], t3 = ts[3];
-		if (t == t1) return P1;
-		if (t == t2) return P2;
-		Vec2 A1 = P0.scale(slope(t1, t, t1, t0)).add(P1.scale(slope(t, t0, t1, t0)));
+		t = Mth.lerp(t, t1, t2);
+		Vec2 A1, A3, B1, B2;
 		Vec2 A2 = P1.scale(slope(t2, t, t2, t1)).add(P2.scale(slope(t, t1, t2, t1)));
-		Vec2 A3 = P2.scale(slope(t3, t, t3, t2)).add(P3.scale(slope(t, t2, t3, t2)));
-		Vec2 B1 = A1.scale(slope(t2, t, t2, t0)).add(A2.scale(slope(t, t0, t2, t0)));
-		Vec2 B2 = A2.scale(slope(t3, t, t3, t1)).add(A3.scale(slope(t, t1, t3, t1)));
+		if (t2 == t3) {
+			A1 = P0.scale(slope(t1, t, t1, t0)).add(P1.scale(slope(t, t0, t1, t0)));
+			B1 = A1.scale(slope(t2, t, t2, t0)).add(A2.scale(slope(t, t0, t2, t0)));
+			return B1;
+		} else if (t0 == t1) {
+			A3 = P2.scale(slope(t3, t, t3, t2)).add(P3.scale(slope(t, t2, t3, t2)));
+			B2 = A2.scale(slope(t3, t, t3, t1)).add(A3.scale(slope(t, t1, t3, t1)));
+			return B2;
+		}
+		A1 = P0.scale(slope(t1, t, t1, t0)).add(P1.scale(slope(t, t0, t1, t0)));
+		A3 = P2.scale(slope(t3, t, t3, t2)).add(P3.scale(slope(t, t2, t3, t2)));
+		B1 = A1.scale(slope(t2, t, t2, t0)).add(A2.scale(slope(t, t0, t2, t0)));
+		B2 = A2.scale(slope(t3, t, t3, t1)).add(A3.scale(slope(t, t1, t3, t1)));
 		return B1.scale(slope(t2, t, t2, t1)).add(B2.scale(slope(t, t1, t2, t1)));
 	}
 

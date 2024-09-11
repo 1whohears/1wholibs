@@ -130,12 +130,21 @@ public class UtilParse {
 	}
 	
 	public static String prettyVec3(Vec3 v) {
-		return String.format("[%3.1f,%3.1f,%3.1f]", v.x, v.y, v.z);
+		return prettyVec3(v, 1);
 	}
 	
 	public static String prettyVec3(Vec3 v, int decimals) {
 		String f = "%3."+decimals+"f";
 		return String.format("["+f+","+f+","+f+"]", v.x, v.y, v.z);
+	}
+
+	public static String prettyVec2(Vec2 v) {
+		return prettyVec2(v, 1);
+	}
+
+	public static String prettyVec2(Vec2 v, int decimals) {
+		String f = "%3."+decimals+"f";
+		return String.format("["+f+","+f+"]", v.x, v.y);
 	}
 	
 	public static String prettyQ(Quaternion q, int decimals) {

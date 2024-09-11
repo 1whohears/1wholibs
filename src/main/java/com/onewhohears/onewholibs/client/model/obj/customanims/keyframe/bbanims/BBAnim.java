@@ -12,10 +12,7 @@ import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BBAnim implements KeyframeAnimation {
 
@@ -134,7 +131,13 @@ public class BBAnim implements KeyframeAnimation {
         }
         public Vector3f lerpWithEnd(Keyframe before, float animTime, Keyframe... surrounding) {
             if (before.lerp_mode == LerpMode.CATMULLROM && surrounding.length == 2) {
-                if (cmrs == null) cmrs = calcCMRs(surrounding[0], before, this, surrounding[1]);
+                if (cmrs == null) {
+                    cmrs = calcCMRs(surrounding[0], before, this, surrounding[1]);
+                    System.out.println("cmrs = ");
+                    for (int i = 0; i < cmrs[1].length; ++i)
+                        System.out.print(" "+UtilParse.prettyVec2(cmrs[1][i]));
+                    System.out.println();
+                }
                 return new Vector3f(UtilGeometry.findYInCatmullromArray(animTime, cmrs[0]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[1]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[2]));
@@ -144,16 +147,25 @@ public class BBAnim implements KeyframeAnimation {
                     Mth.lerp(p,before.post.y(),pre.y()),
                     Mth.lerp(p,before.post.z(),pre.z()));
         }
+        @Override
+        public boolean equals(Object object) {
+            if (object instanceof Keyframe keyframe) return is(keyframe);
+            return false;
+        }
+        public boolean is(Keyframe keyframe) {
+            return this.time == keyframe.time;
+        }
     }
 
     private static Vec2[][] calcCMRs(Keyframe... kfs) {
         int points = (int) ((kfs[3].time - kfs[0].time) * 30f);
         Vec2[][] cmrs = new Vec2[3][points];
-        cmrs[0] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.x(),
+        float a = 0.5f;
+        cmrs[0] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.x(),
                 kfs[1].time, kfs[1].post.x(), kfs[2].time, kfs[2].post.x(), kfs[3].time, kfs[3].post.x());
-        cmrs[1] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.y(),
+        cmrs[1] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.y(),
                 kfs[1].time, kfs[1].post.y(), kfs[2].time, kfs[2].post.y(), kfs[3].time, kfs[3].post.y());
-        cmrs[2] = UtilGeometry.catmullromArray(points, 0.5f, kfs[0].time, kfs[0].post.z(),
+        cmrs[2] = UtilGeometry.catmullromArray(points, a, kfs[0].time, kfs[0].post.z(),
                 kfs[1].time, kfs[1].post.z(), kfs[2].time, kfs[2].post.z(), kfs[3].time, kfs[3].post.z());
         return cmrs;
     }
