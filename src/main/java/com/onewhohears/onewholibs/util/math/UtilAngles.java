@@ -364,9 +364,7 @@ public class UtilAngles {
     }
 
     public static float[] relativeToGlobalDegrees(float rx, float ry, Quaternionf ra) {
-        // Create a new quaternion from ra
         Quaternionf r = new Quaternionf(ra);
-
         r.mul(VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Z, ry)); // Rotate around Z-axis (negative Y)
         r.mul(VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_X, rx)); // Rotate around X-axis (positive X)
 
