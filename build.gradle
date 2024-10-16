@@ -120,6 +120,36 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = mod_group_id
+            artifactId = mod_id + '-' + minecraft_version
+            version = mod_version
+            artifact jar
+        }
+    }
+
+    File localPropertiesFile = new File("$projectDir/local.properties")
+
+    // Check if local.properties exists
+    if (localPropertiesFile.exists()) {
+        Properties props = new Properties()
+        props.load(new FileInputStream(localPropertiesFile))
+
+        repositories {
+            maven {
+                credentials {
+                    username = props.repsyMavenUsername
+                    password = props.repsyMavenPassword
+                }
+                url "https://repo.repsy.io/mvn/1whohears/1wholibs"
+            }
+        }
+    } else {
+        logger.lifecycle("Skipping repository configuration: local.properties not found.")
+    }
+}
 
 
 tasks.withType(JavaCompile).configureEach {
