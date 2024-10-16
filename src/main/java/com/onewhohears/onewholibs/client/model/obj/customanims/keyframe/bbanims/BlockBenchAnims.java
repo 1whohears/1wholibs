@@ -3,13 +3,14 @@ package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Vector3f;
+
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimParser;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;

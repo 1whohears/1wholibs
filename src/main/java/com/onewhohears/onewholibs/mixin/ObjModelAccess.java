@@ -1,9 +1,10 @@
 package com.onewhohears.onewholibs.mixin;
 
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.client.model.obj.ObjModel;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 

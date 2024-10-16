@@ -6,11 +6,10 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.math.Matrix4f;
-
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
+import org.joml.Matrix4f;
 
 /**
  * Use this instead of {@link ObjEntityModel} if your entity has custom animations

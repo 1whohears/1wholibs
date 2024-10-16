@@ -3,14 +3,16 @@ package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+
+
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.*;
 

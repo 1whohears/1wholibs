@@ -2,12 +2,13 @@ package com.onewhohears.onewholibs.util.math;
 
 import java.util.Random;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+
+
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
  * @author 1whohears

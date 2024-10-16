@@ -76,7 +76,7 @@ public class UtilEntity {
 	 * @return true if there is direct line of sight between pos and the eye position of entity
 	 */
 	public static boolean canPosSeeEntity(Vec3 start_pos, Entity entity, int maxBlockCheckDepth, double throWater, double throBlock) {
-		return canPosSeePos(entity.getLevel(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
+		return canPosSeePos(entity.level(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class UtilEntity {
 	 * @return entity's vertical distance from the ground. positive integer
 	 */
 	public static int getDistFromGround(Entity entity) {
-		Level l = entity.getLevel();
+		Level l = entity.level();
 		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
 		int dist = 0;
 		while (pos[1] >= -64) {

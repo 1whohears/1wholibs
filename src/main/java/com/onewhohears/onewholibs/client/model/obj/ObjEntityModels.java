@@ -4,12 +4,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.onewhohears.onewholibs.util.math.VectorUtils;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.util.UtilParse;
 
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -160,19 +161,17 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		}
 		public void apply(PoseStack poseStack) {
 			if (isNone()) return;
-			if (rotation[0] != 0) poseStack.mulPose(Vector3f.XP.rotationDegrees(rotation[0]));
-			if (rotation[1] != 0) poseStack.mulPose(Vector3f.YN.rotationDegrees(rotation[1]));
-			if (rotation[2] != 0) poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation[2]));
-			poseStack.translate(translate.x(), translate.y(), translate.z());
-			poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
+			VectorUtils.applyRotation(poseStack, rotation);
+			VectorUtils.applyTranslation(poseStack, translate);
+			VectorUtils.applyScale(poseStack, scale, scale3d);
 		}
+
 		public void applyNoTranslate(PoseStack poseStack) {
 			if (isNone()) return;
-			if (rotation[0] != 0) poseStack.mulPose(Vector3f.XP.rotationDegrees(rotation[0]));
-			if (rotation[1] != 0) poseStack.mulPose(Vector3f.YN.rotationDegrees(rotation[1]));
-			if (rotation[2] != 0) poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation[2]));
-			poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
+			VectorUtils.applyRotation(poseStack, rotation);
+			VectorUtils.applyScale(poseStack, scale, scale3d);
 		}
+
 	}
 
 }

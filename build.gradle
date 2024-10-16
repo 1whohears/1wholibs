@@ -120,27 +120,7 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = mod_group_id
-            artifactId = mod_id+'-'+minecraft_version
-            version = mod_version
-            artifact jar
-        }
-    }
-    Properties props = new Properties()
-    props.load(new FileInputStream("$projectDir/local.properties"))
-    repositories {
-        maven {
-            credentials {
-                username props.repsyMavenUsername
-                password props.repsyMavenPassword
-            }
-            url "https://repo.repsy.io/mvn/1whohears/1wholibs"
-        }
-    }
-}
+
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation

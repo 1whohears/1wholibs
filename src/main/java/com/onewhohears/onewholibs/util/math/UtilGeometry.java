@@ -5,9 +5,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+
+
 
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
@@ -15,6 +14,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 /**
  * @author 1whohears

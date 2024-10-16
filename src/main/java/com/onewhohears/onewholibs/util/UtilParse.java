@@ -7,15 +7,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
-import com.mojang.math.Vector4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;

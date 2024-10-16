@@ -43,10 +43,10 @@ public class OWLMod {
         KFAnimPlayers.addAnimationPlayerFactory("always", (data) -> new ControllableAnimPlayer<>(data,
                 entity -> true, BasicControllers.continuous()));
         KFAnimPlayers.addAnimationPlayerFactory("ground_move", (data) -> new ControllableAnimPlayer<>(data,
-                entity -> entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                entity -> entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
         KFAnimPlayers.addAnimationPlayerFactory("air_move", (data) -> new ControllableAnimPlayer<>(data,
-                entity -> !entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                entity -> !entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
     }
 

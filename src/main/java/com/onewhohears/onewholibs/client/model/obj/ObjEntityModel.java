@@ -2,9 +2,6 @@ package com.onewhohears.onewholibs.client.model.obj;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels.ModelOverrides;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
@@ -16,6 +13,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.model.renderable.CompositeRenderable;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
 import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;

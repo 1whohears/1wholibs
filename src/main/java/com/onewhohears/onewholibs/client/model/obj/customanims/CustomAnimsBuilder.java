@@ -2,9 +2,10 @@ package com.onewhohears.onewholibs.client.model.obj.customanims;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.math.Vector3f;
+
 import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransform.RotationAxis;
 import com.onewhohears.onewholibs.util.UtilParse;
+import org.joml.Vector3f;
 
 /**
  * @author 1whohears
