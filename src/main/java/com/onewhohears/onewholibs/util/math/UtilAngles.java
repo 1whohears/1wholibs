@@ -203,56 +203,53 @@ public class UtilAngles {
     	// HOW 6 normalizing causes compounding precision errors at yaw 90 and 270. everything seems to work without normalizing though?
     	return lerpQ(perc, start, end, false);
     }
-    
+
     public static Quaternionf lerpQ(float perc, Quaternionf start, Quaternionf end, boolean normalize) {
-        // Only unit quaternions are valid rotations.
-        // Normalize to avoid undefined behavior.
-        if (normalize) {
-        	start = normalizeQuaternion(start);
-        	end = normalizeQuaternion(end);
-        }
+        // Always normalize start and end quaternions
+        start = normalizeQuaternion(start);
+        end = normalizeQuaternion(end);
+
         // Compute the cosine of the angle between the two vectors.
         double dot = start.x() * end.x() + start.y() * end.y() + start.z() * end.z() + start.w() * end.w();
 
-        // If the dot product is negative, slerp won't take
-        // the shorter path. Note that v1 and -v1 are equivalent when
-        // the negation is applied to all four components. Fix by
-        // reversing one quaternion.
+        // If the dot product is negative, reverse one quaternion to take the shorter path
         if (dot < 0.0f) {
             end = new Quaternionf(-end.x(), -end.y(), -end.z(), -end.w());
             dot = -dot;
         }
+
+        // Adjust the threshold to avoid instability
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
-            // If the inputs are too close for comfort, linearly interpolate
-            // and normalize the result.
+            // Linearly interpolate and normalize
             Quaternionf quaternion = new Quaternionf(
-                start.x() * (1 - perc) + end.x() * perc,
-                start.y() * (1 - perc) + end.y() * perc,
-                start.z() * (1 - perc) + end.z() * perc,
-                start.w() * (1 - perc) + end.w() * perc
+                    start.x() * (1 - perc) + end.x() * perc,
+                    start.y() * (1 - perc) + end.y() * perc,
+                    start.z() * (1 - perc) + end.z() * perc,
+                    start.w() * (1 - perc) + end.w() * perc
             );
-            if (normalize) return normalizeQuaternion(quaternion);
-            else return quaternion;
+            return normalizeQuaternion(quaternion); // Always normalize the result to avoid issues
         }
-        // Since dot is in range [0, DOT_THRESHOLD], acos is safe
-        double theta_0 = Math.acos(dot);        // theta_0 = angle between input vectors
-        double theta = theta_0 * perc;          // theta = angle between v0 and result
-        double sin_theta = Math.sin(theta);     // compute this value only once
-        double sin_theta_0 = Math.sin(theta_0); // compute this value only once
 
-        float s0 = (float) (Math.cos(theta) - dot * sin_theta / sin_theta_0);  // == sin(theta_0 - theta) / sin(theta_0)
-        float s1 = (float) (sin_theta / sin_theta_0);
+        // Spherical linear interpolation (slerp)
+        double theta_0 = Math.acos(dot);        // Angle between input vectors
+        double theta = theta_0 * perc;          // Scaled angle for interpolation
+        double sin_theta = Math.sin(theta);     // Calculate sin of angle
+        double sin_theta_0 = Math.sin(theta_0); // Calculate sin of base angle
+
+        float s0 = (float) (Math.cos(theta) - dot * sin_theta / sin_theta_0);  // Contribution from start
+        float s1 = (float) (sin_theta / sin_theta_0);                          // Contribution from end
 
         Quaternionf quaternion = new Quaternionf(
-            start.x() * (s0) + end.x() * s1,
-            start.y() * (s0) + end.y() * s1,
-            start.z() * (s0) + end.z() * s1,
-            start.w() * (s0) + end.w() * s1
+                start.x() * s0 + end.x() * s1,
+                start.y() * s0 + end.y() * s1,
+                start.z() * s0 + end.z() * s1,
+                start.w() * s0 + end.w() * s1
         );
-        if (normalize) return normalizeQuaternion(quaternion);
-        else return quaternion;
+
+        return normalizeQuaternion(quaternion);  // Always normalize to avoid precision errors
     }
+
 
     public static class EulerAngles {
         public double pitch, yaw, roll;
@@ -388,7 +385,7 @@ public class UtilAngles {
 
     public static Matrix4f pivotRot(float x, float y, float z, Quaternionf rot) {
         Matrix4f translateToPivot = new Matrix4f().translate(x, y, z);
-        Matrix4f rotationMatrix = new Matrix4f((Matrix3fc) rot);
+        Matrix4f rotationMatrix = new Matrix4f().rotation(rot);
         Matrix4f translateBack = new Matrix4f().translate(-x, -y, -z);
         return translateBack.mul(rotationMatrix).mul(translateToPivot);
     }
