@@ -21,6 +21,8 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mojang.text2speech.Narrator.LOGGER;
+
 /**
  * See {@link com.onewhohears.onewholibs.client.renderer.RendererObjEntity}.
  * An obj and mtl file with the same name as {@link #modelId} must be put in
@@ -70,11 +72,17 @@ public class ObjEntityModel<T extends Entity> {
 		if (!UtilGeometry.isZero(pivot)) poseStack.translate(pivot.x(), pivot.y(), pivot.z());
 		getModelOverride().applyNoTranslate(poseStack);
 	}
-	
+
 	public CompositeRenderable getModel() {
-		if (model == null) model = ObjEntityModels.get().getBakedModel(modelId);
+		if (model == null) {
+			model = ObjEntityModels.get().getBakedModel(modelId);
+			if (model == null) {
+                LOGGER.error("Model not found for ID: {}", modelId);
+			}
+		}
 		return model;
 	}
+
 	
 	public ModelOverrides getModelOverride() {
 		if (modelOverride == null) modelOverride = ObjEntityModels.get().getModelOverride(modelId);
