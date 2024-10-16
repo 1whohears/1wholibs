@@ -1,6 +1,9 @@
 package com.onewhohears.onewholibs.client.model.obj;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,19 +104,46 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 						if (unbakedModels.containsKey(name)) {
 							LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name).modelLocation);
 						}
+
+						// Tokenizer and model parsing
 						ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
 						String mtlOverride = key.toString().replace(".obj", ".mtl");
-						ObjModel model = ObjModelParser.parse(tokenizer, new ModelSettings(key,
-								false, false, true, false, mtlOverride));
+
+						// Attempt to create ObjModel
+						ObjModel model = ObjModelParser.parse(tokenizer, new ModelSettings(
+								key, false, false, true, false, mtlOverride
+						));
+
 						tokenizer.close();
 						unbakedModels.put(name, model);
 						LOGGER.debug("ADDING MODEL = {}", key);
+
+					} catch (IllegalArgumentException e) {
+						// Handle specific exception for argument mismatch
+						LOGGER.error("ERROR: SKIPPING {} due to wrong number of arguments. Details: {}", key, e.getMessage());
+						logExpectedConstructorArguments();
 					} catch (Exception e) {
-						LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());
+						LOGGER.error("ERROR: SKIPPING {} because of general error: {}", key, e.getMessage());
 						e.printStackTrace();
 					}
 				});
 	}
+
+	/**
+	 * Logs detailed constructor argument information to help debug argument mismatch issues.
+	 */
+	private void logExpectedConstructorArguments() {
+		try {
+			Constructor<?>[] constructors = ObjModel.class.getDeclaredConstructors();
+			for (Constructor<?> constructor : constructors) {
+				LOGGER.debug("Expected constructor for ObjModel: {} with {} parameters: {}",
+						constructor.getName(), constructor.getParameterCount(), Arrays.toString(constructor.getParameterTypes()));
+			}
+		} catch (SecurityException e) {
+			LOGGER.error("Failed to access constructor information for ObjModel: {}", e.getMessage());
+		}
+	}
+
 
 	public void readModelOverrides(ResourceManager manager) {
 		modelOverrides.clear();

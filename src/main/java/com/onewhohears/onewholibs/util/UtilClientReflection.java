@@ -21,24 +21,31 @@ public class UtilClientReflection {
     private static Field facesField;
     private static Field smoothingGroupField;
 
-    public static ObjModel createNewObjModel(ObjModel.ModelSettings settings, Map<String, String> deprecationWarnings) {
-        if (objModelConstructor == null) {
-            objModelConstructor = (Constructor<ObjModel>) ObjModel.class.getDeclaredConstructors()[0];
-            objModelConstructor.setAccessible(true);
-        }
+    @SuppressWarnings("unchecked")
+    public static ObjModel createNewObjModel(ObjModel.ModelSettings settings) {
+        initializeObjModelConstructor();
         try {
-            return objModelConstructor.newInstance(settings, deprecationWarnings);
+            // Pass only 'settings' to the constructor as it expects a single argument.
+            return objModelConstructor.newInstance(settings);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static Object createNewModelMesh(ObjModel model, @Nullable ObjMaterialLibrary.@Nullable Material currentMat, String currentSmoothingGroup) {
-        if (modelMeshConstructor == null) {
-            Class<?> modelMeshClass = ObjModel.class.getDeclaredClasses()[1];
-            modelMeshConstructor = modelMeshClass.getDeclaredConstructors()[0];
-            modelMeshConstructor.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    private static void initializeObjModelConstructor() {
+        if (objModelConstructor == null) {
+            try {
+                objModelConstructor = (Constructor<ObjModel>) ObjModel.class.getDeclaredConstructors()[0];
+                objModelConstructor.setAccessible(true);
+            } catch (SecurityException e) {
+                throw new RuntimeException("Failed to access ObjModel constructor", e);
+            }
         }
+    }
+
+    public static Object createNewModelMesh(ObjModel model, @Nullable ObjMaterialLibrary.@Nullable Material currentMat, String currentSmoothingGroup) {
+        initializeModelMeshConstructor();
         try {
             return modelMeshConstructor.newInstance(model, currentMat, currentSmoothingGroup);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -46,45 +53,31 @@ public class UtilClientReflection {
         }
     }
 
-    private static Field getMatField(Object mesh) {
-        if (matField == null) {
+    private static void initializeModelMeshConstructor() {
+        if (modelMeshConstructor == null) {
             try {
-                matField = mesh.getClass().getField("mat");
-                matField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
+                Class<?> modelMeshClass = ObjModel.class.getDeclaredClasses()[1];
+                modelMeshConstructor = modelMeshClass.getDeclaredConstructors()[0];
+                modelMeshConstructor.setAccessible(true);
+            } catch (SecurityException e) {
+                throw new RuntimeException("Failed to access ModelMesh constructor", e);
             }
         }
-        return matField;
     }
 
-    private static Field getFacesField(Object mesh) {
-        if (facesField == null) {
-            try {
-                facesField = mesh.getClass().getField("faces");
-                facesField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
+    private static Field getField(Object mesh, String fieldName) {
+        try {
+            Field field = mesh.getClass().getField(fieldName);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException | SecurityException e) {
+            throw new RuntimeException("Failed to access field: " + fieldName, e);
         }
-        return facesField;
-    }
-
-    private static Field getSmoothingGroupField(Object mesh) {
-        if (smoothingGroupField == null) {
-            try {
-                smoothingGroupField = mesh.getClass().getField("smoothingGroup");
-                smoothingGroupField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return smoothingGroupField;
     }
 
     public static ObjMaterialLibrary.Material getModelMeshMat(Object mesh) {
         try {
-            return (ObjMaterialLibrary.Material) getMatField(mesh).get(mesh);
+            return (ObjMaterialLibrary.Material) getField(mesh, "mat").get(mesh);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -92,7 +85,7 @@ public class UtilClientReflection {
 
     public static void setModelMeshMat(Object mesh, ObjMaterialLibrary.Material mat) {
         try {
-            getMatField(mesh).set(mesh, mat);
+            getField(mesh, "mat").set(mesh, mat);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -100,7 +93,7 @@ public class UtilClientReflection {
 
     public static List<int[][]> getModelMeshFaces(Object mesh) {
         try {
-            return (List<int[][]>) getFacesField(mesh).get(mesh);
+            return (List<int[][]>) getField(mesh, "faces").get(mesh);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +101,7 @@ public class UtilClientReflection {
 
     public static String getModelMeshSmoothingGroup(Object mesh) {
         try {
-            return (String) getSmoothingGroupField(mesh).get(mesh);
+            return (String) getField(mesh, "smoothingGroup").get(mesh);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -116,17 +109,15 @@ public class UtilClientReflection {
 
     public static void setModelMeshSmoothingGroup(Object mesh, String smoothingGroup) {
         try {
-            getSmoothingGroupField(mesh).set(mesh, smoothingGroup);
+            getField(mesh, "smoothingGroup").set(mesh, smoothingGroup);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static ObjModel.ModelObject createModelObject(ObjModel model, String name) {
-        if (modelObjectConstructor == null) {
-            modelObjectConstructor = (Constructor<ObjModel.ModelObject>) ObjModel.ModelObject.class.getDeclaredConstructors()[0];
-            modelObjectConstructor.setAccessible(true);
-        }
+        initializeModelObjectConstructor();
         try {
             return modelObjectConstructor.newInstance(model, name);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -134,11 +125,21 @@ public class UtilClientReflection {
         }
     }
 
-    public static ObjModel.ModelGroup createModelGroup(ObjModel model, String name) {
-        if (modelGroupConstructor == null) {
-            modelGroupConstructor = (Constructor<ObjModel.ModelGroup>) ObjModel.ModelGroup.class.getDeclaredConstructors()[0];
-            modelGroupConstructor.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    private static void initializeModelObjectConstructor() {
+        if (modelObjectConstructor == null) {
+            try {
+                modelObjectConstructor = (Constructor<ObjModel.ModelObject>) ObjModel.ModelObject.class.getDeclaredConstructors()[0];
+                modelObjectConstructor.setAccessible(true);
+            } catch (SecurityException e) {
+                throw new RuntimeException("Failed to access ModelObject constructor", e);
+            }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static ObjModel.ModelGroup createModelGroup(ObjModel model, String name) {
+        initializeModelGroupConstructor();
         try {
             return modelGroupConstructor.newInstance(model, name);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -146,4 +147,15 @@ public class UtilClientReflection {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private static void initializeModelGroupConstructor() {
+        if (modelGroupConstructor == null) {
+            try {
+                modelGroupConstructor = (Constructor<ObjModel.ModelGroup>) ObjModel.ModelGroup.class.getDeclaredConstructors()[0];
+                modelGroupConstructor.setAccessible(true);
+            } catch (SecurityException e) {
+                throw new RuntimeException("Failed to access ModelGroup constructor", e);
+            }
+        }
+    }
 }

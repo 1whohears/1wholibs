@@ -27,7 +27,7 @@ public class ObjModelParser {
         Map<String, String> deprecationWarnings = Map.of();
         ResourceLocation modelLocation = settings.modelLocation();
         String materialLibraryOverrideLocation = settings.mtlOverride();
-        ObjModel model = UtilClientReflection.createNewObjModel(settings, deprecationWarnings);
+        ObjModel model = UtilClientReflection.createNewObjModel(settings);
         String modelDomain = modelLocation.getNamespace();
         String modelPath = modelLocation.getPath();
         int lastSlash = modelPath.lastIndexOf(47);
