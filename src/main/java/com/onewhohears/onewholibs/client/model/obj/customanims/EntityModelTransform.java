@@ -8,6 +8,7 @@ import com.onewhohears.onewholibs.util.math.UtilAngles;
 
 import net.minecraft.world.entity.Entity;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
  * Forge's obj model render allows the manipulation of individual groups/folders/bones within the model.
@@ -26,9 +27,10 @@ import org.joml.Matrix4f;
  * @author 1whohears
  */
 public abstract class EntityModelTransform<T extends Entity> {
-	
-	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
-	public static final Matrix4f NOTHING = Matrix4f.createScaleMatrix(1, 1, 1);
+
+	public static final Matrix4f INVISIBLE = new Matrix4f().scale(0, 0, 0);
+	public static final Matrix4f NOTHING = new Matrix4f().scale(1, 1, 1);
+
 	
 	private final String model_part_key;
 	public EntityModelTransform(JsonObject data) {
@@ -55,25 +57,33 @@ public abstract class EntityModelTransform<T extends Entity> {
 			return INVISIBLE;
 		}
 	}
-	
+
 	public static abstract class Translation<T extends Entity> extends EntityModelTransform<T> {
 		private final Vector3f bounds;
+
 		public Translation(JsonObject data) {
 			super(data);
 			bounds = UtilParse.readVec3f(data, "bounds");
 		}
+
 		public Vector3f getBounds() {
 			return bounds;
 		}
+
 		public abstract float getTranslationProgress(T entity, float partialTicks);
+
 		@Override
 		public Matrix4f getTransform(T entity, float partialTicks) {
 			float p = getTranslationProgress(entity, partialTicks);
 			if (p == 0) return NOTHING;
-			return Matrix4f.createTranslateMatrix(bounds.x() * p, bounds.y() * p, bounds.z() * p);
+
+			Matrix4f translationMatrix = new Matrix4f();
+			translationMatrix.translate(bounds.x() * p, bounds.y() * p, bounds.z() * p);
+			return translationMatrix;
 		}
 	}
-	
+
+
 	public static abstract class Pivot<T extends Entity> extends EntityModelTransform<T> {
 		private final Vector3f pivot;
 		public Pivot(JsonObject data) {

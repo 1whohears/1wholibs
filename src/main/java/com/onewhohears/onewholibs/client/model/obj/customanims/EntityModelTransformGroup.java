@@ -29,11 +29,14 @@ public class EntityModelTransformGroup<T extends Entity> extends EntityModelTran
 
 	@Override
 	public Matrix4f getTransform(T entity, float partialTicks) {
-		Matrix4f trans = transforms.get(0).getTransform(entity, partialTicks).copy();
-		for (int i = 1; i < transforms.size(); ++i) 
-			trans.multiply(transforms.get(i).getTransform(entity, partialTicks));
+		Matrix4f trans = new Matrix4f(transforms.get(0).getTransform(entity, partialTicks));
+		for (int i = 1; i < transforms.size(); ++i) {
+			trans.mul(transforms.get(i).getTransform(entity, partialTicks));
+		}
+
 		return trans;
 	}
+
 	
 	@Override
 	public boolean isGroup() {

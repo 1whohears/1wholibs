@@ -108,17 +108,23 @@ public class UtilEntity {
 	public static boolean canEntitySeeEntity(Entity entity1, Entity entity2, int maxBlockCheckDepth, double throWater, double throBlock) {
 		return canPosSeeEntity(entity1.getEyePosition(), entity2, maxBlockCheckDepth, throWater, throBlock);
 	}
-	
+
 	private static boolean checkBlocksByRange(Level level, Vec3 pos, Vec3 look, int dist, double[] through) {
 		int k = 0;
 		while (k++ < dist) {
 			pos = pos.add(look);
-			BlockPos bp = new BlockPos(pos);
+
+			// Convert Vec3 to BlockPos by rounding to nearest integer
+			BlockPos bp = new BlockPos((int) pos.x(), (int) pos.y(), (int) pos.z());
 			ChunkPos cp = new ChunkPos(bp);
+
 			if (!level.hasChunk(cp.x, cp.z)) continue;
 			BlockState block = level.getBlockState(bp);
 			if (block == null || block.isAir()) continue;
-			if (!block.getMaterial().blocksMotion() && !block.getMaterial().isLiquid()) continue;
+
+			// Update block collision and liquid checks
+			if (!block.isSuffocating(level, bp) && !block.getFluidState().isSource()) continue;
+
 			if (through[0] <= 0 && through[1] <= 0) return false;
 			if (block.getFluidState().getType().isSame(Fluids.WATER)) {
 				if (through[0] > 0) {
@@ -133,6 +139,8 @@ public class UtilEntity {
 		}
 		return true;
 	}
+
+
 
 	/**
 	 * @param level the level blocks are checked in
@@ -161,13 +169,18 @@ public class UtilEntity {
 	 * @return true if the chunk is loaded and there is a block at pos.
 	 */
 	public static boolean posBlocksMotion(Level level, Vec3 pos) {
-		BlockPos bp = new BlockPos(pos);
+		// Convert Vec3 to BlockPos
+		BlockPos bp = new BlockPos((int) pos.x(), (int) pos.y(), (int) pos.z());
 		ChunkPos cp = new ChunkPos(bp);
+
 		if (!level.hasChunk(cp.x, cp.z)) return false;
+
 		BlockState block = level.getBlockState(bp);
-		if (block == null || block.isAir()) return false;
-		return block.getMaterial().blocksMotion();
+		if (block.isAir()) return false;
+
+		return block.isSuffocating(level, bp);
 	}
+
 
 	/**
 	 * @param entity distance from the entities feet
@@ -187,7 +200,7 @@ public class UtilEntity {
 	}
 	
 	public static int getDistFromSeaLevel(Entity e) {
-		return getDistFromSeaLevel(e.position().y, e.level);
+		return getDistFromSeaLevel(e.position().y, e.level());
 	}
 	
 	public static int getDistFromSeaLevel(double yPos, Level level) {
@@ -206,23 +219,29 @@ public class UtilEntity {
 	 * @return returns the position of a block the entity is looking at
 	 */
 	public static Vec3 getLookingAtBlockPos(Entity entity, int max) {
-		Level level = entity.level;
+		Level level = entity.level();
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
+
 		for (int i = 0; i < max; ++i) {
-			BlockState block = level.getBlockState(new BlockPos(pos));
-			if (block != null && !block.isAir()) return pos;
+			// Convert Vec3 to BlockPos
+			BlockState block = level.getBlockState(new BlockPos((int) pos.x(), (int) pos.y(), (int) pos.z()));
+
+			if (!block.isAir()) return pos;
+
 			pos = pos.add(look);
 		}
+
 		return pos.add(look);
 	}
+
 	
 	/**
 	 * @param entity air pressure at entity position
 	 * @return between 0 (no air pressure) and 1
 	 */
 	public static double getAirPressure(Entity entity) {
-		DimensionType dt = entity.level.dimensionType();
+		DimensionType dt = entity.level().dimensionType();
 		double space, surface;
 		if (dt.natural()) {
 			space = 2500;
@@ -336,7 +355,7 @@ public class UtilEntity {
 	}
 	
 	public static void dropItemStack(Entity entity, ItemStack stack) {
-		dropItemStack(entity.level, stack, entity.position());
+		dropItemStack(entity.level(), stack, entity.position());
 	}
 	
 }

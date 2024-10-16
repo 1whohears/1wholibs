@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
 
 /**
@@ -140,16 +141,18 @@ public class UtilGeometry {
 		float[] sp = worldToScreenPos(world_pos, view_mat, proj_mat, width, height);
 		return new int[] {(int)sp[0], (int)sp[1]};
 	}
-	
+
 	public static float[] worldToScreenPos(Vec3 world_pos, Matrix4f view_mat, Matrix4f proj_mat, int width, int height) {
-		Vector4f clipSpace = new Vector4f((float)world_pos.x, (float)world_pos.y, (float)world_pos.z, 1f);
-		clipSpace.transform(view_mat);
-		clipSpace.transform(proj_mat);
-		if (clipSpace.w() <= 0) return new float[] {-1,-1};
-		Vector3f ndcSpace = new Vector3f(clipSpace);
-		ndcSpace.mul(1/clipSpace.w());
-		float win_x = (ndcSpace.x()+1f)/2f*width;
-		float win_y = (ndcSpace.y()+1f)/2f*height;
+		Vector4f clipSpace = new Vector4f((float) world_pos.x, (float) world_pos.y, (float) world_pos.z, 1f);
+
+		view_mat.transform(clipSpace);
+
+		proj_mat.transform(clipSpace);
+		if (clipSpace.w <= 0) return new float[] {-1, -1};
+		float invW = 1.0f / clipSpace.w;
+		Vector3f ndcSpace = new Vector3f(clipSpace.x * invW, clipSpace.y * invW, clipSpace.z * invW);
+		float win_x = (ndcSpace.x() + 1.0f) / 2.0f * width;
+		float win_y = (ndcSpace.y() + 1.0f) / 2.0f * height;
 		return new float[] {win_x, height - win_y};
 	}
 	

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.slf4j.Logger;
@@ -146,10 +147,10 @@ public class UtilParse {
 		String f = "%3."+decimals+"f";
 		return String.format("["+f+","+f+"]", v.x, v.y);
 	}
-	
-	public static String prettyQ(Quaternion q, int decimals) {
-		String f = "%1."+decimals+"f";
-		return String.format("["+f+","+f+"i,"+f+"j,"+f+"k]", q.r(), q.i(), q.j(), q.k());
+
+	public static String prettyQ(Quaternionf q, int decimals) {
+		String f = "%1." + decimals + "f";
+		return String.format("[" + f + "," + f + "i," + f + "j," + f + "k]", q.w(), q.x(), q.y(), q.z());
 	}
 	
 	public static String getRandomString(String[]... arrays) {
@@ -268,7 +269,7 @@ public class UtilParse {
 	}
 	
 	public static Vector3f readVec3f(JsonObject json, String name) {
-		if (!json.has(name)) return Vector3f.ZERO;
+		if (!json.has(name)) return new Vector3f(0, 0, 0);
 		JsonObject vec = json.get(name).getAsJsonObject();
 		float x = 0, y = 0, z = 0;
 		if (vec.has("x")) x = vec.get("x").getAsFloat();

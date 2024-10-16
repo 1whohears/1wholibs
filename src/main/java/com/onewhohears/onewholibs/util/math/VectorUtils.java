@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 public class VectorUtils {
 
     public static final Vector3f POSITIVE_X = new Vector3f(1, 0, 0);
+    public static final Vector3f POSITIVE_Y = new Vector3f(0, 1, 0);
     public static final Vector3f NEGATIVE_Y = new Vector3f(0, -1, 0);
     public static final Vector3f POSITIVE_Z = new Vector3f(0, 0, 1);
 
@@ -23,4 +24,11 @@ public class VectorUtils {
     public static void applyScale(PoseStack poseStack, float scale, float[] scale3d) {
         poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
     }
+
+    public static Quaternionf rotationQuaternion(Vector3f axis, float angleDegrees) {
+        float angleRadians = (float) Math.toRadians(angleDegrees);
+        return new Quaternionf().rotationAxis(angleRadians, axis);
+    }
+
 }
+

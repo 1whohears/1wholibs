@@ -6,6 +6,7 @@ import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels.ModelOverride
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 
+import com.onewhohears.onewholibs.util.math.VectorUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -14,6 +15,7 @@ import net.minecraftforge.client.model.renderable.CompositeRenderable;
 import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
 import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -26,8 +28,8 @@ import java.util.Map;
  * @author 1whohears
  */
 public class ObjEntityModel<T extends Entity> {
-	
-	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
+
+	public static final Matrix4f INVISIBLE = new Matrix4f().scaling(0, 0, 0);
 	
 	public final String modelId;
 
@@ -47,11 +49,13 @@ public class ObjEntityModel<T extends Entity> {
 				getLight(entity, lightmap), getOverlay(entity), partialTicks, 
 				getComponentTransforms(entity, partialTicks));
 	}
-	
+
 	protected void rotate(T entity, float partialTicks, PoseStack poseStack) {
 		Vector3f pivot = getGlobalPivot();
-		Quaternion yRot = Vector3f.YN.rotationDegrees(entity.getViewYRot(partialTicks));
-		Quaternion xRot = Vector3f.XP.rotationDegrees(entity.getViewXRot(partialTicks));
+		// Replace YN and XP with VectorUtils constants
+		Quaternionf yRot = VectorUtils.rotationQuaternion(VectorUtils.NEGATIVE_Y, entity.getViewYRot(partialTicks));
+		Quaternionf xRot = VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_X, entity.getViewXRot(partialTicks));
+
 		if (!UtilGeometry.isZero(pivot)) {
 			if (globalRotateY()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, yRot));
 			if (globalRotateX()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, xRot));

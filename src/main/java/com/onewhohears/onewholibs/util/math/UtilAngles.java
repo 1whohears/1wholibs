@@ -7,7 +7,9 @@ import java.util.Random;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3fc;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
@@ -91,46 +93,53 @@ public class UtilAngles {
 		return rotationToVector(yaw, pitch);
     }
     
-    public static void normalizeRCloseToONE(Quaternion q, float d) {
+    public static void normalizeRCloseToONE(Quaternionf q, float d) {
     	q.normalize();
-    	if (Mth.abs(Mth.abs(q.r())-1) < d) q.set(0, 0, 0, 1);
-    }
-    
-    public static Quaternion qDiff(Quaternion q1, Quaternion q2) {
-    	if (q1.equals(q2)) return Quaternion.ONE.copy();
-    	Quaternion iq2 = q2.copy();
-    	iq2.conj();
-    	Quaternion d = q1.copy();
-    	d.mul(iq2);
-    	d.normalize();
-    	return d;
+    	if (Mth.abs(Mth.abs(q.w)-1) < d) q.set(0, 0, 0, 1);
     }
 
-    public static EulerAngles toRadians(Quaternion q) {
+    public static Quaternionf qDiff(Quaternionf q1, Quaternionf q2) {
+        if (q1.equals(q2)) return new Quaternionf();  // Identity quaternion
+
+        Quaternionf iq2 = new Quaternionf(q2).conjugate();  // Copy and conjugate q2
+        Quaternionf d = new Quaternionf(q1).mul(iq2);  // Copy q1 and multiply by iq2
+        d.normalize();  // Normalize the result
+
+        return d;
+    }
+
+    public static EulerAngles toRadians(Quaternionf q) {
         EulerAngles angles = new EulerAngles();
-        
-        // roll (x-axis rotation)
-        double sinr_cosp = 2 * (q.r() * q.k() + q.i() * q.j());
-        double cosr_cosp = 1 - 2 * (q.k() * q.k() + q.i() * q.i());
+
+        double xx = q.x() * q.x();
+        double yy = q.y() * q.y();
+        double zz = q.z() * q.z();
+        double ww = q.w() * q.w();
+
+        // Roll (x-axis rotation)
+        double sinr_cosp = 2 * (q.w() * q.x() + q.y() * q.z());
+        double cosr_cosp = ww - xx - yy + zz;
         angles.roll = Math.atan2(sinr_cosp, cosr_cosp);
 
-        // pitch (z-axis rotation)
-        double sinp = 2 * (q.r() * q.i() - q.j() * q.k());
-        if (Math.abs(sinp) >= 0.999) {
-            angles.pitch = Math.signum(sinp) * Math.PI / 2; // use 90 degrees if out of range
+        // Pitch (y-axis rotation)
+        double sinp = 2 * (q.w() * q.y() - q.z() * q.x());
+        final double threshold = 0.999;  // Tolerance for gimbal lock scenario
+        if (Math.abs(sinp) >= threshold) {
+            angles.pitch = Math.copySign(Math.PI / 2, sinp);  // Use 90 degrees for gimbal lock
         } else {
             angles.pitch = Math.asin(sinp);
         }
 
-        // yaw (y-axis rotation)
-        double siny_cosp = 2 * (q.r() * q.j() + q.k() * q.i());
-        double cosy_cosp = 1 - 2 * (q.i() * q.i() + q.j() * q.j());
-        angles.yaw = -Math.atan2(siny_cosp, cosy_cosp);
+        // Yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.w() * q.z() + q.x() * q.y());
+        double cosy_cosp = ww + xx - yy - zz;
+        angles.yaw = Math.atan2(siny_cosp, cosy_cosp);  // Adjust this based on the coordinate system
 
         return angles;
     }
-    
-    public static EulerAngles toDegrees(Quaternion q) {
+
+
+    public static EulerAngles toDegrees(Quaternionf q) {
     	EulerAngles angles = toRadians(q);
     	angles.roll = Math.toDegrees(angles.roll);
     	angles.pitch = Math.toDegrees(angles.pitch);
@@ -146,21 +155,21 @@ public class UtilAngles {
         return number * (1.5F - f * number * number);
     }
 
-    public static Quaternion normalizeQuaternion(Quaternion q) {
-        float f = q.i() * q.i() + q.j() * q.j() + q.k() * q.k() + q.r() * q.r();
-        float x = q.i();
-        float y = q.j();
-        float z = q.k();
-        float w = q.r();
+    public static Quaternionf normalizeQuaternion(Quaternionf q) {
+        float f = q.x() * q.x() + q.y() * q.y() + q.z() * q.z() + q.w() * q.w();
+        float x = q.x();
+        float y = q.y();
+        float z = q.z();
+        float w = q.w();
         if (f > 1.0E-6F) {
             float f1 = fastInvSqrt(f);
             x *= f1;
             y *= f1;
             z *= f1;
             w *= f1;
-            return new Quaternion(x, y, z, w);
+            return new Quaternionf(x, y, z, w);
         } else {
-            return new Quaternion(0, 0, 0, 0);
+            return new Quaternionf(0, 0, 0, 0);
         }
     }
     
@@ -170,7 +179,7 @@ public class UtilAngles {
      * @param roll degrees
      * @return
      */
-    public static Quaternion toQuaternion(double yaw, double pitch, double roll) {
+    public static Quaternionf toQuaternion(double yaw, double pitch, double roll) {
         yaw = -Math.toRadians(yaw);
         pitch = Math.toRadians(pitch);
         roll = Math.toRadians(roll);
@@ -187,15 +196,15 @@ public class UtilAngles {
         float x = (float) (cr * sp * cy + sr * cp * sy);
         float y = (float) (cr * cp * sy - sr * sp * cy);
         
-        return new Quaternion(x, y, z, w);
+        return new Quaternionf(x, y, z, w);
     }
     
-    public static Quaternion lerpQ(float perc, Quaternion start, Quaternion end) {
+    public static Quaternionf lerpQ(float perc, Quaternionf start, Quaternionf end) {
     	// HOW 6 normalizing causes compounding precision errors at yaw 90 and 270. everything seems to work without normalizing though?
     	return lerpQ(perc, start, end, false);
     }
     
-    public static Quaternion lerpQ(float perc, Quaternion start, Quaternion end, boolean normalize) {
+    public static Quaternionf lerpQ(float perc, Quaternionf start, Quaternionf end, boolean normalize) {
         // Only unit quaternions are valid rotations.
         // Normalize to avoid undefined behavior.
         if (normalize) {
@@ -203,25 +212,25 @@ public class UtilAngles {
         	end = normalizeQuaternion(end);
         }
         // Compute the cosine of the angle between the two vectors.
-        double dot = start.i() * end.i() + start.j() * end.j() + start.k() * end.k() + start.r() * end.r();
+        double dot = start.x() * end.x() + start.y() * end.y() + start.z() * end.z() + start.w() * end.w();
 
         // If the dot product is negative, slerp won't take
         // the shorter path. Note that v1 and -v1 are equivalent when
         // the negation is applied to all four components. Fix by
         // reversing one quaternion.
         if (dot < 0.0f) {
-            end = new Quaternion(-end.i(), -end.j(), -end.k(), -end.r());
+            end = new Quaternionf(-end.x(), -end.y(), -end.z(), -end.w());
             dot = -dot;
         }
         double DOT_THRESHOLD = 0.9995;
         if (dot > DOT_THRESHOLD) {
             // If the inputs are too close for comfort, linearly interpolate
             // and normalize the result.
-            Quaternion quaternion = new Quaternion(
-                start.i() * (1 - perc) + end.i() * perc,
-                start.j() * (1 - perc) + end.j() * perc,
-                start.k() * (1 - perc) + end.k() * perc,
-                start.r() * (1 - perc) + end.r() * perc
+            Quaternionf quaternion = new Quaternionf(
+                start.x() * (1 - perc) + end.x() * perc,
+                start.y() * (1 - perc) + end.y() * perc,
+                start.z() * (1 - perc) + end.z() * perc,
+                start.w() * (1 - perc) + end.w() * perc
             );
             if (normalize) return normalizeQuaternion(quaternion);
             else return quaternion;
@@ -235,11 +244,11 @@ public class UtilAngles {
         float s0 = (float) (Math.cos(theta) - dot * sin_theta / sin_theta_0);  // == sin(theta_0 - theta) / sin(theta_0)
         float s1 = (float) (sin_theta / sin_theta_0);
 
-        Quaternion quaternion = new Quaternion(
-            start.i() * (s0) + end.i() * s1,
-            start.j() * (s0) + end.j() * s1,
-            start.k() * (s0) + end.k() * s1,
-            start.r() * (s0) + end.r() * s1
+        Quaternionf quaternion = new Quaternionf(
+            start.x() * (s0) + end.x() * s1,
+            start.y() * (s0) + end.y() * s1,
+            start.z() * (s0) + end.z() * s1,
+            start.w() * (s0) + end.w() * s1
         );
         if (normalize) return normalizeQuaternion(quaternion);
         else return quaternion;
@@ -270,7 +279,7 @@ public class UtilAngles {
         }
     }
     
-    public static Vec3 getRollAxis(Quaternion q) {
+    public static Vec3 getRollAxis(Quaternionf q) {
     	EulerAngles a = toRadians(q);
     	return getRollAxis(a.pitch, a.yaw);
     }
@@ -281,7 +290,7 @@ public class UtilAngles {
 							Math.cos(yawRad)*Math.cos(pitchRad));
 	}
     
-    public static Vec3 getPitchAxis(Quaternion q) {
+    public static Vec3 getPitchAxis(Quaternionf q) {
     	EulerAngles a = toRadians(q);
     	return getPitchAxis(a.pitch, a.yaw, a.roll);
     }
@@ -298,7 +307,7 @@ public class UtilAngles {
 						-(CY*SP*SR-CR*SY));
 	}
     
-    public static Vec3 getYawAxis(Quaternion q) {
+    public static Vec3 getYawAxis(Quaternionf q) {
     	EulerAngles a = toRadians(q);
     	return getYawAxis(a.pitch, a.yaw, a.roll);
     }
@@ -314,38 +323,37 @@ public class UtilAngles {
 						CP*CR,
 						-(SY*SR+CY*SP*CR));
 	}
-    
-    public static Vector3f rotateVector(Vector3f n, Quaternion q) {
-    	float p = 1000, pi = 0.001f;
-    	Quaternion nq = new Quaternion(n.x()*p, n.y()*p, n.z()*p, 0);
-    	Quaternion cq = q.copy(); cq.conj();
-    	Quaternion q1 = q.copy();
-    	q1.mul(nq);
-    	q1.mul(cq);
-    	return new Vector3f(q1.i()*pi, q1.j()*pi, q1.k()*pi);
+
+    public static Vector3f rotateVector(Vector3f n, Quaternionf q) {
+        float p = 1000f, pi = 0.001f;
+        Quaternionf nq = new Quaternionf(n.x() * p, n.y() * p, n.z() * p, 0f);
+        Quaternionf cq = new Quaternionf(q).conjugate();
+        Quaternionf q1 = new Quaternionf(q).mul(nq).mul(cq);
+        return new Vector3f(q1.x() * pi, q1.y() * pi, q1.z() * pi);
     }
-    
-    public static Vector3f rotateVectorInverse(Vector3f n, Quaternion q) {
-    	Quaternion q1 = q.copy(); q1.conj();
-    	return rotateVector(n, q1);
+
+
+    public static Vector3f rotateVectorInverse(Vector3f n, Quaternionf q) {
+        Quaternionf q1 = new Quaternionf(q).conjugate();
+        return rotateVector(n, q1);
     }
-    
-    public static Vec3 rotateVector(Vec3 n, Quaternion q) {
-    	Quaternion nq = new Quaternion((float)n.x, (float)n.y, (float)n.z, 0);
-    	Quaternion cq = q.copy(); cq.conj();
-    	Quaternion q1 = q.copy();
-    	q1.mul(nq);
-    	q1.mul(cq);
-    	Vec3 a = new Vec3(q1.i(), q1.j(), q1.k());
-    	return a;
+
+
+    public static Vec3 rotateVector(Vec3 n, Quaternionf q) {
+        Quaternionf nq = new Quaternionf((float) n.x, (float) n.y, (float) n.z, 0);
+        Quaternionf cq = new Quaternionf(q).conjugate();
+        Quaternionf q1 = new Quaternionf(q).mul(nq).mul(cq);
+        return new Vec3(q1.x(), q1.y(), q1.z());
     }
-    
-    public static Vec3 rotateVectorInverse(Vec3 n, Quaternion q) {
-    	Quaternion q1 = q.copy(); q1.conj();
-    	return rotateVector(n, q1);
+
+
+    public static Vec3 rotateVectorInverse(Vec3 n, Quaternionf q) {
+        Quaternionf q1 = new Quaternionf(q).conjugate();
+        return rotateVector(n, q1);
     }
+
     
-    public static float[] globalToRelativeDegrees(float gx, float gy, Quaternion ra) {
+    public static float[] globalToRelativeDegrees(float gx, float gy, Quaternionf ra) {
     	Vec3 dir = rotationToVector(gy, gx);
     	EulerAngles ea = toRadians(ra);
     	Vec3 yaxis = getYawAxis(ea.pitch, ea.yaw, ea.roll).scale(-1);
@@ -357,56 +365,61 @@ public class UtilAngles {
     	float ry = (float) Math.toDegrees(Math.atan2(xc, zc));
     	return new float[] {rx, ry};
     }
-    
-    public static float[] relativeToGlobalDegrees(float rx, float ry, Quaternion ra) {
-    	Quaternion r = ra.copy();
-    	r.mul(Vector3f.YN.rotationDegrees(ry));
-    	r.mul(Vector3f.XP.rotationDegrees(rx));
-    	EulerAngles ea = toDegrees(r);
-    	return new float[] {(float)ea.pitch, (float)ea.yaw};
+
+    public static float[] relativeToGlobalDegrees(float rx, float ry, Quaternionf ra) {
+        // Create a new quaternion from ra
+        Quaternionf r = new Quaternionf(ra);
+
+        r.mul(VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Z, ry)); // Rotate around Z-axis (negative Y)
+        r.mul(VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_X, rx)); // Rotate around X-axis (positive X)
+
+        EulerAngles ea = toDegrees(r);
+        return new float[] {(float)ea.pitch, (float)ea.yaw};
     }
+
     
-    public static Matrix4f pivotRot(Vector3f pivot, Quaternion rot) {
+    public static Matrix4f pivotRot(Vector3f pivot, Quaternionf rot) {
     	return pivotRot(pivot.x(), pivot.y(), pivot.z(), rot);
     }
     
-    public static Matrix4f pivotInvRot(Vector3f pivot, Quaternion rot) {
+    public static Matrix4f pivotInvRot(Vector3f pivot, Quaternionf rot) {
     	return pivotRot(-pivot.x(), -pivot.y(), -pivot.z(), rot);
     }
-    
-    public static Matrix4f pivotRot(float x, float y, float z, Quaternion rot) {
-		Matrix4f mat = Matrix4f.createTranslateMatrix(x, y, z);
-		mat.multiply(rot);
-		mat.multiply(Matrix4f.createTranslateMatrix(-x, -y, -z));
-		return mat;
-	}
-    
+
+    public static Matrix4f pivotRot(float x, float y, float z, Quaternionf rot) {
+        Matrix4f translateToPivot = new Matrix4f().translate(x, y, z);
+        Matrix4f rotationMatrix = new Matrix4f((Matrix3fc) rot);
+        Matrix4f translateBack = new Matrix4f().translate(-x, -y, -z);
+        return translateBack.mul(rotationMatrix).mul(translateToPivot);
+    }
+
+
     public static Matrix4f pivotRotX(float x, float y, float z, float degrees) {
-    	return pivotRot(x, y, z, Vector3f.XP.rotationDegrees(degrees));
+        return pivotRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_X, degrees));
     }
-    
+
     public static Matrix4f pivotRotY(float x, float y, float z, float degrees) {
-    	return pivotRot(x, y, z, Vector3f.YP.rotationDegrees(degrees));
+        return pivotRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Z, degrees)); // Change to POSITIVE_Y for Y rotation
     }
-    
+
     public static Matrix4f pivotRotZ(float x, float y, float z, float degrees) {
-    	return pivotRot(x, y, z, Vector3f.ZP.rotationDegrees(degrees));
+        return pivotRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Z, degrees));
     }
-    
-    public static Matrix4f pivotPixelsRot(float x, float y, float z, Quaternion rot) {
-    	return pivotRot(x*0.0625f, y*0.0625f, z*0.0625f, rot);
+
+    public static Matrix4f pivotPixelsRot(float x, float y, float z, Quaternionf rot) {
+        return pivotRot(x * 0.0625f, y * 0.0625f, z * 0.0625f, rot);
     }
-    
+
     public static Matrix4f pivotPixelsRotX(float x, float y, float z, float degrees) {
-    	return pivotPixelsRot(x, y, z, Vector3f.XP.rotationDegrees(degrees));
+        return pivotPixelsRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_X, degrees));
     }
-    
+
     public static Matrix4f pivotPixelsRotY(float x, float y, float z, float degrees) {
-    	return pivotPixelsRot(x, y, z, Vector3f.YP.rotationDegrees(degrees));
+        return pivotPixelsRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Y, degrees)); // Change to POSITIVE_Y for Y rotation
     }
-    
+
     public static Matrix4f pivotPixelsRotZ(float x, float y, float z, float degrees) {
-    	return pivotPixelsRot(x, y, z, Vector3f.ZP.rotationDegrees(degrees));
+        return pivotPixelsRot(x, y, z, VectorUtils.rotationQuaternion(VectorUtils.POSITIVE_Z, degrees));
     }
-    
+
 }
