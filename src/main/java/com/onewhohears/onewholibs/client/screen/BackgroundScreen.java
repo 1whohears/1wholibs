@@ -36,7 +36,7 @@ public abstract class BackgroundScreen extends Screen {
     }
 
     @Override
-    public void init() {
+    protected void init() {
         super.init();
         guiX = width/2-image_width/2;
         guiY = height/2-image_height/2;
