@@ -50,7 +50,7 @@ public abstract class BackgroundScreen extends Screen {
         int index_max = rows * columns - 1;
         if (index < 0) index = 0;
         else if (index > index_max) index = index_max;
-        int widget_row = index / rows;
+        int widget_row = index / columns;
         int widget_column = index % columns;
         int column_width = (image_width - left_padding - right_padding) / columns;
         int row_height = (image_height - top_padding - bottom_padding) / rows;
