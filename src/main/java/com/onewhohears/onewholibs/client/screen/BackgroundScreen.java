@@ -18,6 +18,7 @@ public abstract class BackgroundScreen extends Screen {
     protected int guiX, guiY;
     protected int top_padding = 4, bottom_padding = 4;
     protected int left_padding = 4, right_padding = 4;
+    protected int vertical_widget_shift = 0;
 
     protected BackgroundScreen(Component title, ResourceLocation backgroundTexture,
                                int imageWidth, int imageHeight, int textureWidth, int textureHeight) {
@@ -54,7 +55,7 @@ public abstract class BackgroundScreen extends Screen {
         int column_width = (image_width - left_padding - right_padding) / columns;
         int row_height = (image_height - top_padding - bottom_padding) / rows;
         int widget_x = guiX + left_padding + widget_column * column_width + padding/2;
-        int widget_y = guiY + top_padding + widget_row * row_height + padding/2;
+        int widget_y = guiY + vertical_widget_shift + top_padding + widget_row * row_height + padding/2;
         int widget_width = column_width * widget_columns - padding;
         int widget_height = row_height * widget_rows - padding;
         widget.x = widget_x;
