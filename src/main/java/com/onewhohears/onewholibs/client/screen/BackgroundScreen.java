@@ -44,7 +44,7 @@ public abstract class BackgroundScreen extends Screen {
     }
 
     protected AbstractWidget positionWidgetGrid(AbstractWidget widget, int rows, int columns, int index,
-                                                int padding, int widget_rows, int widget_columns) {
+                                                int padding, int widget_columns) {
         if (rows <= 0) rows = 1;
         if (columns <= 0) columns = 1;
         int index_max = rows * columns - 1;
@@ -55,19 +55,18 @@ public abstract class BackgroundScreen extends Screen {
         int column_width = (image_width - left_padding - right_padding) / columns;
         int row_height = (image_height - top_padding - bottom_padding) / rows;
         int widget_x = guiX + left_padding + widget_column * column_width + padding/2;
-        int widget_y = guiY + vertical_widget_shift + top_padding + widget_row * row_height + padding/2;
+        int widget_y = guiY + vertical_widget_shift + top_padding + widget_row * row_height;
+        widget_y += (row_height - widget.getHeight() + padding) / 2;
         int widget_width = column_width * widget_columns - padding;
-        int widget_height = row_height * widget_rows - padding;
         widget.x = widget_x;
         widget.y = widget_y;
         widget.setWidth(widget_width);
-        widget.setHeight(widget_height);
         addRenderableWidget(widget);
         return widget;
     }
 
     protected AbstractWidget positionWidgetGrid(AbstractWidget widget, int rows, int columns, int index, int padding) {
-        return positionWidgetGrid(widget, rows, columns, index, padding, 1, 1);
+        return positionWidgetGrid(widget, rows, columns, index, padding, 1);
     }
 
     protected AbstractWidget positionWidgetGrid(AbstractWidget widget, int rows, int columns, int index) {
