@@ -49,4 +49,38 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
         return keyframe_anims;
     }
 
+    public static abstract class CustomAnimStatsBuilder<B extends CustomAnimStatsBuilder<B>> extends PresetBuilder<B> {
+        protected JsonObject getModelData() {
+            if (!getData().has("model_data")) {
+                getData().add("model_data", new JsonObject());
+            }
+            return getData().get("model_data").getAsJsonObject();
+        }
+        public CustomAnimStatsBuilder<B> setKFAnimDataIds(String model_id, String... animDataIds) {
+            setKFAnimsDataIds(animDataIds);
+            return setSimpleModelId(model_id);
+        }
+        public CustomAnimStatsBuilder<B> setKFAnimsDataIds(String... animDataIds) {
+            getModelData().add("anim_data", UtilParse.stringArrayToJsonArray(animDataIds));
+            return this;
+        }
+        public CustomAnimStatsBuilder<B> setCustomAnims(String model_id, JsonArray anims) {
+            getModelData().add("custom_anims", anims);
+            return setSimpleModelId(model_id);
+        }
+        public CustomAnimStatsBuilder<B> setCustomAnims(JsonArray anims) {
+            return setCustomAnims(getPresetId(), anims);
+        }
+        public CustomAnimStatsBuilder<B> setSimpleModelId(String model_id) {
+            getModelData().addProperty("model_id", model_id);
+            return this;
+        }
+        protected CustomAnimStatsBuilder(String namespace, String name, JsonPresetType type) {
+            super(namespace, name, type);
+        }
+        protected CustomAnimStatsBuilder(String namespace, String name, JsonPresetType type, CustomAnimStats copy) {
+            super(namespace, name, type, copy.getJsonData().deepCopy());
+        }
+    }
+
 }
