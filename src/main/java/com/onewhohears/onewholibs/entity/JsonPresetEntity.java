@@ -22,8 +22,9 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
 
     @NotNull final String defaultPreset;
 
-    @NotNull String preset;
+    @NotNull private String preset;
     @NotNull private PresetStatsHolder<P> statsHolder;
+    private boolean statsHolderLoaded;
 
     public JsonPresetEntity(EntityType<?> entityType, Level level, @NotNull String defaultPreset) {
         super(entityType, level);
@@ -33,6 +34,7 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
             throw new PresetNotFoundException(preset, getPresets());
         }
         statsHolder = getStatsHolder(preset);
+        statsHolderLoaded = true;
     }
 
     @Override
@@ -82,5 +84,16 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
     @NotNull
     public P getStats() {
         return statsHolder.get();
+    }
+
+    public void setPreset(@NotNull String preset) {
+        if (!getPresets().has(preset)) return;
+        if (this.preset.equals(preset)) return;
+        this.preset = preset;
+        statsHolder = getStatsHolder(preset);
+    }
+
+    protected boolean isStatsHolderLoaded() {
+        return statsHolderLoaded;
     }
 }

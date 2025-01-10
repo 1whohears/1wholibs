@@ -39,7 +39,6 @@ public abstract class CommonClientPresetEntity<P extends JsonPresetStats, C exte
         if (assetId == null) return null;
         JsonPresetAssetReader<C> assetReader = getClientPresets();
         if (assetReader == null) return null;
-        if (!assetReader.has(assetId)) return null;
         return assetReader.getHolder(assetId);
     }
     /**
@@ -48,5 +47,14 @@ public abstract class CommonClientPresetEntity<P extends JsonPresetStats, C exte
     @Nullable public C getAssets() {
         if (clientStatsHolder == null) return null;
         return clientStatsHolder.get();
+    }
+
+    @Override
+    public void setPreset(@NotNull String preset) {
+        String oldPreset = getStatsId();
+        super.setPreset(preset);
+        if (!getLevel().isClientSide()) return;
+        if (getStatsId().equals(oldPreset)) return;
+        clientStatsHolder = getClientStatsHolder();
     }
 }

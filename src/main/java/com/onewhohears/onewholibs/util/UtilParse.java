@@ -246,6 +246,10 @@ public class UtilParse {
 	public static Vec3 readVec3(JsonObject json, String name) {
 		if (!json.has(name)) return Vec3.ZERO;
 		JsonObject vec = json.get(name).getAsJsonObject();
+		return readVec3Direct(vec);
+	}
+
+	public static Vec3 readVec3Direct(JsonObject vec) {
 		double x = 0, y = 0, z = 0;
 		if (vec.has("x")) x = vec.get("x").getAsDouble();
 		if (vec.has("y")) y = vec.get("y").getAsDouble();
@@ -254,11 +258,32 @@ public class UtilParse {
 	}
 	
 	public static void writeVec3(JsonObject json, String name, Vec3 vec) {
+		json.add(name, writeVec3Direct(vec));
+	}
+
+	public static JsonObject writeVec3Direct(Vec3 vec) {
 		JsonObject v = new JsonObject();
 		v.addProperty("x", vec.x);
 		v.addProperty("y", vec.y);
 		v.addProperty("z", vec.z);
-		json.add(name, v);
+		return v;
+	}
+
+	public static Vec3[] readVec3Array(JsonObject json, String name) {
+		if (!json.has(name)) return new Vec3[0];
+		JsonArray a = json.get(name).getAsJsonArray();
+		Vec3[] va =  new Vec3[a.size()];
+		for (int i = 0; i < va.length; ++i) {
+			JsonObject vec = a.get(i).getAsJsonObject();
+			va[i] = readVec3Direct(vec);
+		}
+		return va;
+	}
+
+	public static void writeVec3Array(JsonObject json, String name, Vec3... va) {
+		JsonArray ja = new JsonArray();
+        for (Vec3 vec3 : va) ja.add(writeVec3Direct(vec3));
+		json.add(name, ja);
 	}
 	
 	public static String vec2ToString(Vec2... v) {

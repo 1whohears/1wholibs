@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class RendererCustomAnimObjEntity<T extends CustomAnimEntity<?,?>> extends RendererObjEntity<T> {
 
-    protected RendererCustomAnimObjEntity(EntityRendererProvider.Context ctx) {
+    public RendererCustomAnimObjEntity(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
 
