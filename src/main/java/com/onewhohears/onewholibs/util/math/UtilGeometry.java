@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.util.math;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -463,6 +464,36 @@ public class UtilGeometry {
 
 	private static float calcT(float x0, float x1, float y0, float y1, float t0, float a) {
 		return (float)Math.pow(Mth.sqrt((float)(Math.pow(x1-x0, 2) + Math.pow(y1-y0, 2))), a) + t0;
+	}
+
+	public static Vec3[] getSizeCenter(Vec3... positions) {
+		double minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
+		for (Vec3 pos : positions) {
+			if (pos.x() < minX) minX = pos.x();
+			if (pos.y() < minY) minY = pos.y();
+			if (pos.z() < minZ) minZ = pos.z();
+			if (pos.x() > maxX) maxX = pos.x();
+			if (pos.y() > maxY) maxY = pos.y();
+			if (pos.z() > maxZ) maxZ = pos.z();
+		}
+		Vec3 size = new Vec3(maxX-minX, maxY-minY, maxZ-minZ);
+		Vec3 center = new Vec3(minX, minY, minZ).add(size.scale(0.5));
+		return new Vec3[]{size, center};
+	}
+
+	public static Vec3[] getSizeCenter(List<Vector3f> positions) {
+		double minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
+		for (Vector3f pos : positions) {
+			if (pos.x() < minX) minX = pos.x();
+			if (pos.y() < minY) minY = pos.y();
+			if (pos.z() < minZ) minZ = pos.z();
+			if (pos.x() > maxX) maxX = pos.x();
+			if (pos.y() > maxY) maxY = pos.y();
+			if (pos.z() > maxZ) maxZ = pos.z();
+		}
+		Vec3 size = new Vec3(maxX-minX, maxY-minY, maxZ-minZ);
+		Vec3 center = new Vec3(minX, minY, minZ).add(size.scale(0.5));
+		return new Vec3[]{size, center};
 	}
 
 }
