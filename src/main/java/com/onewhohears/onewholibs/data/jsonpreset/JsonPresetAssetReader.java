@@ -83,6 +83,7 @@ public abstract class JsonPresetAssetReader<T extends JsonPresetStats> implement
 			allPresets = getNewArray(getNum());
 			AtomicInteger i = new AtomicInteger(0);
 			presetMap.forEach((id, preset) -> allPresets[i.getAndIncrement()] = preset);
+			sort(allPresets);
 		}
 		return allPresets;
 	}

@@ -69,6 +69,7 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 			allPresets = getNewArray(getNum());
 			AtomicInteger i = new AtomicInteger(0);
 			presetMap.forEach((id, preset) -> allPresets[i.getAndIncrement()] = preset);
+			sort(allPresets);
 		}
 		return allPresets;
 	}
