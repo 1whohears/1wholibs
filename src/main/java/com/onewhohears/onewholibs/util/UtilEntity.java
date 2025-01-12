@@ -8,10 +8,12 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.onewhohears.onewholibs.OWLDependencySafety;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -26,6 +28,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author 1whohears
@@ -337,6 +340,15 @@ public class UtilEntity {
 	
 	public static void dropItemStack(Entity entity, ItemStack stack) {
 		dropItemStack(entity.level, stack, entity.position());
+	}
+
+	/**
+	 * check if players are allied on the server side.
+	 * checks different modded team systems as well.
+	 */
+	public static boolean arePlayersAllied(@NotNull ServerPlayer player1, @NotNull ServerPlayer player2) {
+		if (OWLDependencySafety.arePlayersAlliedModdedTeamSystem(player1, player2)) return true;
+		return player1.isAlliedTo(player2);
 	}
 	
 }

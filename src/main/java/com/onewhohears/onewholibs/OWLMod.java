@@ -9,6 +9,7 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPl
 import com.onewhohears.onewholibs.common.network.PacketHandler;
 import com.onewhohears.onewholibs.init.ModEntities;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -24,10 +25,14 @@ public class OWLMod {
     public static final String MODID = "onewholibs";
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    public static boolean FTB_TEAMS_LOADED = false;
+
     public OWLMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModEntities.register(modEventBus);
+
+        FTB_TEAMS_LOADED = ModList.get().isLoaded("ftbteams");
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
