@@ -357,6 +357,8 @@ public class UtilEntity {
 	 */
 	public static boolean areEntitiesAllied(@NotNull Entity entity1, @NotNull Entity entity2) {
 		if (entity1 instanceof ServerPlayer player) return areEntitiesAllied(player, entity2);
+		Entity controller = entity1.getControllingPassenger();
+		if (controller instanceof ServerPlayer player) return areEntitiesAllied(player, entity2);
 		return entity1.isAlliedTo(entity2);
 	}
 
