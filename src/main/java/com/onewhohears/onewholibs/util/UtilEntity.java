@@ -350,5 +350,23 @@ public class UtilEntity {
 		if (OWLDependencySafety.arePlayersAlliedModdedTeamSystem(player1, player2)) return true;
 		return player1.isAlliedTo(player2);
 	}
+
+	/**
+	 * check if players are allied on the server side.
+	 * checks different modded team systems as well.
+	 */
+	public static boolean areEntitiesAllied(@NotNull Entity entity1, @NotNull Entity entity2) {
+		if (entity1 instanceof ServerPlayer player) return areEntitiesAllied(player, entity2);
+		return entity1.isAlliedTo(entity2);
+	}
+
+	/**
+	 * check if players are allied on the server side.
+	 * checks different modded team systems as well.
+	 */
+	public static boolean areEntitiesAllied(@NotNull ServerPlayer player, @NotNull Entity entity) {
+		if (entity instanceof ServerPlayer player2) return arePlayersAllied(player, player2);
+		return player.isAlliedTo(entity);
+	}
 	
 }
