@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonElement;
+import net.minecraft.Util;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
@@ -143,6 +144,8 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		public float[] rotation = {0, 0, 0};
 		private boolean none = false;
 		public ModelOverrides(JsonObject json) {
+			if (json.has("scale_all") && json.get("scale_all").isJsonPrimitive())
+				scale = UtilParse.getFloatSafe(json, "scale_all", 1);
 			if (json.has("scale")) {
 				JsonElement scaleEle = json.get("scale");
 				if (scaleEle.isJsonObject()) {

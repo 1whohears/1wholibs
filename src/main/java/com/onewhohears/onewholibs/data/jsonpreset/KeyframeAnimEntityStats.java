@@ -1,7 +1,6 @@
 package com.onewhohears.onewholibs.data.jsonpreset;
 
 import com.google.gson.JsonObject;
-import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimData;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimationPlayer;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
@@ -9,7 +8,6 @@ import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class KeyframeAnimEntityStats<M extends KeyframeAnimsEntityModel<E>, E extends Entity> extends CustomAnimStats <M, E>{

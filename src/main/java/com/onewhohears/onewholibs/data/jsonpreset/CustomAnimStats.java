@@ -2,16 +2,19 @@ package com.onewhohears.onewholibs.data.jsonpreset;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E extends Entity> extends JsonPresetStats {
 
     private final String model_id;
     private final JsonArray custom_anims;
     private final String[] keyframe_anims;
+    private ObjEntityModels.ModelOverrides itemModelOverrides;
     private M model;
 
     public CustomAnimStats(ResourceLocation key, JsonObject json) {
@@ -49,6 +52,18 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
         return keyframe_anims;
     }
 
+    public ObjEntityModels.ModelOverrides getItemModelOverrides() {
+        if (itemModelOverrides == null) {
+            if (getJsonData().has("item_model_overrides")) {
+                itemModelOverrides = new ObjEntityModels.ModelOverrides(
+                        UtilParse.getJsonSafe(getJsonData(), "item_model_overrides"));
+            } else {
+                itemModelOverrides = ObjEntityModels.NO_OVERRIDES;
+            }
+        }
+        return itemModelOverrides;
+    }
+
     public static abstract class CustomAnimStatsBuilder<B extends CustomAnimStatsBuilder<B>> extends PresetBuilder<B> {
         protected JsonObject getModelData() {
             if (!getData().has("model_data")) {
@@ -73,6 +88,16 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
         }
         public CustomAnimStatsBuilder<B> setSimpleModelId(String model_id) {
             getModelData().addProperty("model_id", model_id);
+            return this;
+        }
+        public CustomAnimStatsBuilder<B> setItemModelOverrides(float scale_all, Vec3 scale,
+                                                               Vec3 translate, Vec3 rotation) {
+            JsonObject overrides = new JsonObject();
+            overrides.addProperty("scale_all", scale_all);
+            UtilParse.writeVec3(overrides, "scale", scale);
+            UtilParse.writeVec3(overrides, "translate", translate);
+            UtilParse.writeVec3(overrides, "rotation", rotation);
+            getData().add("item_model_overrides", overrides);
             return this;
         }
         protected CustomAnimStatsBuilder(String namespace, String name, JsonPresetType type) {
