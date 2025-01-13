@@ -71,26 +71,26 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
             }
             return getData().get("model_data").getAsJsonObject();
         }
-        public CustomAnimStatsBuilder<B> setKFAnimDataIds(String model_id, String... animDataIds) {
+        public B setKFAnimDataIds(String model_id, String... animDataIds) {
             setKFAnimsDataIds(animDataIds);
             return setSimpleModelId(model_id);
         }
-        public CustomAnimStatsBuilder<B> setKFAnimsDataIds(String... animDataIds) {
+        public B setKFAnimsDataIds(String... animDataIds) {
             getModelData().add("anim_data", UtilParse.stringArrayToJsonArray(animDataIds));
-            return this;
+            return (B) this;
         }
-        public CustomAnimStatsBuilder<B> setCustomAnims(String model_id, JsonArray anims) {
+        public B setCustomAnims(String model_id, JsonArray anims) {
             getModelData().add("custom_anims", anims);
             return setSimpleModelId(model_id);
         }
-        public CustomAnimStatsBuilder<B> setCustomAnims(JsonArray anims) {
+        public B setCustomAnims(JsonArray anims) {
             return setCustomAnims(getPresetId(), anims);
         }
-        public CustomAnimStatsBuilder<B> setSimpleModelId(String model_id) {
+        public B setSimpleModelId(String model_id) {
             getModelData().addProperty("model_id", model_id);
-            return this;
+            return (B) this;
         }
-        public CustomAnimStatsBuilder<B> setItemModelOverrides(float scale_all, Vec3 scale,
+        public B setItemModelOverrides(float scale_all, Vec3 scale,
                                                                Vec3 translate, Vec3 rotation) {
             JsonObject overrides = new JsonObject();
             overrides.addProperty("scale_all", scale_all);
@@ -98,7 +98,7 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
             UtilParse.writeVec3(overrides, "translate", translate);
             UtilParse.writeVec3(overrides, "rotation", rotation);
             getData().add("item_model_overrides", overrides);
-            return this;
+            return (B) this;
         }
         protected CustomAnimStatsBuilder(String namespace, String name, JsonPresetType type) {
             super(namespace, name, type);
