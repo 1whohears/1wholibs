@@ -60,7 +60,8 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
                 CompositeRenderable composite = ObjEntityModels.get().getBakedModel(modelId);
                 ObjEntityModels.ModelOverrides override = ObjEntityModels.get().getModelOverride(modelId);
                 ObjModel obj = ObjEntityModels.get().getUnbakedModel(modelId);
-                model = new ItemObjModelData(composite, override, obj);
+                ObjEntityModels.ModelOverrides itemModelOverrides = objItem.getItemModelOverrides(preset);
+                model = new ItemObjModelData(composite, override, obj, itemModelOverrides);
                 models.put(preset, model);
             }
             model.render(transformType, poseStack, buffer, packedLight, packedOverlay);
@@ -70,15 +71,17 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
     public static class ItemObjModelData {
         public static final float SIZE_SCALE_FACTOR = 1.25f;
         public final CompositeRenderable compositeRenderable;
-        public final ObjEntityModels.ModelOverrides modelOverrides;
+        public final ObjEntityModels.ModelOverrides modelOverrides, itemModelOverrides;
         public final Vec3 center;
         public final float scale;
-        public ItemObjModelData(CompositeRenderable compositeRenderable, ObjEntityModels.ModelOverrides modelOverrides, ObjModel obj) {
+        public ItemObjModelData(CompositeRenderable compositeRenderable, ObjEntityModels.ModelOverrides modelOverrides,
+                                ObjModel obj, ObjEntityModels.ModelOverrides itemModelOverrides) {
             this.compositeRenderable = compositeRenderable;
             this.modelOverrides = modelOverrides;
+            this.itemModelOverrides = itemModelOverrides;
             Vec3[] sizeCenter = UtilGeometry.getSizeCenter(((ObjModelAccess)obj).getPositions());
             Vec3 size = sizeCenter[0];
-            float maxSize = (float)Math.max(size.z(), size.x());
+            float maxSize = (float)Math.max(size.z(), Math.max(size.x(), size.y()));
             center = sizeCenter[1];
             scale = SIZE_SCALE_FACTOR / maxSize;
         }
@@ -86,6 +89,7 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
                            MultiBufferSource buffer, int packedLight, int packedOverlay) {
             poseStack.pushPose();
             modelOverrides.applyNoTranslate(poseStack);
+            itemModelOverrides.apply(poseStack);
             if (transformType == ItemTransforms.TransformType.GUI) {
                 poseStack.translate(0.5, 0.5, 0.5);
                 poseStack.mulPose(Vector3f.XP.rotationDegrees(30));

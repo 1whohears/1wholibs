@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.JsonElement;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonObject;
@@ -56,7 +58,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		return unbakedModels.get(name);
 	}
 	
-	public static ModelOverrides NO_OVERRIDES = new ModelOverrides();
+	public final static ModelOverrides NO_OVERRIDES = new ModelOverrides();
 	
 	public ModelOverrides getModelOverride(String name) {
 		if (!modelOverrides.containsKey(name)) return NO_OVERRIDES;
@@ -141,16 +143,46 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		public float[] rotation = {0, 0, 0};
 		private boolean none = false;
 		public ModelOverrides(JsonObject json) {
-			if (json.has("scale")) scale = json.get("scale").getAsFloat();
-			if (json.has("scalex")) scale3d[0] = json.get("scalex").getAsFloat();
-			if (json.has("scaley")) scale3d[1] = json.get("scaley").getAsFloat(); 
-			if (json.has("scalez")) scale3d[2] = json.get("scalez").getAsFloat();
-			if (json.has("translatex")) translate.add(json.get("translatex").getAsFloat(), 0, 0);
-			if (json.has("translatey")) translate.add(0, json.get("translatey").getAsFloat(), 0); 
-			if (json.has("translatez")) translate.add(0, 0, json.get("translatez").getAsFloat());
-			if (json.has("rotationx")) rotation[0] = json.get("rotationx").getAsFloat();
-			if (json.has("rotationy")) rotation[1] = json.get("rotationy").getAsFloat(); 
-			if (json.has("rotationz")) rotation[2] = json.get("rotationz").getAsFloat();
+			if (json.has("scale")) {
+				JsonElement scaleEle = json.get("scale");
+				if (scaleEle.isJsonObject()) {
+					Vec3 scaleVec = UtilParse.readVec3(json, "scale");
+					scale3d[0] = (float)scaleVec.x();
+					scale3d[1] = (float)scaleVec.y();
+					scale3d[2] = (float)scaleVec.z();
+				} else if (scaleEle.isJsonPrimitive()) {
+					scale = json.get("scale").getAsFloat();
+				}
+			}
+			if (json.has("scalex"))
+				scale3d[0] = json.get("scalex").getAsFloat();
+			if (json.has("scaley"))
+				scale3d[1] = json.get("scaley").getAsFloat();
+			if (json.has("scalez"))
+				scale3d[2] = json.get("scalez").getAsFloat();
+			if (json.has("translate") && json.get("translate").isJsonObject()) {
+				translate = UtilParse.readVec3f(json, "translate");
+			} else {
+				if (json.has("translatex"))
+					translate.add(json.get("translatex").getAsFloat(), 0, 0);
+				if (json.has("translatey"))
+					translate.add(0, json.get("translatey").getAsFloat(), 0);
+				if (json.has("translatez"))
+					translate.add(0, 0, json.get("translatez").getAsFloat());
+			}
+			if (json.has("rotation") && json.get("rotation").isJsonObject()) {
+				Vec3 rotVec = UtilParse.readVec3(json, "rotation");
+				rotation[0] = (float)rotVec.x();
+				rotation[1] = (float)rotVec.y();
+				rotation[2] = (float)rotVec.z();
+			} else {
+				if (json.has("rotationx"))
+					rotation[0] = json.get("rotationx").getAsFloat();
+				if (json.has("rotationy"))
+					rotation[1] = json.get("rotationy").getAsFloat();
+				if (json.has("rotationz"))
+					rotation[2] = json.get("rotationz").getAsFloat();
+			}
 		}
 		private ModelOverrides() {
 			none = true;
