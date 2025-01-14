@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.integration.ftbteams;
 
 import dev.ftb.mods.ftbteams.FTBTeamsAPI;
+import dev.ftb.mods.ftbteams.data.Team;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
@@ -13,7 +14,11 @@ public class FTBTeamsUtil {
      * See {@link com.onewhohears.onewholibs.util.UtilEntity#arePlayersAllied(ServerPlayer, ServerPlayer)}
      */
     public static boolean arePlayersFTBAllied(ServerPlayer player1, ServerPlayer player2) {
-        return FTBTeamsAPI.getManager().arePlayersInSameTeam(player1, player2);
+        Team team = FTBTeamsAPI.getManager().getTeamByID(player1.getUUID());
+        if (team == null) return false;
+        if (team.isMember(player2.getUUID())) return true;
+        if (team.isAlly(player2.getUUID())) return true;
+        return false;
     }
 
 }

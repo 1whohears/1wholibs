@@ -26,6 +26,7 @@ public class OWLMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static boolean FTB_TEAMS_LOADED = false;
+    public static boolean PAC_LOADED = false;
 
     public OWLMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -33,6 +34,7 @@ public class OWLMod {
         ModEntities.register(modEventBus);
 
         FTB_TEAMS_LOADED = ModList.get().isLoaded("ftbteams");
+        PAC_LOADED = ModList.get().isLoaded("openpartiesandclaims");
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);

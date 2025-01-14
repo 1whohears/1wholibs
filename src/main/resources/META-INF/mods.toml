@@ -47,3 +47,10 @@ license = "${mod_license}"
     versionRange = "[6.6.92,)"
     ordering = "NONE"
     side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+    modId = "openpartiesandclaims"
+    mandatory = false
+    versionRange = "[0.23.7,)"
+    ordering = "NONE"
+    side = "BOTH"
