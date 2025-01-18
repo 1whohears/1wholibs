@@ -14,7 +14,7 @@ public class FTBTeamsUtil {
      * See {@link com.onewhohears.onewholibs.util.UtilEntity#arePlayersAllied(ServerPlayer, ServerPlayer)}
      */
     public static boolean arePlayersFTBAllied(ServerPlayer player1, ServerPlayer player2) {
-        Team team = FTBTeamsAPI.getManager().getTeamByID(player1.getUUID());
+        Team team = FTBTeamsAPI.getManager().getPlayerTeam(player1.getUUID());
         if (team == null) return false;
         if (team.isMember(player2.getUUID())) return true;
         if (team.isAlly(player2.getUUID())) return true;
