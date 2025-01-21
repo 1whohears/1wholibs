@@ -88,7 +88,7 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
         public void render(ItemTransforms.TransformType transformType, PoseStack poseStack,
                            MultiBufferSource buffer, int packedLight, int packedOverlay) {
             poseStack.pushPose();
-            modelOverrides.applyNoTranslate(poseStack);
+            modelOverrides.applyRotation(poseStack);
             itemModelOverrides.apply(poseStack);
             if (transformType == ItemTransforms.TransformType.GUI) {
                 poseStack.translate(0.5, 0.5, 0.5);

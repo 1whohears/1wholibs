@@ -195,18 +195,20 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		}
 		public void apply(PoseStack poseStack) {
 			if (isNone()) return;
-			if (rotation[0] != 0) poseStack.mulPose(Vector3f.XP.rotationDegrees(rotation[0]));
-			if (rotation[1] != 0) poseStack.mulPose(Vector3f.YN.rotationDegrees(rotation[1]));
-			if (rotation[2] != 0) poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation[2]));
+			applyRotation(poseStack);
 			poseStack.translate(translate.x(), translate.y(), translate.z());
 			poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
 		}
 		public void applyNoTranslate(PoseStack poseStack) {
 			if (isNone()) return;
+			applyRotation(poseStack);
+			poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
+		}
+		public void applyRotation(PoseStack poseStack) {
+			if (isNone()) return;
 			if (rotation[0] != 0) poseStack.mulPose(Vector3f.XP.rotationDegrees(rotation[0]));
 			if (rotation[1] != 0) poseStack.mulPose(Vector3f.YN.rotationDegrees(rotation[1]));
 			if (rotation[2] != 0) poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation[2]));
-			poseStack.scale(scale * scale3d[0], scale * scale3d[1], scale * scale3d[2]);
 		}
 	}
 
