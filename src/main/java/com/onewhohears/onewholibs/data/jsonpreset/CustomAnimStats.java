@@ -90,8 +90,7 @@ public abstract class CustomAnimStats<M extends KeyframeAnimsEntityModel<E>, E e
             getModelData().addProperty("model_id", model_id);
             return (B) this;
         }
-        public B setItemModelOverrides(float scale_all, Vec3 scale,
-                                                               Vec3 translate, Vec3 rotation) {
+        public B setItemModelOverrides(float scale_all, Vec3 scale, Vec3 translate, Vec3 rotation) {
             JsonObject overrides = new JsonObject();
             overrides.addProperty("scale_all", scale_all);
             UtilParse.writeVec3(overrides, "scale", scale);
