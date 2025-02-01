@@ -5,9 +5,15 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import com.mojang.math.Vector4f;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -349,6 +355,26 @@ public class UtilParse {
 		}
 
 		return var10000;
+	}
+
+	public static void writeStrings(CompoundTag nbt, String name, Collection<String> strings) {
+		ListTag list = new ListTag();
+		for (String s : strings) list.add(StringTag.valueOf(s));
+		nbt.put(name, list);
+	}
+
+	public static Collection<String> readStrings(CompoundTag nbt, String name) {
+		ListTag list = nbt.getList(name, 8);
+		Collection<String> strings = new ArrayList<String>();
+		for (int i = 0; i < list.size(); ++i) strings.add(list.getString(i));
+		return strings;
+	}
+
+	public static Set<String> readStringSet(CompoundTag nbt, String name) {
+		ListTag list = nbt.getList(name, 8);
+		Set<String> strings = new HashSet<String>();
+		for (int i = 0; i < list.size(); ++i) strings.add(list.getString(i));
+		return strings;
 	}
 	
 }
