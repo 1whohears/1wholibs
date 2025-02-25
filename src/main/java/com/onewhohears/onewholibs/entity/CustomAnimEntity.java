@@ -6,7 +6,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class CustomAnimEntity<P extends JsonPresetStats, C extends CustomAnimStats> extends CommonClientPresetEntity<P, C>{
+public abstract class CustomAnimEntity<P extends JsonPresetStats, C extends CustomAnimStats> extends CommonClientPresetEntity<P, C> implements CommonClientEntityHolder<P, C> {
     public CustomAnimEntity(EntityType<?> entityType, Level level, @NotNull String defaultPreset) {
         super(entityType, level, defaultPreset);
     }
