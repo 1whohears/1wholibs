@@ -41,7 +41,7 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEnti
                 throw new PresetNotFoundException(preset, getPresets());
             }
         }
-        if (getStatsId().equals(preset)) return;
+        if (isStatsHolderLoaded() && getStatsId().equals(preset)) return;
         setStatsId(preset);
         updateStatsHolder(preset);
     }

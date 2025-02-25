@@ -41,7 +41,7 @@ public interface CommonClientEntityHolder<P extends JsonPresetStats, C extends J
         String oldPreset = getStatsId();
         JsonPresetEntityHolder.super.setPreset(preset);
         if (!getLevel().isClientSide()) return;
-        if (getStatsId().equals(oldPreset)) return;
+        if (isStatsHolderLoaded() && getStatsId().equals(oldPreset)) return;
         updateClientStatsHolder();
     }
     Level getLevel();
