@@ -16,11 +16,13 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
     private String preset;
     private PresetStatsHolder<P> statsHolder;
     @Nullable private PresetStatsHolder<C> clientStatsHolder = null;
+    private boolean isStatsHolderLoaded = false;
 
     public CustomAnimProjectile(EntityType<? extends Projectile> type, Level level, @NotNull String defaultPreset) {
         super(type, level);
         this.defaultPreset = defaultPreset;
         setPreset(defaultPreset);
+        isStatsHolderLoaded = true;
     }
 
     @Override
@@ -68,5 +70,10 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
     public void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         CustomAnimEntityHolder.super.addAdditionalSaveData(nbt);
+    }
+
+    @Override
+    public boolean isStatsHolderLoaded() {
+        return isStatsHolderLoaded;
     }
 }

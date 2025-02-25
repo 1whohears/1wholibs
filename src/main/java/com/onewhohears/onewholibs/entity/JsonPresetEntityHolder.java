@@ -75,4 +75,8 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEnti
     default void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeUtf(getStatsId());
     }
+    /**
+     * this should return true at the end of the constructor block
+     */
+    boolean isStatsHolderLoaded();
 }

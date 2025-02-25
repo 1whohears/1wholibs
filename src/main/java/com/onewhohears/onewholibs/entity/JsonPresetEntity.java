@@ -13,11 +13,13 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
     @NotNull final String defaultPreset;
     private String preset;
     private PresetStatsHolder<P> statsHolder;
+    private boolean isStatsHolderLoaded = false;
 
     public JsonPresetEntity(EntityType<?> entityType, Level level, @NotNull String defaultPreset) {
         super(entityType, level);
         this.defaultPreset = defaultPreset;
         setPreset(defaultPreset);
+        isStatsHolderLoaded = true;
     }
 
     @Override
@@ -53,5 +55,10 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
     @Override
     public @NotNull PresetStatsHolder<P> getStatsHolder() {
         return statsHolder;
+    }
+
+    @Override
+    public boolean isStatsHolderLoaded() {
+        return isStatsHolderLoaded;
     }
 }
