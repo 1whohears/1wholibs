@@ -376,5 +376,11 @@ public class UtilParse {
 		for (int i = 0; i < list.size(); ++i) strings.add(list.getString(i));
 		return strings;
 	}
+
+	public static String getCleanFileName(ResourceLocation rl) {
+		String name = rl.getPath().replace(".json", "");
+		String[] paths = name.split("/");
+		return paths[paths.length-1];
+	}
 	
 }

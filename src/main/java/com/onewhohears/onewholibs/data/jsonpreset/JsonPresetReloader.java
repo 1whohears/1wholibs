@@ -43,7 +43,7 @@ public interface JsonPresetReloader<T extends JsonPresetStats> {
 
     T[] getNewArray(int size);
 
-    default public String[] getAllIds() {
+    default String[] getAllIds() {
         String[] names = new String[getAll().length];
         for (int i = 0; i < names.length; ++i)
             names[i] = getAll()[i].getId();

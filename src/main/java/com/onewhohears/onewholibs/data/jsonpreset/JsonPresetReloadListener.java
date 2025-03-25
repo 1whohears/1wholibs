@@ -227,7 +227,7 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	}
 
 	@Override
-	public String getName() {
+	public @NotNull String getName() {
 		return super.getName();
 	}
 }

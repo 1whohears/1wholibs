@@ -39,8 +39,8 @@ public abstract class JsonPresetStats {
 	public JsonPresetStats(ResourceLocation key, JsonObject json) {
 		this.key = key;
 		this.data = json;
-		this.id = UtilParse.getStringSafe(json, "presetId", "");
-		this.displayName = UtilParse.getStringSafe(json, "displayName", "preset.dscombat."+id);
+		this.id = UtilParse.getStringSafe(json, "presetId", UtilParse.getCleanFileName(key));
+		this.displayName = UtilParse.getStringSafe(json, "displayName", "preset."+key.getNamespace()+"."+id);
 		this.sort_factor = UtilParse.getIntSafe(json, "sort_factor", 0);
 		this.copyId = UtilParse.getStringSafe(json, "copyId", "");
 		this.priority = UtilParse.getIntSafe(json, "priority", 0);
