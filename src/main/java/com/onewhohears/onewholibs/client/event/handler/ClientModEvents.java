@@ -6,6 +6,7 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPl
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims.BlockBenchAnims;
 import com.onewhohears.onewholibs.client.renderer.RendererObjEntity;
+import com.onewhohears.onewholibs.client.renderer.RendererObjModelItems;
 import com.onewhohears.onewholibs.init.ModEntities;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -24,6 +25,7 @@ public class ClientModEvents {
         event.registerReloadListener(ObjEntityModels.get());
         event.registerReloadListener(BlockBenchAnims.get());
         event.registerReloadListener(KFAnimPlayers.get());
+        event.registerReloadListener(RendererObjModelItems.get());
     }
 
     @SubscribeEvent
