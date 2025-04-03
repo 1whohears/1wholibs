@@ -118,6 +118,7 @@ public class UtilEntity {
 			pos = pos.add(look);
 			BlockPos bp = new BlockPos(pos);
 			ChunkPos cp = new ChunkPos(bp);
+			//level.getChunk(cp.x, cp.z).clipWithInteractionOverride()
 			if (!level.hasChunk(cp.x, cp.z)) continue;
 			BlockState block = level.getBlockState(bp);
 			if (block == null || block.isAir()) continue;
@@ -268,7 +269,11 @@ public class UtilEntity {
 	public static void mobLookAtPos(Mob mob, Vec3 pos, float headTurnRate) {
 		mob.getLookControl().setLookAt(pos.x, pos.y, pos.z, headTurnRate, 360);
 	}
-	
+
+	public static String getEntityTypeId(Entity entity) {
+		return EntityType.getKey(entity.getType()).toString();
+	}
+
 	public static String getEntityIdName(Entity entity) {
 		return EntityType.getKey(entity.getType()).getPath();
 	}
