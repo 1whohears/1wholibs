@@ -254,7 +254,11 @@ public class UtilEntity {
 	public static void mobLookAtPos(Mob mob, Vec3 pos, float headTurnRate) {
 		mob.getLookControl().setLookAt(pos.x, pos.y, pos.z, headTurnRate, 360);
 	}
-	
+
+	public static String getEntityTypeId(Entity entity) {
+		return EntityType.getKey(entity.getType()).toString();
+	}
+
 	public static String getEntityIdName(Entity entity) {
 		return EntityType.getKey(entity.getType()).getPath();
 	}
