@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "onewholibs",
+  "version": "${version}",
+  "name": "1wholibs",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contact": {
+    "homepage": "${homepage}",
+    "sources": "${sources}"
+  },
+  "license": "MIT",
+  "icon": "assets/onewholibs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.onewhohears.onewholibs.fabric.OWLModFabric"
+    ],
+    "client": [
+      "com.onewhohears.onewholibs.fabric.client.OWLModFabricClient"
+    ]
+  },
+  "mixins": [
+    "onewholibs.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.19.2",
+    "java": ">=17",
+    "special-model-loader": ">=${sml_version}",
+    "": "*"
+  },
+  "suggests": {
+    "ftbteams": ">=1902.2.14",
+    "ftblibrary": ">=1902.4.1",
+    "architectury": ">=6.6.92",
+    "openpartiesandclaims": ">=0.23.7"
+  }
+}
