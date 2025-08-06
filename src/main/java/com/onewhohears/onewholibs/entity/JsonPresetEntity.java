@@ -23,6 +23,11 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
     }
 
     @Override
+    public boolean isClientSide() {
+        return true;
+    }
+
+    @Override
     public void readAdditionalSaveData(@NotNull CompoundTag nbt) {
         JsonPresetEntityHolder.super.readAdditionalSaveData(nbt);
     }

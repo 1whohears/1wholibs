@@ -4,7 +4,6 @@ import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetAssetReader;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,11 +39,10 @@ public interface CommonClientEntityHolder<P extends JsonPresetStats, C extends J
     default void setPreset(@NotNull String preset) {
         String oldPreset = getStatsId();
         JsonPresetEntityHolder.super.setPreset(preset);
-        if (!getLevel().isClientSide()) return;
+        if (!isClientSide()) return;
         if (isStatsHolderLoaded() && getStatsId().equals(oldPreset)) return;
         updateClientStatsHolder();
     }
-    Level getLevel();
     @Nullable PresetStatsHolder<C> getClientStatsHolder();
     /**
      * this is only used internally! you probably want to call

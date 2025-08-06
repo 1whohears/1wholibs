@@ -26,6 +26,11 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
     }
 
     @Override
+    public boolean isClientSide() {
+        return true;
+    }
+
+    @Override
     public @Nullable PresetStatsHolder<C> getClientStatsHolder() {
         return clientStatsHolder;
     }
