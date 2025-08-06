@@ -7,6 +7,8 @@ import com.onewhohears.onewholibs.data.jsonpreset.PresetNotFoundException;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -67,12 +69,10 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEnti
     default void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putString("preset", getStatsId());
     }
-
     default void readSpawnData(FriendlyByteBuf buffer) {
         setStatsId(buffer.readUtf());
         updateStatsHolder(getStatsId());
     }
-
     default void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeUtf(getStatsId());
     }
@@ -80,4 +80,5 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEnti
      * this should return true at the end of the constructor block
      */
     boolean isStatsHolderLoaded();
+    boolean isClientSide();
 }
