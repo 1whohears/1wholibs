@@ -3,20 +3,18 @@ package com.onewhohears.onewholibs.common.network.toclient;
 import java.util.function.Supplier;
 
 import com.onewhohears.onewholibs.common.command.CustomGameRules;
-import com.onewhohears.onewholibs.common.event.OnSyncBoolGameRuleEvent;
-import com.onewhohears.onewholibs.common.event.OnSyncIntGameRuleEvent;
+import com.onewhohears.onewholibs.common.event.OWLEvents;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.NetworkEvent.Context;
+import org.jetbrains.annotations.NotNull;
 
 public class ToClientSyncGameRules {
 
 	private final MinecraftServer server;
 
-	public ToClientSyncGameRules(MinecraftServer server) {
+	public ToClientSyncGameRules(@NotNull MinecraftServer server) {
 		this.server = server;
 	}
 	
@@ -26,13 +24,13 @@ public class ToClientSyncGameRules {
 		for (int i = 0; i < boolNum; ++i) {
 			String id = buffer.readUtf();
 			boolean bool = buffer.readBoolean();
-			MinecraftForge.EVENT_BUS.post(new OnSyncBoolGameRuleEvent(id, bool));
+            OWLEvents.SYNC_BOOL_GAME_RULE.invoker().sync(id, bool);
 		}
 		int intNum = buffer.readInt();
 		for (int i = 0; i < intNum; ++i) {
 			String id = buffer.readUtf();
 			int integer = buffer.readInt();
-			MinecraftForge.EVENT_BUS.post(new OnSyncIntGameRuleEvent(id, integer));
+            OWLEvents.SYNC_INT_GAME_RULE.invoker().sync(id, integer);
 		}
 	}
 

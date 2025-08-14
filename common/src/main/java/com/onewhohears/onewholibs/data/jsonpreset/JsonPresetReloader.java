@@ -74,7 +74,7 @@ public interface JsonPresetReloader<T extends JsonPresetStats> {
 
     /**
      * to add a custom preset type, call this in the
-     * {@link com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent} event.
+     * {@link com.onewhohears.onewholibs.common.event.OWLEvents#REGISTER_PRESET_TYPES} event.
      * that event gets called on every reload, so you can register the preset type,
      * and then this reload listener reads all the json files.
      */

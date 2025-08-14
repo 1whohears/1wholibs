@@ -26,7 +26,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
  * Can sort the presets, has a built-in preset inheritance system, and server-client syncing system
  * see {@link JsonPresetGenerator} for a way to generate json presets.
  * Your custom JsonPresetReloadListeners must be registered in
- * {@link com.onewhohears.onewholibs.common.event.GetJsonPresetListenersEvent}.
+ * {@link com.onewhohears.onewholibs.common.event.OWLEvents#GET_JSON_PRESET_LISTENERS}.
  * Child classes should have a static getInstance style method!
  * 
  * @author 1whohears
@@ -113,7 +113,7 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	/**
 	 * used to add a bunch of default preset types. 
 	 * call {@link #addPresetType(JsonPresetType)} 
-	 * in the event {@link com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent}
+	 * in the event {@link com.onewhohears.onewholibs.common.event.OWLEvents#REGISTER_PRESET_TYPES}
 	 * to add custom preset types. 
 	 */
 	public abstract void registerDefaultPresetTypes();

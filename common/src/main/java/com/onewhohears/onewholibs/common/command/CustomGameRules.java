@@ -55,7 +55,7 @@ public class CustomGameRules {
     }
     /**
      * Should ideally be called some time during common-side lifecycle setup on the loader.
-     * Use {@link com.onewhohears.onewholibs.common.event.OnSyncBoolGameRuleEvent} to handle game rule sync packet.
+     * Use {@link com.onewhohears.onewholibs.common.event.OWLEvents#SYNC_BOOL_GAME_RULE} to handle game rule sync packet.
      * @param name a unique game rule id
      * @return the key used to access this game rule with {@link GameRules#getBoolean(GameRules.Key)}
      */

@@ -1,7 +1,16 @@
 package com.onewhohears.onewholibs;
 
 import com.mojang.logging.LogUtils;
+import com.onewhohears.onewholibs.common.event.OWLArchEventHandlers;
+import com.onewhohears.onewholibs.common.event.OWLEvents;
+import com.onewhohears.onewholibs.common.event.OWLReloadListener;
+import com.onewhohears.onewholibs.common.event.ServerHolder;
+import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
+import dev.architectury.registry.ReloadListenerRegistry;
+import net.minecraft.server.packs.PackType;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 /**
  * @author <a href="https://github.com/1whohears">1whohears</a>
@@ -12,7 +21,15 @@ public class OWLMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void init() {
-
+        ServerHolder.init();
+        OWLArchEventHandlers.init();
+        OWLReloadListener.register();
+        OWLEvents.registerPresetTypesEvent();
+        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
+        listeners.forEach(listener -> {
+            listener.registerDefaultPresetTypes();
+            ReloadListenerRegistry.register(PackType.SERVER_DATA, listener);
+        });
     }
 
     // TODO - Agnosticize tabulated classes and their related stuff:
@@ -23,14 +40,6 @@ public class OWLMod {
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModel
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModels
         com.onewhohears.onewholibs.client.model.obj.ObjModelParser
-        com.onewhohears.onewholibs.common.event.handler.CommonForgeEvents
-        com.onewhohears.onewholibs.common.event.GetJsonPresetListenersEvent
-        com.onewhohears.onewholibs.common.event.OnSyncBoolGameRuleEvent
-        com.onewhohears.onewholibs.common.event.OnSyncIntGameRuleEvent
-        com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent
-        com.onewhohears.onewholibs.common.network.toclient.ToClientDataPackSync
-        com.onewhohears.onewholibs.common.network.toclient.ToClientSyncGameRules
-        com.onewhohears.onewholibs.common.network.PacketHandler
         com.onewhohears.onewholibs.entity.JsonPresetEntityHolder
         com.onewhohears.onewholibs.integration.ftbteams.FTBTeamsUtil
         com.onewhohears.onewholibs.integration.openpartiesandclaims.PACUtil
@@ -41,6 +50,5 @@ public class OWLMod {
         com.onewhohears.onewholibs.mixin.ObjLoaderMixin
         com.onewhohears.onewholibs.mixin.ObjModelAccess
         com.onewhohears.onewholibs.util.UtilClientReflection
-        com.onewhohears.onewholibs.util.UtilSync
      */
 }

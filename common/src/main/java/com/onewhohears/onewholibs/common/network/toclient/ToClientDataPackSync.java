@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.mojang.logging.LogUtils;
-import com.onewhohears.onewholibs.common.event.GetJsonPresetListenersEvent;
-import com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent;
+import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.sun.nio.sctp.IllegalReceiveException;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -22,10 +20,8 @@ public class ToClientDataPackSync {
 	}
 	
 	public ToClientDataPackSync(FriendlyByteBuf buffer) {
-		MinecraftForge.EVENT_BUS.post(new RegisterPresetTypesEvent());
-		GetJsonPresetListenersEvent event = new GetJsonPresetListenersEvent();
-		MinecraftForge.EVENT_BUS.post(event);
-		List<JsonPresetReloadListener<?>> listeners = event.getListeners();
+        OWLEvents.registerPresetTypesEvent();
+        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
 		int num = buffer.readInt();
 		for (int i = 0; i < num; ++i) {
 			String name = buffer.readUtf();
@@ -50,9 +46,7 @@ public class ToClientDataPackSync {
 	}
 
 	public void encode(FriendlyByteBuf buffer) {
-		GetJsonPresetListenersEvent event = new GetJsonPresetListenersEvent();
-		MinecraftForge.EVENT_BUS.post(event);
-		List<JsonPresetReloadListener<?>> listeners = event.getListeners();
+        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
 		buffer.writeInt(listeners.size());
 		for (JsonPresetReloadListener<?> listener : listeners) {
 			buffer.writeUtf(listener.getName());
