@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.common.event.OnSyncBoolGameRuleEvent;
 import com.onewhohears.onewholibs.common.event.OnSyncIntGameRuleEvent;
+import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
@@ -49,9 +50,8 @@ public class ToClientSyncGameRules {
 		});
 	}
 
-	public boolean handle(Supplier<Context> ctx) {
-		ctx.get().setPacketHandled(true);
-		return true;
+	public void handle(Supplier<NetworkManager.PacketContext> ctx) {
+
 	}
 
 }

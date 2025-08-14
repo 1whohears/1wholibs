@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import com.onewhohears.onewholibs.common.event.GetJsonPresetListenersEvent;
 import com.onewhohears.onewholibs.common.event.RegisterPresetTypesEvent;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
+import dev.architectury.networking.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -34,9 +35,8 @@ public class ToClientDataPackSync {
 			listener.writeToBuffer(buffer);
 	}
 
-	public boolean handle(Supplier<Context> ctx) {
-		ctx.get().setPacketHandled(true);
-		return true;
+	public void handle(Supplier<NetworkManager.PacketContext> ctx) {
+
 	}
 
 }
