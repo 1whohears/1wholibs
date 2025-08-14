@@ -41,8 +41,6 @@ public class OWLMod {
         com.onewhohears.onewholibs.mixin.ObjLoaderMixin
         com.onewhohears.onewholibs.mixin.ObjModelAccess
         com.onewhohears.onewholibs.util.UtilClientReflection
-        com.onewhohears.onewholibs.util.UtilEntity
-        com.onewhohears.onewholibs.util.UtilItem
         com.onewhohears.onewholibs.util.UtilSync
      */
 }

@@ -2,7 +2,6 @@ package com.onewhohears.onewholibs.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import com.onewhohears.onewholibs.data.crafting.IngredientStack;
 
@@ -19,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * @author 1whohears
@@ -27,10 +25,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class UtilItem {
 
 	public static Item getItem(String itemKey, Item alt) {
-		try {
-			return ForgeRegistries.ITEMS.getDelegate(
-				new ResourceLocation(itemKey)).get().get();
-		} catch(NoSuchElementException e) { return alt; }
+		throw new AssertionError();
 	}
 	
 	public static Item getItem(String itemKey) {
@@ -38,7 +33,7 @@ public class UtilItem {
 	}
 	
 	public static ResourceLocation getItemKey(Item item) {
-		return ForgeRegistries.ITEMS.getKey(item);
+		throw new AssertionError();
 	}
 	
 	public static String getItemKeyString(Item item) {

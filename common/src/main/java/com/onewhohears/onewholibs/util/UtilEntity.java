@@ -1,18 +1,15 @@
 package com.onewhohears.onewholibs.util;
 
 import java.awt.Color;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
-
 import com.onewhohears.onewholibs.OWLDependencySafety;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
@@ -27,8 +24,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author 1whohears
@@ -305,19 +302,15 @@ public class UtilEntity {
 		}
 		return entity == null ? null : new EntityHitResult(entity, pos);
 	}
-	
+
+    @ExpectPlatform
 	public static EntityType<?> getEntityType(String entityTypeKey, EntityType<?> alt) {
-		if (entityTypeKey == null || entityTypeKey.isEmpty()) return alt;
-		try {
-			return ForgeRegistries.ENTITY_TYPES.getDelegate(
-				new ResourceLocation(entityTypeKey)).get().get();
-		} catch(NoSuchElementException e) { 
-			return alt; 
-		}
+		throw new AssertionError();
 	}
-	
+
+    @ExpectPlatform
 	public static boolean doesEntityTypeExist(String entityTypeKey) {
-		return ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(entityTypeKey));
+		throw new AssertionError();
 	}
 	
 	@Nullable
