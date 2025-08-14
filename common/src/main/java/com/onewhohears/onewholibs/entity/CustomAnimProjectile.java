@@ -27,7 +27,7 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
 
     @Override
     public boolean isClientSide() {
-        return true;
+        return getLevel().isClientSide();
     }
 
     @Override

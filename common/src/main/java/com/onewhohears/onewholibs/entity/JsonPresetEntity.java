@@ -24,7 +24,7 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
 
     @Override
     public boolean isClientSide() {
-        return true;
+        return getLevel().isClientSide();
     }
 
     @Override
