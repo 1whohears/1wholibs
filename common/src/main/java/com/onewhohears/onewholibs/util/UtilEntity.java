@@ -1,6 +1,8 @@
 package com.onewhohears.onewholibs.util;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -10,6 +12,7 @@ import com.onewhohears.onewholibs.util.math.UtilAngles;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
@@ -217,28 +220,6 @@ public class UtilEntity {
 		return pos.add(look);
 	}
 	
-	/**
-	 * @param entity air pressure at entity position
-	 * @return between 0 (no air pressure) and 1
-	 */
-	public static double getAirPressure(Entity entity) {
-		DimensionType dt = entity.level.dimensionType();
-		double space, surface;
-		if (dt.natural()) {
-			space = 2500;
-			surface = 64;
-		} else {
-			space = 2000;
-			surface = 0;
-		}
-		double scale = 1, exp = 2;
-		double posY = entity.getY();
-		if (posY <= surface) return scale;
-		if (posY > space) return 0;
-		posY -= surface;
-		return Math.pow(Math.abs(posY-space), exp) * Math.pow(space, -exp);
-	}
-	
 	public static boolean isHeadAboveWater(Entity entity) {
 		return entity.isInWater() && !entity.isUnderWater();
 	}
@@ -363,5 +344,11 @@ public class UtilEntity {
 		if (entity instanceof ServerPlayer player2) return arePlayersAllied(player, player2);
 		return player.isAlliedTo(entity);
 	}
+
+    public static List<ServerPlayer> getPlayersTrackingEntity(Entity entity) {
+        if (entity.getLevel().isClientSide()) return new ArrayList<>();
+        return ((ServerLevel)entity.getLevel()).getChunkSource().chunkMap
+                .getPlayers(entity.chunkPosition(), false);
+    }
 	
 }
