@@ -7,14 +7,12 @@ import com.onewhohears.onewholibs.data.jsonpreset.PresetNotFoundException;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.Objects;
 
-public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEntityAdditionalSpawnData {
+public interface JsonPresetEntityHolder<P extends JsonPresetStats> {
 
     Logger LOGGER = LogUtils.getLogger();
 
@@ -81,4 +79,5 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends IEnti
      */
     boolean isStatsHolderLoaded();
     boolean isClientSide();
+    int getId();
 }
