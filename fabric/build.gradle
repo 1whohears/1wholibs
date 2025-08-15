@@ -34,6 +34,8 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
     modApi "dev.felnull:special-model-loader:${sml_version}"
+
+    modImplementation("curse.maven:open-parties-and-claims-636608:6055471")
 }
 
 processResources {

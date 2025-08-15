@@ -19,6 +19,9 @@ allprojects {
                 includeGroup "dev.ftb.mods"
             }
         }
+        maven {
+            url "https://cursemaven.com"
+        }
     }
 }
 
