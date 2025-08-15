@@ -36,27 +36,27 @@ side = "BOTH"
 [[dependencies.onewholibs]]
 modId = "ftbteams"
 mandatory = false
-versionRange = "[1902.2.14,)"
+versionRange = "[${ftb_teams_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.onewholibs]]
 modId = "ftblibrary"
 mandatory = false
-versionRange = "[1902.4.1,)"
+versionRange = "[${ftb_library_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.onewholibs]]
 modId = "architectury"
 mandatory = false
-versionRange = "[6.6.92,)"
+versionRange = "[${architectury_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.onewholibs]]
 modId = "openpartiesandclaims"
 mandatory = false
-versionRange = "[0.23.7,)"
+versionRange = "[${openpartiesandclaims_version},)"
 ordering = "NONE"
 side = "BOTH"

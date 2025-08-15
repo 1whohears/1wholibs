@@ -40,7 +40,6 @@ public class OWLMod {
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModel
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModels
         com.onewhohears.onewholibs.client.model.obj.ObjModelParser
-        com.onewhohears.onewholibs.integration.ftbteams.FTBTeamsUtil
         com.onewhohears.onewholibs.integration.openpartiesandclaims.PACUtil
         com.onewhohears.onewholibs.item.ObjModelItem
         com.onewhohears.onewholibs.mixin.CompositeRenderableBuilderMixin

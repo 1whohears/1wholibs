@@ -50,7 +50,11 @@ processResources {
                 minecraft_version: project.findProperty("minecraft_version"),
                 forge_version: project.findProperty("forge_version"),
                 forge_version_range: project.findProperty("forge_version_range"),
-                forge_loader_version_range: project.findProperty("forge_loader_version_range")
+                forge_loader_version_range: project.findProperty("forge_loader_version_range"),
+                ftb_library_version: project.findProperty("ftb_library_version"),
+                ftb_teams_version: project.findProperty("ftb_teams_version"),
+                architectury_version: project.findProperty("architectury_version"),
+                openpartiesandclaims_version: project.findProperty("openpartiesandclaims_version")
     }
 }
 
