@@ -13,8 +13,7 @@ public final class OWLModFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         EntityRendererRegistry.register(
                 Registry.ENTITY_TYPE.get(new ResourceLocation(OWLMod.MOD_ID, "test")),
-                context -> new RendererObjEntity<>(
-                        context,
+                context -> new RendererObjEntity<>(context,
                         new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim")
                 )
         );

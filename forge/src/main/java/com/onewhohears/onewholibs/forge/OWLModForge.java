@@ -92,8 +92,7 @@ public final class OWLModForge {
                             new ResourceLocation(OWLMod.MOD_ID, "test"),
                             ForgeRegistries.ENTITY_TYPES
                     ).get(),
-                    context -> new RendererObjEntity<>(
-                            context,
+                    context -> new RendererObjEntity<>(context,
                             new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim"))
             );
         }

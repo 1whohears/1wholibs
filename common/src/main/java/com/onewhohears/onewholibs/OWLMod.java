@@ -34,8 +34,6 @@ public class OWLMod {
 
     // TODO - Agnosticize tabulated classes and their related stuff:
     /*
-        com.onewhohears.onewholibs.client.renderer.RendererCustomAnimObjEntity
-        com.onewhohears.onewholibs.client.renderer.RendererCustomAnimObjProjectile
         com.onewhohears.onewholibs.client.renderer.RendererObjModelItems
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModel
         com.onewhohears.onewholibs.client.model.obj.ObjEntityModels
