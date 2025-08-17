@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs;
 
 import com.onewhohears.onewholibs.integration.ftbteams.FTBTeamsUtil;
 import com.onewhohears.onewholibs.integration.openpartiesandclaims.PACUtil;
+import dev.architectury.platform.Platform;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
@@ -9,14 +10,14 @@ import net.minecraft.server.level.ServerPlayer;
  */
 public class OWLDependencySafety {
     public static boolean arePlayersFTBAllied(ServerPlayer player1, ServerPlayer player2) {
-        if (OWLModPlatformUtils.isOtherModPresent("ftbteams")) {
+        if (Platform.isModLoaded("ftbteams")) {
             return FTBTeamsUtil.arePlayersFTBAllied(player1, player2);
         }
         return false;
     }
 
     public static boolean arePlayersPACAllied(ServerPlayer player1, ServerPlayer player2) {
-        if (OWLModPlatformUtils.isOtherModPresent("openpartiesandclaims")) {
+        if (Platform.isModLoaded("openpartiesandclaims")) {
             return PACUtil.arePlayersPACAllied(player1, player2);
         }
         return false;
