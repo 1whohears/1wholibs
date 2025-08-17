@@ -48,7 +48,7 @@ public class ForgeObjModelHandler implements ObjModelHandler {
     }
 
     @Override
-    public Vec3 getSize() {
+    public @NotNull Vec3 getSize() {
         if (size == null) {
             Vec3[] sizeCenter = UtilGeometry.getSizeCenter(((ObjModelAccess)unbakedModel).getPositions());
             size = sizeCenter[0];
@@ -58,7 +58,7 @@ public class ForgeObjModelHandler implements ObjModelHandler {
     }
 
     @Override
-    public Vec3 getCenter() {
+    public @NotNull Vec3 getCenter() {
         if (center == null) {
             Vec3[] sizeCenter = UtilGeometry.getSizeCenter(((ObjModelAccess)unbakedModel).getPositions());
             size = sizeCenter[0];

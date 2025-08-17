@@ -16,6 +16,6 @@ public interface ObjModelHandler {
     void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks,
                 int lightmap, int overlay, Map<String, Matrix4f> transforms,
                 Function<ResourceLocation, RenderType> renderType);
-    Vec3 getSize();
-    Vec3 getCenter();
+    @NotNull Vec3 getSize();
+    @NotNull Vec3 getCenter();
 }
