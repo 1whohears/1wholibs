@@ -1,28 +1,23 @@
 package com.onewhohears.onewholibs.forge;
 
 import com.onewhohears.onewholibs.OWLMod;
-import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
-import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
-import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims.BlockBenchAnims;
 import com.onewhohears.onewholibs.client.renderer.RendererObjEntity;
-import com.onewhohears.onewholibs.client.renderer.RendererObjModelItems;
 import com.onewhohears.onewholibs.common.network.PacketHandler;
-import com.onewhohears.onewholibs.init.ModEntities;
+import com.onewhohears.onewholibs.init.OWLModEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import dev.architectury.platform.forge.EventBuses;
 
 @Mod(OWLMod.MOD_ID)
 public final class OWLModForge {
@@ -33,8 +28,9 @@ public final class OWLModForge {
         // Leave this here for now otherwise we will be incompatible w/ older versions of Forge
         @SuppressWarnings("removal")
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
-        ENTITY_REGISTER_FORGE.register("test", ModEntities.testEntity());
+        ENTITY_REGISTER_FORGE.register("test", OWLModEntities.testEntity());
 
         modEventBus.addListener(this::commonSetup);
 
@@ -46,8 +42,9 @@ public final class OWLModForge {
     // Compatible with newer versions of Forge
     public OWLModForge(FMLJavaModLoadingContext loadingContext) {
         IEventBus modEventBus = loadingContext.getModEventBus();
+        EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
-        ENTITY_REGISTER_FORGE.register("test", ModEntities.testEntity());
+        ENTITY_REGISTER_FORGE.register("test", OWLModEntities.testEntity());
 
         modEventBus.addListener(this::commonSetup);
 

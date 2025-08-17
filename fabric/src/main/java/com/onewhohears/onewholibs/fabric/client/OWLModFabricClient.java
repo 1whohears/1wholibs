@@ -3,6 +3,7 @@ package com.onewhohears.onewholibs.fabric.client;
 import com.onewhohears.onewholibs.OWLMod;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
 import com.onewhohears.onewholibs.client.renderer.RendererObjEntity;
+import dev.felnull.specialmodelloader.api.event.SpecialModelLoaderEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.core.Registry;
@@ -17,5 +18,8 @@ public final class OWLModFabricClient implements ClientModInitializer {
                         new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim")
                 )
         );
+        SpecialModelLoaderEvents.LOAD_SCOPE.register(() ->
+                (resourceManager, location) ->
+                        OWLMod.MOD_ID.equals(location.getNamespace()));
     }
 }

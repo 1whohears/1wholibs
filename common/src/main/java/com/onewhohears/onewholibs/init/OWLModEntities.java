@@ -9,7 +9,7 @@ import net.minecraft.world.entity.MobCategory;
 
 import java.util.function.Supplier;
 
-public class ModEntities {
+public class OWLModEntities {
     public static Supplier<EntityType<TestEntity>> testEntity() {
         return () -> createEntityType(TestEntity::new, EntityDimensions.fixed(1, 2));
     }
