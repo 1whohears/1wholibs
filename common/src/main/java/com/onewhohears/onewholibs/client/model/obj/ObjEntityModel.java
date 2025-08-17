@@ -1,6 +1,5 @@
 package com.onewhohears.onewholibs.client.model.obj;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
@@ -12,13 +11,12 @@ import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.client.model.renderable.CompositeRenderable;
-import net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms;
-import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * See {@link com.onewhohears.onewholibs.client.renderer.RendererObjEntity}.
@@ -33,9 +31,9 @@ public class ObjEntityModel<T extends Entity> {
 	public final String modelId;
 
 	private final Map<String, Matrix4f> transforms = new HashMap<>();
-	
-	private CompositeRenderable model;
+
 	private ModelOverrides modelOverride;
+    private ObjModelHandler modelHandler;
 	
 	public ObjEntityModel(String modelId) {
 		this.modelId = modelId;
@@ -44,10 +42,17 @@ public class ObjEntityModel<T extends Entity> {
 	public void render(T entity, PoseStack poseStack, MultiBufferSource bufferSource, int lightmap, float partialTicks) {
 		rotate(entity, partialTicks, poseStack);
 		handleGlobalOverrides(entity, partialTicks, poseStack);
-		getModel().render(poseStack, bufferSource, getTextureRenderTypeLookup(entity), 
-				getLight(entity, lightmap), getOverlay(entity), partialTicks, 
-				getComponentTransforms(entity, partialTicks));
+        transforms.clear();
+        addComponentTransforms(transforms, entity, partialTicks);
+		getObjModelHandler().render(poseStack, bufferSource, partialTicks,
+                getLight(entity, lightmap), getOverlay(entity), transforms,
+                getTextureRenderTypeLookup(entity));
 	}
+
+    protected ObjModelHandler getObjModelHandler() {
+        if (modelHandler == null) modelHandler = ObjEntityModels.get().getObjModelHandler(modelId);
+        return modelHandler;
+    }
 	
 	protected void rotate(T entity, float partialTicks, PoseStack poseStack) {
 		Vector3f pivot = getGlobalPivot();
@@ -68,28 +73,16 @@ public class ObjEntityModel<T extends Entity> {
 		getModelOverride().applyNoTranslate(poseStack);
 	}
 	
-	public CompositeRenderable getModel() {
-		if (model == null) model = ObjEntityModels.get().getBakedModel(modelId);
-		return model;
-	}
-	
 	public ModelOverrides getModelOverride() {
 		if (modelOverride == null) modelOverride = ObjEntityModels.get().getModelOverride(modelId);
 		return modelOverride;
-	}
-	
-	protected Transforms getComponentTransforms(T entity, float partialTicks) {
-		transforms.clear();
-		addComponentTransforms(transforms, entity, partialTicks);
-		if (transforms.isEmpty()) return Transforms.EMPTY;
-		return Transforms.of(ImmutableMap.<String,Matrix4f>builder().putAll(transforms).build());
 	}
 
 	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
 
 	}
 	
-	protected ITextureRenderTypeLookup getTextureRenderTypeLookup(T entity) {
+	protected Function<ResourceLocation, RenderType> getTextureRenderTypeLookup(T entity) {
 		return RenderType::entityTranslucent;
 	}
 	

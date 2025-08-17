@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.util;
+package com.onewhohears.onewholibs.util.forge;
 
 import net.minecraftforge.client.model.obj.ObjMaterialLibrary;
 import net.minecraftforge.client.model.obj.ObjModel;

@@ -1,11 +1,13 @@
 package com.onewhohears.onewholibs.client.renderer;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
 import com.onewhohears.onewholibs.item.ObjModelItem;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
-import com.onewhohears.onewholibs.mixin.ObjModelAccess;
-import com.onewhohears.onewholibs.util.math.UtilGeometry;
+import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -13,11 +15,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.renderable.CompositeRenderable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +29,17 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
     private static RendererObjModelItems instance;
 
     public static RendererObjModelItems get() {
-        if (instance == null) {
-            Minecraft m = Minecraft.getInstance();
-            instance = new RendererObjModelItems(m.getBlockEntityRenderDispatcher(), m.getEntityModels());
-        }
         return instance;
+    }
+
+    public static void register() {
+        instance = createNew();
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, instance);
+    }
+
+    public static RendererObjModelItems createNew() {
+        Minecraft m = Minecraft.getInstance();
+        return new RendererObjModelItems(m.getBlockEntityRenderDispatcher(), m.getEntityModels());
     }
 
     private final Map<String, ItemObjModelData> models = new HashMap<>();
@@ -56,35 +64,35 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
             if (model == null) {
                 String modelId = objItem.getObjModelId(preset);
                 // the model id needs to be set in client stats json thing
-                CompositeRenderable composite = ObjEntityModels.get().getBakedModel(modelId);
+                ObjModelHandler handler = ObjEntityModels.get().getObjModelHandler(modelId);
                 ObjEntityModels.ModelOverrides override = ObjEntityModels.get().getModelOverride(modelId);
-                ObjModel obj = ObjEntityModels.get().getUnbakedModel(modelId);
                 ObjEntityModels.ModelOverrides itemModelOverrides = objItem.getItemModelOverrides(preset);
-                model = new ItemObjModelData(composite, override, obj, itemModelOverrides);
+                model = new ItemObjModelData(handler, override, itemModelOverrides);
                 models.put(preset, model);
             }
             model.render(transformType, poseStack, buffer, packedLight, packedOverlay);
         } 
     }
 
+    public static final Map<String, Matrix4f> EMPTY_TRANSFORMS = ImmutableMap.of();
+
     public static class ItemObjModelData {
         public static final float SIZE_SCALE_FACTOR = 1.25f;
-        public final CompositeRenderable compositeRenderable;
+        public final ObjModelHandler handler;
         public final ObjEntityModels.ModelOverrides modelOverrides, itemModelOverrides;
         public final Vec3 center;
         public final float scale;
         public ItemObjModelData(
-                CompositeRenderable compositeRenderable,
+                ObjModelHandler handler,
                 ObjEntityModels.ModelOverrides modelOverrides,
-                ObjModel obj, ObjEntityModels.ModelOverrides itemModelOverrides
+                ObjEntityModels.ModelOverrides itemModelOverrides
         ) {
-            this.compositeRenderable = compositeRenderable;
+            this.handler = handler;
             this.modelOverrides = modelOverrides;
             this.itemModelOverrides = itemModelOverrides;
-            Vec3[] sizeCenter = UtilGeometry.getSizeCenter(((ObjModelAccess)obj).getPositions());
-            Vec3 size = sizeCenter[0];
+            Vec3 size = handler.getSize();
             float maxSize = (float)Math.max(size.z(), Math.max(size.x(), size.y()));
-            center = sizeCenter[1];
+            center = handler.getCenter();
             scale = SIZE_SCALE_FACTOR / maxSize;
         }
         public void render(ItemTransforms.TransformType transformType, PoseStack poseStack,
@@ -126,12 +134,8 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
             }
             poseStack.scale(scale, scale, scale);
             poseStack.translate((float) -center.x(), (float) -center.y(), (float) -center.z());
-            this.compositeRenderable.render(
-                    poseStack, buffer,
-                    RenderType::entitySolid, packedLight, packedOverlay,
-                    0,
-                    CompositeRenderable.Transforms.EMPTY
-            );
+            handler.render(poseStack, buffer, 0, packedLight, packedOverlay,
+                    EMPTY_TRANSFORMS, RenderType::entitySolid);
             poseStack.popPose();
         }
     }

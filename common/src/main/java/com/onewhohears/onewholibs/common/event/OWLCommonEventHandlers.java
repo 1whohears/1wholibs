@@ -13,11 +13,11 @@ import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 
-public class OWLArchEventHandlers {
+public class OWLCommonEventHandlers {
 
     public static void init() {
-        PlayerEvent.PLAYER_JOIN.register(OWLArchEventHandlers::onPlayerJoin);
-        EntityEvent.ADD.register(OWLArchEventHandlers::onAddEntity);
+        PlayerEvent.PLAYER_JOIN.register(OWLCommonEventHandlers::onPlayerJoin);
+        EntityEvent.ADD.register(OWLCommonEventHandlers::onAddEntity);
     }
 
     public static EventResult onAddEntity(Entity entity, Level level) {

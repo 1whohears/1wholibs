@@ -1,14 +1,15 @@
-package com.onewhohears.onewholibs.client.model.obj;
+package com.onewhohears.onewholibs.client.obj.forge;
 
 import com.onewhohears.onewholibs.mixin.ModelGroupAccess;
 import com.onewhohears.onewholibs.mixin.ModelObjectAccess;
 import com.onewhohears.onewholibs.mixin.ObjModelAccess;
-import com.onewhohears.onewholibs.util.UtilClientReflection;
 import com.onewhohears.onewholibs.util.UtilParse;
+import com.onewhohears.onewholibs.util.forge.UtilClientReflection;
 import joptsimple.internal.Strings;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.obj.ObjLoader;
 import net.minecraftforge.client.model.obj.ObjMaterialLibrary;
+import net.minecraftforge.client.model.obj.ObjModel;
 import net.minecraftforge.client.model.obj.ObjTokenizer;
 
 import java.io.IOException;
@@ -43,9 +44,11 @@ public class ObjModelParser {
         Object currentMesh = null;
         if (materialLibraryOverrideLocation != null) {
             if (materialLibraryOverrideLocation.contains(":")) {
-                mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(materialLibraryOverrideLocation));
+                ResourceLocation rl = ResourceLocation.tryParse(materialLibraryOverrideLocation);
+                if (rl != null) mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(rl);
             } else {
-                mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(modelDomain, modelPath + materialLibraryOverrideLocation));
+                ResourceLocation rl = ResourceLocation.tryBuild(modelDomain, modelPath + materialLibraryOverrideLocation);
+                if (rl != null) mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(rl);
             }
         }
         String[] line;
@@ -56,9 +59,11 @@ public class ObjModelParser {
                     if (materialLibraryOverrideLocation == null) {
                         lib = line[1];
                         if (lib.contains(":")) {
-                            mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(lib));
+                            ResourceLocation rl = ResourceLocation.tryParse(lib);
+                            if (rl != null) mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(rl);
                         } else {
-                            mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(new ResourceLocation(modelDomain, modelPath + lib));
+                            ResourceLocation rl = ResourceLocation.tryBuild(modelDomain, modelPath + lib);
+                            if (rl != null) mtllib = ObjLoader.INSTANCE.loadMaterialLibrary(rl);
                         }
                     }
                     break;

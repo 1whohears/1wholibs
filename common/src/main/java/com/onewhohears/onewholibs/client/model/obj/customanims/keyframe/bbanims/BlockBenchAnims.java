@@ -7,7 +7,9 @@ import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimParser;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
+import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.slf4j.Logger;
@@ -22,7 +24,6 @@ public class BlockBenchAnims implements KeyframeAnimParser {
     private static BlockBenchAnims instance;
 
     public static BlockBenchAnims get() {
-        if (instance == null) instance = new BlockBenchAnims();
         return instance;
     }
 
@@ -30,18 +31,24 @@ public class BlockBenchAnims implements KeyframeAnimParser {
         instance = null;
     }
 
+    public static void register() {
+        instance = new BlockBenchAnims();
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, instance);
+    }
+
     public static final String DIRECTORY = "bb_animations";
     public static final String ANIM_FILE_TYPE = ".json";
     public static final String PIVOTS_FILE_TYPE = ".txt";
     public static final String COMPATIBLE_FORMAT_VERSIONS = "1.8.0";
 
-    private static Map<String, BBAnim> animMap = new HashMap<>();
+    private static final Map<String, BBAnim> animMap = new HashMap<>();
 
     private BlockBenchAnims() {}
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         LOGGER.info("RELOAD ASSETS: "+DIRECTORY);
+        animMap.clear();
         manager.listResources(DIRECTORY, (key) -> key.getPath().endsWith(ANIM_FILE_TYPE))
                 .forEach((key, resource) -> {
             try {

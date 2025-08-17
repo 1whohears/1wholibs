@@ -62,27 +62,6 @@ public final class OWLModForge {
 
     @Mod.EventBusSubscriber(modid = OWLMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
-        @SubscribeEvent
-        public static void clientSetup(final FMLClientSetupEvent event) {
-            CustomAnims.addAnim("continuous_rotation", EntityModelTransform.ContinuousRotation::new);
-            CustomAnims.addAnim("always_hide", EntityModelTransform.AlwaysHide::new);
-            KFAnimPlayers.addAnimationPlayerFactory("always", (data) -> new ControllableAnimPlayer<>(data,
-                    entity -> true, BasicControllers.continuous()));
-            KFAnimPlayers.addAnimationPlayerFactory("ground_move", (data) -> new ControllableAnimPlayer<>(data,
-                    entity -> entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
-                    BasicControllers.continuous()));
-            KFAnimPlayers.addAnimationPlayerFactory("air_move", (data) -> new ControllableAnimPlayer<>(data,
-                    entity -> !entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
-                    BasicControllers.continuous()));
-        }
-
-        @SubscribeEvent
-        public static void registerClientReloadListener(RegisterClientReloadListenersEvent event) {
-            event.registerReloadListener(ObjEntityModels.get());
-            event.registerReloadListener(BlockBenchAnims.get());
-            event.registerReloadListener(KFAnimPlayers.get());
-            event.registerReloadListener(RendererObjModelItems.get());
-        }
 
         @SubscribeEvent
         public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonElement;
-import net.minecraft.Util;
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.registry.ReloadListenerRegistry;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
@@ -17,47 +19,60 @@ import com.onewhohears.onewholibs.util.UtilParse;
 
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraftforge.client.model.geometry.StandaloneGeometryBakingContext;
-import net.minecraftforge.client.model.obj.ObjModel;
-import net.minecraftforge.client.model.obj.ObjModel.ModelSettings;
-import net.minecraftforge.client.model.obj.ObjTokenizer;
-import net.minecraftforge.client.model.renderable.CompositeRenderable;
 
 /**
- * {@link ObjEntityModel} uses {@link CompositeRenderable} to render obj models.
- * ObjEntityModels is where all {@link CompositeRenderable} are baked and stored.
  * @author 1whohears
  */
-public class ObjEntityModels implements ResourceManagerReloadListener {
+public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 	
-	private static final Logger LOGGER = LogUtils.getLogger();
+	protected static final Logger LOGGER = LogUtils.getLogger();
 	private static ObjEntityModels instance;
 	
 	public static ObjEntityModels get() {
-		if (instance == null) instance = new ObjEntityModels();
 		return instance;
 	}
 	
 	public static void close() {
 		instance = null;
 	}
-	
+
+    public static void register() {
+        instance = createNew();
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, instance);
+    }
+
+    @ExpectPlatform
+    public static ObjEntityModels createNew() {
+        throw new AssertionError();
+    }
+
 	public static final String DIRECTORY = "models/entity";
 	public static final String MODEL_FILE_TYPE = ".obj";
 	public static final String OVERRIDE_FILE_TYPE = ".json";
 	public static final String NULL_MODEL_NAME = "simple_test";
 	
 	private final Map<String, ModelOverrides> modelOverrides = new HashMap<>();
-	private final Map<String, ObjModel> unbakedModels = new HashMap<>();
-	private final Map<String, CompositeRenderable> models = new HashMap<>();
+    private final Map<String, ObjModelHandler> modelHandlers = new HashMap<>();
 	
-	private ObjEntityModels() {
+	protected ObjEntityModels() {
 	}
-	
-	public ObjModel getUnbakedModel(String name) {
-		if (!unbakedModels.containsKey(name)) return unbakedModels.get(NULL_MODEL_NAME);
-		return unbakedModels.get(name);
-	}
+
+    public ObjModelHandler getObjModelHandler(String id) {
+        if (!modelHandlers.containsKey(id)) modelHandlers.put(id, createObjModelHandler(id));
+        return modelHandlers.get(id);
+    }
+
+    protected abstract ObjModelHandler createObjModelHandler(String id);
+
+    @Override
+    public void onResourceManagerReload(ResourceManager manager) {
+        LOGGER.info("RELOAD ASSETS: "+DIRECTORY);
+        readModelOverrides(manager);
+        modelHandlers.clear();
+        setupObjModels(manager);
+    }
+
+    protected abstract void setupObjModels(ResourceManager manager);
 	
 	public final static ModelOverrides NO_OVERRIDES = new ModelOverrides();
 	
@@ -66,56 +81,7 @@ public class ObjEntityModels implements ResourceManagerReloadListener {
 		return modelOverrides.get(name);
 	}
 	
-	public CompositeRenderable getBakedModel(String name) {
-		if (!models.containsKey(name)) return models.get(NULL_MODEL_NAME);
-		return models.get(name);
-	}
-	
-	public boolean hasModel(String id) {
-		return models.containsKey(id);
-	}
-	
-	public void bakeModels() {
-		LOGGER.info("BAKING OBJ MODELS");
-		models.clear();
-		unbakedModels.forEach((key, obj) -> {
-			StandaloneGeometryBakingContext ctx = StandaloneGeometryBakingContext.create(obj.modelLocation);
-			CompositeRenderable comp = obj.bakeRenderable(ctx);
-			models.put(key, comp);
-            LOGGER.debug("BAKED {} {} {}", key, obj.getRootComponentNames().size(), obj.getConfigurableComponentNames());
-		});
-	}
-	
-	@Override
-	public void onResourceManagerReload(ResourceManager manager) {
-		LOGGER.info("RELOAD ASSETS: "+DIRECTORY);
-		readUnbakedModels(manager);
-		readModelOverrides(manager);
-		bakeModels();
-	}
-	
-	public void readUnbakedModels(ResourceManager manager) {
-		unbakedModels.clear();
-		manager.listResources(DIRECTORY, (key) -> key.getPath().endsWith(MODEL_FILE_TYPE))
-				.forEach((key, resource) -> {
-			try {
-				String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
-				if (unbakedModels.containsKey(name)) {
-                    LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name).modelLocation);
-				}
-				ObjTokenizer tokenizer = new ObjTokenizer(resource.open());
-				String mtlOverride = key.toString().replace(".obj", ".mtl");
-				ObjModel model = ObjModelParser.parse(tokenizer, new ModelSettings(key,
-						false, false, true, false, mtlOverride));
-				tokenizer.close();
-				unbakedModels.put(name, model);
-                LOGGER.debug("ADDING MODEL = {}", key);
-			} catch (Exception e) {
-                LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());
-				e.printStackTrace();
-			}
-		});
-	}
+	public abstract boolean hasModel(String id);
 	
 	public void readModelOverrides(ResourceManager manager) {
 		modelOverrides.clear();
