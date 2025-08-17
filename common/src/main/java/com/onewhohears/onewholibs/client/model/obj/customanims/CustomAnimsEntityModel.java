@@ -38,7 +38,7 @@ public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> 
 	}
 
 	@Override
-	public void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
 		super.addComponentTransforms(transforms, entity, partialTicks);
 		for (EntityModelTransform<T> trans : this.transforms.values())
 			transforms.put(trans.getKey(), trans.getTransform(entity, partialTicks));

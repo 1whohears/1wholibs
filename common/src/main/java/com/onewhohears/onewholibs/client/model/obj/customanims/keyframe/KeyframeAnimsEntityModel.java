@@ -33,7 +33,7 @@ public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntit
     }
 
     @Override
-    public void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+    protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
         super.addComponentTransforms(transforms, entity, partialTicks);
         for (KeyframeAnimationPlayer<T> anim : getKeyframeAnimations())
             if (anim.isAnimationActive(entity))
