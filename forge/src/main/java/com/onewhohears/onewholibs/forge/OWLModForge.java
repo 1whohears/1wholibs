@@ -65,7 +65,7 @@ public final class OWLModForge {
             //noinspection removal
             event.registerEntityRenderer(
                     RegistryObject.create(
-                            new ResourceLocation(OWLMod.MOD_ID, "test"),
+                            ResourceLocation.tryBuild(OWLMod.MOD_ID, "test"),
                             ForgeRegistries.ENTITY_TYPES
                     ).get(),
                     context -> new RendererObjEntity<>(context,

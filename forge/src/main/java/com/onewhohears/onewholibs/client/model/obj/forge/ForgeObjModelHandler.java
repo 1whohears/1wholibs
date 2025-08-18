@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.obj.forge;
+package com.onewhohears.onewholibs.client.model.obj.forge;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -43,8 +43,10 @@ public class ForgeObjModelHandler implements ObjModelHandler {
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks,
                        int lightmap, int overlay, Map<String, Matrix4f> transforms,
                        Function<ResourceLocation, RenderType> renderType) {
-        model.render(poseStack, bufferSource, (ITextureRenderTypeLookup) renderType,
-                lightmap, overlay, partialTicks, getComponentTransforms(transforms));
+        model.render(poseStack, bufferSource,
+                renderType::apply,
+                lightmap, overlay, partialTicks,
+                getComponentTransforms(transforms));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.obj.fabric;
+package com.onewhohears.onewholibs.client.model.obj.fabric;
 
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;

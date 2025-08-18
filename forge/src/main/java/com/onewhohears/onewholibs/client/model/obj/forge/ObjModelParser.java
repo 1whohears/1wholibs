@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.obj.forge;
+package com.onewhohears.onewholibs.client.model.obj.forge;
 
 import com.onewhohears.onewholibs.mixin.ModelGroupAccess;
 import com.onewhohears.onewholibs.mixin.ModelObjectAccess;

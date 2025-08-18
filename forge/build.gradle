@@ -41,7 +41,7 @@ configurations {
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
-    implementation project(path: ":forge", configuration: "namedElements")
+    //implementation project(path: ":forge", configuration: "namedElements")
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 

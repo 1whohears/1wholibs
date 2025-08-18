@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.obj.forge;
+package com.onewhohears.onewholibs.client.model.obj.forge;
 
 import java.io.File;
 import java.util.HashMap;
