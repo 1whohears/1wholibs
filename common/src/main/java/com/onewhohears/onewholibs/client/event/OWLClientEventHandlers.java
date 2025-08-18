@@ -5,6 +5,7 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransf
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.BasicControllers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.ControllableAnimPlayer;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
+import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import net.minecraft.client.Minecraft;
 
@@ -15,6 +16,8 @@ public class OWLClientEventHandlers {
     }
 
     public static void onClientSetup(Minecraft minecraft) {
+        // REGISTER ITEM OBJ MODELS
+        OWLModItems.registerAllObjItemModels();
         // REGISTER BUILT IN CLIENT ANIMATION STUFF
         CustomAnims.addAnim("continuous_rotation", EntityModelTransform.ContinuousRotation::new);
         CustomAnims.addAnim("always_hide", EntityModelTransform.AlwaysHide::new);

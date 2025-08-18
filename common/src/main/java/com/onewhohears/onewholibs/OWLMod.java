@@ -12,6 +12,7 @@ import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
 import com.onewhohears.onewholibs.common.event.ServerHolder;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
+import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.Registries;
@@ -42,6 +43,7 @@ public class OWLMod {
         } else {
             ServerHolder.init();
         }
+        OWLModItems.init();
         OWLCommonEventHandlers.init();
         OWLReloadListener.register();
         OWLEvents.registerPresetTypesEvent();
