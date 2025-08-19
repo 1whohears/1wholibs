@@ -25,7 +25,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
  */
 public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 	
-	protected static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogUtils.getLogger();
 	private static ObjEntityModels instance;
 	
 	public static ObjEntityModels get() {
@@ -48,6 +48,7 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 
 	public static final String DIRECTORY = "models/entity";
 	public static final String MODEL_FILE_TYPE = ".obj";
+    public static final String MATERIAL_FILE_TYPE = ".mtl";
 	public static final String OVERRIDE_FILE_TYPE = ".json";
 	public static final String NULL_MODEL_NAME = "simple_test";
 	

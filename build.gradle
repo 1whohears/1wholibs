@@ -22,6 +22,10 @@ allprojects {
         maven {
             url "https://cursemaven.com"
         }
+        maven {
+            name = "Fuzs Mod Resources"
+            url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+        }
     }
 }
 
@@ -32,13 +36,6 @@ subprojects {
 
     base {
         archivesName = "$rootProject.archives_name-$project.name"
-    }
-
-    repositories {
-        maven {
-            name = "FelNull Maven"
-            url = "https://maven.felnull.dev"
-        }
     }
 
     loom {

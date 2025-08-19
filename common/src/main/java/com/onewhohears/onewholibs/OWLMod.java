@@ -11,7 +11,9 @@ import com.onewhohears.onewholibs.common.event.OWLCommonEventHandlers;
 import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
 import com.onewhohears.onewholibs.common.event.ServerHolder;
+import com.onewhohears.onewholibs.common.network.PacketHandler;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
+import com.onewhohears.onewholibs.init.OWLModEntities;
 import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
@@ -34,6 +36,7 @@ public class OWLMod {
     public static final Supplier<Registries> REGISTRIES = Suppliers.memoize(() -> Registries.get(MOD_ID));
 
     public static void init() {
+        PacketHandler.register();
         if (Platform.getEnvironment() == Env.CLIENT) {
             ObjEntityModels.register();
             BlockBenchAnims.register();
@@ -44,6 +47,7 @@ public class OWLMod {
             ServerHolder.init();
         }
         OWLModItems.init();
+        OWLModEntities.init();
         OWLCommonEventHandlers.init();
         OWLReloadListener.register();
         OWLEvents.registerPresetTypesEvent();
@@ -53,17 +57,4 @@ public class OWLMod {
             ReloadListenerRegistry.register(PackType.SERVER_DATA, listener);
         });
     }
-
-    // TODO - Agnosticize tabulated classes and their related stuff:
-    /*
-        com.onewhohears.onewholibs.client.renderer.RendererObjModelItems
-        com.onewhohears.onewholibs.client.model.obj.ObjModelParser
-        com.onewhohears.onewholibs.item.ObjModelItem
-        com.onewhohears.onewholibs.mixin.CompositeRenderableBuilderMixin
-        com.onewhohears.onewholibs.mixin.ModelGroupAccess
-        com.onewhohears.onewholibs.mixin.ModelObjectAccess
-        com.onewhohears.onewholibs.mixin.ObjLoaderMixin
-        com.onewhohears.onewholibs.mixin.ObjModelAccess
-        com.onewhohears.onewholibs.util.UtilClientReflection
-     */
 }

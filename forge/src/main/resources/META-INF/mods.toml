@@ -49,7 +49,7 @@ side = "BOTH"
 
 [[dependencies.onewholibs]]
 modId = "architectury"
-mandatory = false
+mandatory = true
 versionRange = "[${architectury_version},)"
 ordering = "NONE"
 side = "BOTH"

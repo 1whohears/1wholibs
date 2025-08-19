@@ -30,6 +30,14 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+
+
+}
+
+configurations.configureEach {
+    resolutionStrategy {
+        force("net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}")
+    }
 }
 
 dependencies {
@@ -38,19 +46,33 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
-    modImplementation "net.fabricmc.fabric-api:fabric-rendering-v1:$rootProject.fabric_api_version"
 
     modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
-    modApi "dev.felnull:special-model-loader:${sml_version}"
+
+    implementation "de.javagl:obj:${rootProject.javaglobj_version}"
 
     modImplementation("curse.maven:open-parties-and-claims-636608:6055471")
+    modApi "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
 }
 
 processResources {
     inputs.property 'version', project.version
 
     filesMatching('fabric.mod.json') {
-        expand version: project.version
+        expand version: project.version,
+                homepage: project.findProperty("homepage"),
+                mod_authors: project.findProperty("mod_authors"),
+                issue_tracker: project.findProperty("issue_tracker"),
+                mod_description: project.findProperty("mod_description"),
+                minecraft_version: project.findProperty("minecraft_version"),
+                fabric_loader_version: project.findProperty("fabric_loader_version"),
+                fabric_api_version: project.findProperty("forge_version_range"),
+                ftb_library_version: project.findProperty("ftb_library_version"),
+                ftb_teams_version: project.findProperty("ftb_teams_version"),
+                architectury_version: project.findProperty("architectury_version"),
+                openpartiesandclaims_version: project.findProperty("openpartiesandclaims_version"),
+                sml_version: project.findProperty("sml_version"),
+                forgeconfigapiport_version: project.findProperty("forgeconfigapiport_version")
     }
 }
 

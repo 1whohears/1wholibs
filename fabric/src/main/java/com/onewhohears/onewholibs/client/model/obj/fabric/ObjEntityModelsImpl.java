@@ -1,17 +1,22 @@
 package com.onewhohears.onewholibs.client.model.obj.fabric;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
-import dev.felnull.specialmodelloader.api.SpecialModelLoaderAPI;
-import dev.felnull.specialmodelloader.api.model.LoadedResource;
-import dev.felnull.specialmodelloader.impl.model.obj.ObjUnbakedModelModel;
-import net.minecraft.ResourceLocationException;
-import net.minecraft.client.resources.model.BakedModel;
+import de.javagl.obj.Mtl;
+import de.javagl.obj.MtlReader;
+import de.javagl.obj.Obj;
+import de.javagl.obj.ObjReader;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ObjEntityModelsImpl extends ObjEntityModels {
 
@@ -19,8 +24,8 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
         return new ObjEntityModelsImpl();
     }
 
-    private final Map<String, ObjUnbakedModelModel> unbakedModels = new HashMap<>();
-    private final Map<String, BakedModel> models = new HashMap<>();
+    private final Map<String, ObjUnbakedModel> unbakedModels = new HashMap<>();
+    private final Map<String, ObjBakedModel> models = new HashMap<>();
 
     protected ObjEntityModelsImpl() {
     }
@@ -30,12 +35,12 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
         return new FabricObjModelHandler(id, getBakedModel(id), getUnbakedModel(id));
     }
 
-    public ObjUnbakedModelModel getUnbakedModel(String name) {
+    public ObjUnbakedModel getUnbakedModel(String name) {
         if (!unbakedModels.containsKey(name)) return unbakedModels.get(NULL_MODEL_NAME);
         return unbakedModels.get(name);
     }
 
-    public BakedModel getBakedModel(String name) {
+    public ObjBakedModel getBakedModel(String name) {
         if (!models.containsKey(name)) return models.get(NULL_MODEL_NAME);
         return models.get(name);
     }
@@ -48,10 +53,14 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
         LOGGER.info("BAKING OBJ MODELS");
         models.clear();
         unbakedModels.forEach((key, obj) -> {
-
-            //BakedModel bakedModel = obj.bake();
-            //models.put(key, bakedModel);
-            //LOGGER.debug("BAKED {}", key);
+            try {
+                ObjBakedModel bakedModel = obj.bake();
+                models.put(key, bakedModel);
+                LOGGER.debug("BAKED {}", key);
+            } catch (Exception e) {
+                LOGGER.error("ERROR: OBJ BAKING FAILED {} because {}", key, e.getMessage());
+                e.printStackTrace();
+            }
         });
     }
 
@@ -70,16 +79,26 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         if (unbakedModels.containsKey(name)) {
                             LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name));
                         }
-                        LoadedResource lr = SpecialModelLoaderAPI.getInstance().loadResource(manager, key);
-                        if (lr == null) {
-                            throw new ResourceLocationException("Resource "+key+" doesn't exist!");
+                        Obj obj = ObjReader.read(resource.openAsReader());
+                        Optional<Resource> mtlRes = manager.getResource(ResourceLocation.tryBuild(
+                                key.getNamespace(), DIRECTORY+"/"+name+MATERIAL_FILE_TYPE));
+                        Map<String, Mtl> mtl;
+                        if (mtlRes.isPresent()) {
+                            List<Mtl> mtlList = MtlReader.read(mtlRes.get().openAsReader());
+                            mtl = new ImmutableBiMap.Builder<String, Mtl>()
+                                    .putAll(mtlList.stream().collect(Collectors.toMap(
+                                            Mtl::getName, m -> m,
+                                            (a, b) -> a // merge function in case of duplicates
+                                    )))
+                                    .build();
+                        } else {
+                            mtl = new ImmutableBiMap.Builder<String, Mtl>().build();
                         }
-                        ObjUnbakedModelModel unbakedModel = (ObjUnbakedModelModel) SpecialModelLoaderAPI
-                                .getInstance().makeModel(lr);
+                        ObjUnbakedModel unbakedModel = new ObjUnbakedModel(key, obj, mtl);
                         unbakedModels.put(name, unbakedModel);
                         LOGGER.debug("ADDING MODEL = {}", key);
                     } catch (Exception e) {
-                        LOGGER.error("ERROR: SKIPPING {} because {}", key, e.getMessage());
+                        LOGGER.error("ERROR: OBJ PARSING FAILED {} because {}", key, e.getMessage());
                         e.printStackTrace();
                     }
                 });

@@ -9,7 +9,7 @@
   ],
   "contact": {
     "homepage": "${homepage}",
-    "sources": "${sources}"
+    "sources": "${issue_tracker}"
   },
   "license": "MIT",
   "icon": "assets/onewholibs/icon.png",
@@ -26,16 +26,15 @@
     "onewholibs.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.14",
+    "fabricloader": ">=${fabric_loader_version}",
     "minecraft": "~1.19.2",
     "java": ">=17",
-    "special-model-loader": ">=${sml_version}",
-    "": "*"
+    "architectury": ">=${architectury_version}"
   },
   "suggests": {
-    "ftbteams": ">=1902.2.14",
-    "ftblibrary": ">=1902.4.1",
-    "architectury": ">=6.6.92",
-    "openpartiesandclaims": ">=0.23.7"
+    "ftbteams": ">=${ftb_teams_version}",
+    "ftblibrary": ">=${ftb_library_version}",
+    "openpartiesandclaims": ">=${openpartiesandclaims_version}",
+    "forgeconfigapiport_version": ">=${forgeconfigapiport_version}"
   }
 }

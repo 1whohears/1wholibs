@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.obj.ObjModel;
 import net.minecraftforge.client.model.renderable.CompositeRenderable;
-import net.minecraftforge.client.model.renderable.ITextureRenderTypeLookup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
