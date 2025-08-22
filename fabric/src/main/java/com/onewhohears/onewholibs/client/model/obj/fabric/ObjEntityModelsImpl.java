@@ -12,10 +12,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ObjEntityModelsImpl extends ObjEntityModels {
@@ -56,7 +53,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
             try {
                 ObjBakedModel bakedModel = obj.bake();
                 models.put(key, bakedModel);
-                LOGGER.debug("BAKED {}", key);
+                LOGGER.info("BAKED {}", key);
             } catch (Exception e) {
                 LOGGER.error("ERROR: OBJ BAKING FAILED {} because {}", key, e.getMessage());
                 e.printStackTrace();
@@ -77,7 +74,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                     try {
                         String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
                         if (unbakedModels.containsKey(name)) {
-                            LOGGER.debug("The model {} is overriding {}!", key, unbakedModels.get(name));
+                            LOGGER.info("The model {} is overriding {}!", key, unbakedModels.get(name));
                         }
                         Obj obj = ObjReader.read(resource.openAsReader());
                         Optional<Resource> mtlRes = manager.getResource(ResourceLocation.tryBuild(
@@ -85,6 +82,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         Map<String, Mtl> mtl;
                         if (mtlRes.isPresent()) {
                             List<Mtl> mtlList = MtlReader.read(mtlRes.get().openAsReader());
+                            mtlList.removeIf(m -> m.getMapKd() == null || m.getMapKd().equals("null"));
                             mtl = new ImmutableBiMap.Builder<String, Mtl>()
                                     .putAll(mtlList.stream().collect(Collectors.toMap(
                                             Mtl::getName, m -> m,
@@ -96,7 +94,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         }
                         ObjUnbakedModel unbakedModel = new ObjUnbakedModel(key, obj, mtl);
                         unbakedModels.put(name, unbakedModel);
-                        LOGGER.debug("ADDING MODEL = {}", key);
+                        LOGGER.info("ADDING MODEL = {}", key);
                     } catch (Exception e) {
                         LOGGER.error("ERROR: OBJ PARSING FAILED {} because {}", key, e.getMessage());
                         e.printStackTrace();

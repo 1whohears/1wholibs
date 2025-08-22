@@ -11,10 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ObjUnbakedModel {
 
@@ -29,19 +26,40 @@ public class ObjUnbakedModel {
     }
 
     public @NotNull ObjBakedModel bake() {
+        System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
         ObjBakedModel.Builder builder = ObjBakedModel.builder();
-        Map<String, Obj> groups = ObjSplitting.splitByGroups(obj);
-        groups.forEach((name, group) -> bakeGroup(builder, name, group));
+        String mapKd = "onewholibs:mtl_fail.png";
+        if (obj.getNumMaterialGroups() > 0) {
+            String mtlName = obj.getMaterialGroup(0).getName();
+            if (mtl.containsKey(mtlName)) mapKd = mtl.get(mtlName).getMapKd();
+        }
+        if (!mapKd.endsWith(".png")) mapKd += ".png";
+        String[] split = mapKd.split(":");
+        String namespace, path;
+        if (split.length == 1) {
+            namespace = "minecraft";
+            path = split[0];
+        } else {
+            namespace = split[0];
+            path = split[1];
+        }
+        if (!path.startsWith("textures/")) path = "textures/" + path;
+        ResourceLocation texture = ResourceLocation.tryBuild(namespace, path);
+        //Map<String, Obj> groups = ObjSplitting.splitByGroups(obj);
+        //groups.forEach((name, group) -> bakeGroup(builder, name, group));
+        int numGroups = obj.getNumGroups();
+        for (int i = 0; i < numGroups; ++i) {
+            ObjGroup group = obj.getGroup(i);
+            bakeGroup(builder, group.getName(), group, texture);
+        }
         return builder.get();
     }
 
-    private void bakeGroup(ObjBakedModel.Builder builder, String name, Obj group) {
+    private void bakeGroup(ObjBakedModel.Builder builder, String name,
+                           ObjGroup group, ResourceLocation texture) {
         ObjBakedModel.PartBuilder<ObjBakedModel.Builder> groupBuilder = builder.child(name);
-        List<String> mtlFileNames = group.getMtlFileNames();
-        //System.out.println("mtlFileName "+mtlFileNames.get(0));
-        //Mtl m = mtl.get(mtlFileNames.getFirst());
-
-        ResourceLocation texture = ResourceLocation.tryParse(mtlFileNames.get(0));
+        //ResourceLocation texture = ResourceLocation.tryParse(mapKd);
+        System.out.println("baking group "+name+" texture "+texture+" faces "+group.getNumFaces());
         for (int i = 0; i < group.getNumFaces(); i++)
             bakeFace(groupBuilder, group.getFace(i), texture);
     }
@@ -69,10 +87,7 @@ public class ObjUnbakedModel {
                 FloatTuple norm = (nIndex >= 0) ? obj.getNormal(nIndex) : null;
 
                 positions[i] = vector3f(pos);
-                uvs[i] = new float[] {
-                        uv.getX() * sprite.getWidth(),
-                        uv.getY() * sprite.getHeight()
-                };
+                uvs[i] = new float[] {uv.getX(), 1.0f - uv.getY()};
                 normals[i] = (norm != null) ? vector3f(norm) : new Vector3f(0, 1, 0);
             }
             positions[3] = positions[2];
@@ -115,7 +130,7 @@ public class ObjUnbakedModel {
     private static @NotNull List<ObjFace> fourVertsTo2Tris(ObjFace face) {
         List<ObjFace> result = new ArrayList<>(2);
         result.add(new TriFace(face, 0, 1, 2));
-        result.add(new TriFace(face, 0, 1, 2));
+        result.add(new TriFace(face, 0, 2, 3));
         return result;
     }
 
@@ -149,10 +164,8 @@ public class ObjUnbakedModel {
 
             data[offset + 3] = -1;
 
-            float u = sprite.getU(uvs[i][0] * sprite.getWidth());
-            float v = sprite.getV(uvs[i][1] * sprite.getHeight());
-            data[offset + 4] = Float.floatToRawIntBits(u);
-            data[offset + 5] = Float.floatToRawIntBits(v);
+            data[offset + 4] = Float.floatToRawIntBits(uvs[i][0]);
+            data[offset + 5] = Float.floatToRawIntBits(uvs[i][1]);
 
             data[offset + 6] = 0;
             data[offset + 7] = 0;
