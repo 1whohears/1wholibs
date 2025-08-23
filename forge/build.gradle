@@ -41,12 +41,11 @@ configurations {
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
-    //implementation project(path: ":forge", configuration: "namedElements")
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 
     modImplementation("dev.architectury:architectury-forge:${rootProject.architectury_version}")
-    modImplementation("curse.maven:open-parties-and-claims-636608:6055470")
+    modImplementation("curse.maven:open-parties-and-claims-636608:${rootProject.forge_openpartiesandclaims_id}")
 }
 
 processResources {
