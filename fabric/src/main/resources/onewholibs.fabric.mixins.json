@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "refmap": "onewholibs.refmap.json",
   "client": [
+    "BlockEntityWithoutLevelRendererMixin",
     "ObjReaderMixin"
   ],
   "mixins": [

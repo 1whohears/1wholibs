@@ -20,25 +20,8 @@ public class ObjBakedModel {
     }
 
     private final List<Component> components = new ArrayList<>();
-    private List<BakedQuad> itemQuads;
 
     protected ObjBakedModel() {}
-
-    public List<BakedQuad> getItemQuads() {
-        if (itemQuads != null) return itemQuads;
-        itemQuads = new ArrayList<>();
-        for (Component component : components) addItemQuads(component);
-        return itemQuads;
-    }
-
-    private void addItemQuads(Component component) {
-        for (Component child : component.children) addItemQuads(child);
-        for (Mesh mesh : component.meshes) addItemQuads(mesh);
-    }
-
-    private void addItemQuads(Mesh mesh) {
-        itemQuads.addAll(mesh.quads);
-    }
 
     public void render(PoseStack poseStack, MultiBufferSource bufferSource,
                        Function<ResourceLocation, RenderType> renderType,

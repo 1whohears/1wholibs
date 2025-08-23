@@ -12,7 +12,7 @@ loom {
     }
 
     forge {
-        mixinConfig "onewholibs.mixins.json"
+        mixinConfig "onewholibs.forge.mixins.json"
         convertAccessWideners = true
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
     }
