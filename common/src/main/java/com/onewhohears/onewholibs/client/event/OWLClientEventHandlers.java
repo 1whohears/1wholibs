@@ -5,7 +5,6 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransf
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.BasicControllers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.ControllableAnimPlayer;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
-import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import net.minecraft.client.Minecraft;
 
@@ -22,10 +21,10 @@ public class OWLClientEventHandlers {
         KFAnimPlayers.addAnimationPlayerFactory("always", (data) -> new ControllableAnimPlayer<>(data,
                 entity -> true, BasicControllers.continuous()));
         KFAnimPlayers.addAnimationPlayerFactory("ground_move", (data) -> new ControllableAnimPlayer<>(data,
-                entity -> entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                entity -> entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
         KFAnimPlayers.addAnimationPlayerFactory("air_move", (data) -> new ControllableAnimPlayer<>(data,
-                entity -> !entity.isOnGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
+                entity -> !entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
     }
 
