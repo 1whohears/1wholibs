@@ -23,7 +23,7 @@
     ]
   },
   "mixins": [
-    "onewholibs.mixins.json"
+    "onewholibs.fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",

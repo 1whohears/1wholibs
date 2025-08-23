@@ -66,4 +66,12 @@ public class FabricObjModelHandler implements ObjModelHandler {
         size = sizeCenter[0];
         center = sizeCenter[1];
     }
+
+    public @NotNull ObjBakedModel getBakedModel() {
+        return bakedModel;
+    }
+
+    public @NotNull ObjUnbakedModel getUnbakedModel() {
+        return unbakedModel;
+    }
 }

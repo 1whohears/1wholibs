@@ -25,9 +25,7 @@ public class ObjUnbakedModel {
         this.mtl = mtl;
     }
 
-    public @NotNull ObjBakedModel bake() {
-        //System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
-        ObjBakedModel.Builder builder = ObjBakedModel.builder();
+    public ResourceLocation getTexture() {
         String mapKd = "onewholibs:mtl_fail.png";
         if (obj.getNumMaterialGroups() > 0) {
             String mtlName = obj.getMaterialGroup(0).getName();
@@ -44,30 +42,35 @@ public class ObjUnbakedModel {
             path = split[1];
         }
         if (!path.startsWith("textures/")) path = "textures/" + path;
-        ResourceLocation texture = ResourceLocation.tryBuild(namespace, path);
+        return ResourceLocation.tryBuild(namespace, path);
+    }
+
+    public @NotNull ObjBakedModel bake() {
+        //System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
+        ResourceLocation texture = getTexture();
+        TextureAtlasSprite sprite = Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(texture);
+        ObjBakedModel.Builder builder = ObjBakedModel.builder();
         int numGroups = obj.getNumGroups();
         for (int i = 0; i < numGroups; ++i) {
             ObjGroup group = obj.getGroup(i);
-            bakeGroup(builder, group.getName(), group, texture);
+            bakeGroup(builder, group.getName(), group, texture, sprite);
         }
         return builder.get();
     }
 
-    private void bakeGroup(ObjBakedModel.Builder builder, String name,
-                           ObjGroup group, ResourceLocation texture) {
+    private void bakeGroup(ObjBakedModel.Builder builder, String name, ObjGroup group,
+                           ResourceLocation texture, TextureAtlasSprite sprite) {
         //System.out.println("baking group "+name+" texture "+texture+" faces "+group.getNumFaces());
         ObjBakedModel.PartBuilder<?> groupBuilder = builder.child(name);
         for (int i = 0; i < group.getNumFaces(); i++)
-            bakeFace(groupBuilder, group.getFace(i), texture);
+            bakeFace(groupBuilder, group.getFace(i), texture, sprite);
     }
 
-    private void bakeFace(ObjBakedModel.PartBuilder<?> builder,
-                          ObjFace face, ResourceLocation texture) {
+    private void bakeFace(ObjBakedModel.PartBuilder<?> builder, ObjFace face,
+                          ResourceLocation texture, TextureAtlasSprite sprite) {
         List<BakedQuad> quads = new ArrayList<>();
-
-        TextureAtlasSprite sprite = Minecraft.getInstance()
-                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(texture);
 
         List<ObjFace> tris = triangulateFace(face);
         for (ObjFace tri : tris) {
