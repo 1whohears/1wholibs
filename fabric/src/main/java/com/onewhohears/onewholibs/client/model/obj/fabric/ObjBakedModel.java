@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +32,21 @@ public class ObjBakedModel {
             component.render(poseStack, bufferSource, renderType, lightmap, overlay, transforms);
     }
 
+    public Component getCreateComponent(String name) {
+        for (var component : components)
+            if (component.name.equals(name))
+                return component;
+        Component c = new Component(name);
+        components.add(c);
+        return c;
+    }
+
     public static class Component {
         private final String name;
         private final List<Component> children = new ArrayList<>();
         private final List<Mesh> meshes = new ArrayList<>();
 
-        public Component(String name)
-        {
+        public Component(String name) {
             this.name = name;
         }
 
@@ -58,6 +67,15 @@ public class ObjBakedModel {
 
             if (matrix != null)
                 poseStack.popPose();
+        }
+
+        public Component getCreateChild(String name) {
+            for (var component : children)
+                if (component.name.equals(name))
+                    return component;
+            Component c = new Component(name);
+            children.add(c);
+            return c;
         }
     }
 
@@ -88,14 +106,24 @@ public class ObjBakedModel {
 
         private Builder() {}
 
-        public PartBuilder<Builder> child(String name) {
-            var child = new Component(name);
-            renderable.components.add(child);
-            return new PartBuilder<>(this, child);
+        public PartBuilder<?> child(String name) {
+            String[] split = name.split("/");
+            if (split.length == 1) {
+                var child = new Component(name);
+                renderable.components.add(child);
+                return new PartBuilder<>(this, child);
+            }
+            Component parent = renderable.getCreateComponent(split[0]);
+            PartBuilder<?> parentBuilder = new PartBuilder<>(this, parent);
+            PartBuilder<?> childBuilder = null;
+            for (int i = 1; i < split.length; ++i) {
+                childBuilder = parentBuilder.child(split[i]);
+                parentBuilder = childBuilder;
+            }
+            return (childBuilder != null) ? childBuilder : parentBuilder;
         }
 
-        public ObjBakedModel get()
-        {
+        public ObjBakedModel get() {
             return renderable;
         }
     }
@@ -110,10 +138,7 @@ public class ObjBakedModel {
         }
 
         public PartBuilder<PartBuilder<T>> child(String name) {
-            String[] split = name.split("/");
-            name = split[split.length-1];
-            var child = new Component(component.name + "/" + name);
-            this.component.children.add(child);
+            var child = component.getCreateChild(name);
             return new PartBuilder<>(this, child);
         }
 
@@ -124,8 +149,7 @@ public class ObjBakedModel {
             return this;
         }
 
-        public T end()
-        {
+        public T end() {
             return parent;
         }
     }

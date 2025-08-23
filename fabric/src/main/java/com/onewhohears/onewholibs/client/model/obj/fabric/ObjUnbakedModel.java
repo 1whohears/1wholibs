@@ -26,7 +26,7 @@ public class ObjUnbakedModel {
     }
 
     public @NotNull ObjBakedModel bake() {
-        System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
+        //System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
         ObjBakedModel.Builder builder = ObjBakedModel.builder();
         String mapKd = "onewholibs:mtl_fail.png";
         if (obj.getNumMaterialGroups() > 0) {
@@ -45,8 +45,6 @@ public class ObjUnbakedModel {
         }
         if (!path.startsWith("textures/")) path = "textures/" + path;
         ResourceLocation texture = ResourceLocation.tryBuild(namespace, path);
-        //Map<String, Obj> groups = ObjSplitting.splitByGroups(obj);
-        //groups.forEach((name, group) -> bakeGroup(builder, name, group));
         int numGroups = obj.getNumGroups();
         for (int i = 0; i < numGroups; ++i) {
             ObjGroup group = obj.getGroup(i);
@@ -57,14 +55,13 @@ public class ObjUnbakedModel {
 
     private void bakeGroup(ObjBakedModel.Builder builder, String name,
                            ObjGroup group, ResourceLocation texture) {
-        ObjBakedModel.PartBuilder<ObjBakedModel.Builder> groupBuilder = builder.child(name);
-        //ResourceLocation texture = ResourceLocation.tryParse(mapKd);
-        System.out.println("baking group "+name+" texture "+texture+" faces "+group.getNumFaces());
+        //System.out.println("baking group "+name+" texture "+texture+" faces "+group.getNumFaces());
+        ObjBakedModel.PartBuilder<?> groupBuilder = builder.child(name);
         for (int i = 0; i < group.getNumFaces(); i++)
             bakeFace(groupBuilder, group.getFace(i), texture);
     }
 
-    private void bakeFace(ObjBakedModel.PartBuilder<ObjBakedModel.Builder> builder,
+    private void bakeFace(ObjBakedModel.PartBuilder<?> builder,
                           ObjFace face, ResourceLocation texture) {
         List<BakedQuad> quads = new ArrayList<>();
 
