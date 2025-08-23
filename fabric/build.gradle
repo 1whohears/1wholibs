@@ -63,6 +63,7 @@ dependencies {
     modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
 
     implementation "de.javagl:obj:${rootProject.javaglobj_version}"
+    include "de.javagl:obj:${rootProject.javaglobj_version}"
 
     modImplementation("curse.maven:open-parties-and-claims-636608:6055471")
     modApi "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
