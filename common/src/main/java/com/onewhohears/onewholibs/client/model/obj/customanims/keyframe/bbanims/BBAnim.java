@@ -3,12 +3,12 @@ package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
@@ -16,11 +16,11 @@ import java.util.*;
 
 public class BBAnim implements KeyframeAnimation {
 
-    private final Map<String, Vector3f> pivots;
+    private final Map<String, Vec3f> pivots;
     private final float length;
     private final List<BBBone> bones = new ArrayList<>();
 
-    public BBAnim(JsonObject json, Map<String, Vector3f> pivots) {
+    public BBAnim(JsonObject json, Map<String, Vec3f> pivots) {
         this.pivots = pivots;
         length = json.get("animation_length").getAsFloat();
         JsonObject bonesJson = json.get("bones").getAsJsonObject();
@@ -32,11 +32,11 @@ public class BBAnim implements KeyframeAnimation {
     }
 
     @Override
-    public void applyAnimationAtSecond(Map<String, Matrix4f> transforms, float seconds) {
+    public void applyAnimationAtSecond(Map<String, Mat4f> transforms, float seconds) {
         bones.forEach((bone) -> bone.applyAnimationAtSecond(transforms, seconds));
     }
 
-    public Map<String, Vector3f> getPivots() {
+    public Map<String, Vec3f> getPivots() {
         return pivots;
     }
 
@@ -52,7 +52,7 @@ public class BBAnim implements KeyframeAnimation {
         public BBBone(String name, JsonObject json) {
             this.name = name;
             if (pivots.containsKey(name)) {
-                Vector3f p = pivots.get(name);
+                Vec3f p = pivots.get(name);
                 pivotX = p.x(); pivotY = p.y(); pivotZ = p.z();
             } else {
                 pivotX = 0; pivotY = 0; pivotZ = 0;
@@ -61,8 +61,8 @@ public class BBAnim implements KeyframeAnimation {
             this.translation = new Translation(UtilParse.getJsonSafe(json, "position"));
             this.scale = new Scale(UtilParse.getJsonSafe(json, "scale"));
         }
-        public void applyAnimationAtSecond(Map<String, Matrix4f> transforms, float seconds) {
-            Matrix4f mat = new Matrix4f();
+        public void applyAnimationAtSecond(Map<String, Mat4f> transforms, float seconds) {
+            Mat4f mat = new Mat4f();
             mat.setIdentity();
             if (!rotation.isEmpty) mat.multiply(rotation.getTransformAtSecond(seconds, pivotX, pivotY, pivotZ));
             if (!translation.isEmpty) mat.multiply(translation.getTransformAtSecond(seconds, pivotX, pivotY, pivotZ));
@@ -85,7 +85,7 @@ public class BBAnim implements KeyframeAnimation {
             }
             isEmpty = keyframes.isEmpty();
         }
-        public Vector3f interpolate(float time) {
+        public Vec3f interpolate(float time) {
             if (isEmpty) return getDefaultTransform();
             if (time <= keyframes.get(0).time) return keyframes.get(0).pre;
             for (int i = 1; i < keyframes.size(); ++i) {
@@ -103,13 +103,13 @@ public class BBAnim implements KeyframeAnimation {
             }
             return keyframes.get(keyframes.size()-1).post;
         }
-        public abstract Matrix4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ);
-        public abstract Vector3f getDefaultTransform();
+        public abstract Mat4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ);
+        public abstract Vec3f getDefaultTransform();
     }
 
     public static class Keyframe {
         public final float time, alpha;
-        public final Vector3f pre, post;
+        public final Vec3f pre, post;
         public final LerpMode lerp_mode;
         private Vec2[][] cmrs;
         public Keyframe(float time, JsonArray json) {
@@ -122,7 +122,7 @@ public class BBAnim implements KeyframeAnimation {
             this.time = time;
             if (json.has("post"))
                 post = fromJsonArray(json.getAsJsonArray("post"));
-            else post = Vector3f.ZERO;
+            else post = Vec3f.ZERO;
             if (json.has("pre"))
                 pre = fromJsonArray(json.getAsJsonArray("pre"));
             else pre = post;
@@ -131,15 +131,15 @@ public class BBAnim implements KeyframeAnimation {
             else lerp_mode = LerpMode.LINEAR;
             alpha = UtilParse.getFloatSafe(json, "alpha", 0.15f);
         }
-        public Vector3f lerpWithEnd(Keyframe before, float animTime, Keyframe... surrounding) {
+        public Vec3f lerpWithEnd(Keyframe before, float animTime, Keyframe... surrounding) {
             if (before.lerp_mode == LerpMode.CATMULLROM && surrounding.length == 2) {
                 if (cmrs == null) cmrs = calcCMRs(before.alpha, surrounding[0], before, this, surrounding[1]);
-                return new Vector3f(UtilGeometry.findYInCatmullromArray(animTime, cmrs[0]),
+                return new Vec3f(UtilGeometry.findYInCatmullromArray(animTime, cmrs[0]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[1]),
                         UtilGeometry.findYInCatmullromArray(animTime, cmrs[2]));
             }
             float p = (animTime - before.time) / (time - before.time);
-            return new Vector3f(Mth.lerp(p,before.post.x(),pre.x()),
+            return new Vec3f(Mth.lerp(p,before.post.x(),pre.x()),
                     Mth.lerp(p,before.post.y(),pre.y()),
                     Mth.lerp(p,before.post.z(),pre.z()));
         }
@@ -168,11 +168,11 @@ public class BBAnim implements KeyframeAnimation {
         return cmrs;
     }
 
-    public static Vector3f fromJsonArray(JsonArray json) {
+    public static Vec3f fromJsonArray(JsonArray json) {
         float x = json.get(0).getAsFloat();
         float y = json.get(1).getAsFloat();
         float z = json.get(2).getAsFloat();
-        return new Vector3f(x, y, z);
+        return new Vec3f(x, y, z);
     }
 
     public enum LerpMode {
@@ -185,16 +185,16 @@ public class BBAnim implements KeyframeAnimation {
             super(json);
         }
         @Override
-        public Matrix4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
-            Vector3f rotation = interpolate(seconds);
-            Matrix4f rot = UtilAngles.pivotPixelsRotX(pivotX, pivotY, pivotZ, -rotation.x());
+        public Mat4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
+            Vec3f rotation = interpolate(seconds);
+            Mat4f rot = UtilAngles.pivotPixelsRotX(pivotX, pivotY, pivotZ, -rotation.x());
             rot.multiply(UtilAngles.pivotPixelsRotY(pivotX, pivotY, pivotZ, -rotation.y()));
             rot.multiply(UtilAngles.pivotPixelsRotZ(pivotX, pivotY, pivotZ, rotation.z()));
             return rot;
         }
         @Override
-        public Vector3f getDefaultTransform() {
-            return Vector3f.ZERO;
+        public Vec3f getDefaultTransform() {
+            return Vec3f.ZERO;
         }
     }
 
@@ -203,29 +203,29 @@ public class BBAnim implements KeyframeAnimation {
             super(json);
         }
         @Override
-        public Matrix4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
-            Vector3f trans = interpolate(seconds);
+        public Mat4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
+            Vec3f trans = interpolate(seconds);
             trans.mul(0.0625f);
-            return Matrix4f.createTranslateMatrix(trans.x(), trans.y(), trans.z());
+            return Mat4f.createTranslateMatrix(trans.x(), trans.y(), trans.z());
         }
         @Override
-        public Vector3f getDefaultTransform() {
-            return Vector3f.ZERO;
+        public Vec3f getDefaultTransform() {
+            return Vec3f.ZERO;
         }
     }
 
     public static class Scale extends Transform {
-        private final Vector3f ONE = new Vector3f(1,1,1);
+        private final Vec3f ONE = new Vec3f(1,1,1);
         public Scale(JsonObject json) {
             super(json);
         }
         @Override
-        public Matrix4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
-            Vector3f scale = interpolate(seconds);
-            return Matrix4f.createScaleMatrix(scale.x(), scale.y(), scale.z());
+        public Mat4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
+            Vec3f scale = interpolate(seconds);
+            return Mat4f.createScaleMatrix(scale.x(), scale.y(), scale.z());
         }
         @Override
-        public Vector3f getDefaultTransform() {
+        public Vec3f getDefaultTransform() {
             return ONE;
         }
     }

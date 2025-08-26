@@ -1,11 +1,11 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims;
 
 import com.google.gson.JsonObject;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.util.UtilParse;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -26,8 +26,8 @@ import net.minecraft.world.entity.Entity;
  */
 public abstract class EntityModelTransform<T extends Entity> {
 	
-	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
-	public static final Matrix4f NOTHING = Matrix4f.createScaleMatrix(1, 1, 1);
+	public static final Mat4f INVISIBLE = Mat4f.createScaleMatrix(0, 0, 0);
+	public static final Mat4f NOTHING = Mat4f.createScaleMatrix(1, 1, 1);
 	
 	private final String model_part_key;
 	public EntityModelTransform(JsonObject data) {
@@ -39,7 +39,7 @@ public abstract class EntityModelTransform<T extends Entity> {
 	public String getKey() {
 		return model_part_key;
 	}
-	public abstract Matrix4f getTransform(T entity, float partialTicks);
+	public abstract Mat4f getTransform(T entity, float partialTicks);
 	public void addTransform(EntityModelTransform<T> transform) {}
 	public boolean isGroup() {
 		return false;
@@ -50,36 +50,36 @@ public abstract class EntityModelTransform<T extends Entity> {
 			super(data);
 		}
 		@Override
-		public Matrix4f getTransform(T entity, float partialTicks) {
+		public Mat4f getTransform(T entity, float partialTicks) {
 			return INVISIBLE;
 		}
 	}
 	
 	public static abstract class Translation<T extends Entity> extends EntityModelTransform<T> {
-		private final Vector3f bounds;
+		private final Vec3f bounds;
 		public Translation(JsonObject data) {
 			super(data);
 			bounds = UtilParse.readVec3f(data, "bounds");
 		}
-		public Vector3f getBounds() {
+		public Vec3f getBounds() {
 			return bounds;
 		}
 		public abstract float getTranslationProgress(T entity, float partialTicks);
 		@Override
-		public Matrix4f getTransform(T entity, float partialTicks) {
+		public Mat4f getTransform(T entity, float partialTicks) {
 			float p = getTranslationProgress(entity, partialTicks);
 			if (p == 0) return NOTHING;
-			return Matrix4f.createTranslateMatrix(bounds.x() * p, bounds.y() * p, bounds.z() * p);
+			return Mat4f.createTranslateMatrix(bounds.x() * p, bounds.y() * p, bounds.z() * p);
 		}
 	}
 	
 	public static abstract class Pivot<T extends Entity> extends EntityModelTransform<T> {
-		private final Vector3f pivot;
+		private final Vec3f pivot;
 		public Pivot(JsonObject data) {
 			super(data);
 			pivot = UtilParse.readVec3f(data, "pivot");
 		}
-		public Vector3f getPivot() {
+		public Vec3f getPivot() {
 			return pivot;
 		}
 	}
@@ -99,7 +99,7 @@ public abstract class EntityModelTransform<T extends Entity> {
 		}
 		public abstract float getRotDeg(T entity, float partialTicks);
 		@Override
-		public Matrix4f getTransform(T entity, float partialTicks) {
+		public Mat4f getTransform(T entity, float partialTicks) {
 			float degrees = getRotDeg(entity, partialTicks);
 			if (degrees == 0) return NOTHING;
 			switch (rot_axis) {

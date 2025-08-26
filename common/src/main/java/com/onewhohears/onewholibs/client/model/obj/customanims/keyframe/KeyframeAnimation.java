@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe;
 
-import com.mojang.math.Matrix4f;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 
 import java.util.Map;
 
@@ -9,8 +9,8 @@ public interface KeyframeAnimation {
      * @return animation length in seconds
      */
     float getAnimationLength();
-    void applyAnimationAtSecond(Map<String, Matrix4f> transforms, float seconds);
-    default void applyAnimationAtPercent(Map<String, Matrix4f> transforms, float percent) {
+    void applyAnimationAtSecond(Map<String, Mat4f> transforms, float seconds);
+    default void applyAnimationAtPercent(Map<String, Mat4f> transforms, float percent) {
         applyAnimationAtSecond(transforms, getAnimationLength() * percent);
     }
 }

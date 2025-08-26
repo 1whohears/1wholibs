@@ -5,6 +5,7 @@ import com.onewhohears.onewholibs.OWLMod;
 import com.onewhohears.onewholibs.common.network.toclient.ToClientDataPackSync;
 import com.onewhohears.onewholibs.common.network.toclient.ToClientSyncGameRules;
 import com.onewhohears.onewholibs.entity.JsonPresetEntityHolder;
+import com.onewhohears.onewholibs.util.UtilEntity;
 import dev.architectury.networking.NetworkChannel;
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
@@ -49,7 +50,7 @@ public final class PacketHandler {
                 ToClientSyncGameRules::handle);
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, SYNC_PRESET_ENTITY_ID,
                 (buf, context) -> {
-            Level level = context.getPlayer().getLevel();
+            Level level = UtilEntity.getLevel(context.getPlayer());
             int id = buf.readInt();
             context.queue(() -> {
                 if (!(level.getEntity(id) instanceof JsonPresetEntityHolder<?> holder)) {

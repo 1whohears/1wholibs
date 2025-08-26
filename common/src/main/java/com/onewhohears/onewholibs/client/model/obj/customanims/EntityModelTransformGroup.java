@@ -3,7 +3,7 @@ package com.onewhohears.onewholibs.client.model.obj.customanims;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Matrix4f;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -27,8 +27,8 @@ public class EntityModelTransformGroup<T extends Entity> extends EntityModelTran
 	}
 
 	@Override
-	public Matrix4f getTransform(T entity, float partialTicks) {
-		Matrix4f trans = transforms.get(0).getTransform(entity, partialTicks).copy();
+	public Mat4f getTransform(T entity, float partialTicks) {
+        Mat4f trans = transforms.get(0).getTransform(entity, partialTicks).copy();
 		for (int i = 1; i < transforms.size(); ++i) 
 			trans.multiply(transforms.get(i).getTransform(entity, partialTicks));
 		return trans;

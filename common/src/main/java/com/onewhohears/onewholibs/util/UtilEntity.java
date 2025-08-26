@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -79,7 +78,7 @@ public class UtilEntity {
 	 * @return true if there is direct line of sight between pos and the eye position of entity
 	 */
 	public static boolean canPosSeeEntity(Vec3 start_pos, Entity entity, int maxBlockCheckDepth, double throWater, double throBlock) {
-		return canPosSeePos(entity.getLevel(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
+		return canPosSeePos(getLevel(entity), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
 	}
 
 	/**
@@ -177,7 +176,7 @@ public class UtilEntity {
 	 * @return entity's vertical distance from the ground. positive integer
 	 */
 	public static int getDistFromGround(Entity entity) {
-		Level l = entity.getLevel();
+		Level l = getLevel(entity);
 		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
 		int dist = 0;
 		while (pos[1] >= -64) {
@@ -346,9 +345,17 @@ public class UtilEntity {
 	}
 
     public static List<ServerPlayer> getPlayersTrackingEntity(Entity entity) {
-        if (entity.getLevel().isClientSide()) return new ArrayList<>();
-        return ((ServerLevel)entity.getLevel()).getChunkSource().chunkMap
+        if (getLevel(entity).isClientSide()) return new ArrayList<>();
+        return ((ServerLevel)getLevel(entity)).getChunkSource().chunkMap
                 .getPlayers(entity.chunkPosition(), false);
+    }
+
+    /**
+     * they changed the getLevel function and made the level property private in newer versions because why not.
+     * this util function means I only need to change one function in different version branches.
+     */
+    public static Level getLevel(Entity entity) {
+        return entity.getLevel();
     }
 	
 }

@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.math.Matrix4f;
 
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModel;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -38,7 +38,7 @@ public class CustomAnimsEntityModel<T extends Entity> extends ObjEntityModel<T> 
 	}
 
 	@Override
-	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+	protected void addComponentTransforms(Map<String, Mat4f> transforms, T entity, float partialTicks) {
 		super.addComponentTransforms(transforms, entity, partialTicks);
 		for (EntityModelTransform<T> trans : this.transforms.values())
 			transforms.put(trans.getKey(), trans.getTransform(entity, partialTicks));

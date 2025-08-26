@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.client.model.obj.fabric;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.math.Vector3f;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import de.javagl.obj.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -74,9 +74,9 @@ public class ObjUnbakedModel {
 
         List<ObjFace> tris = triangulateFace(face);
         for (ObjFace tri : tris) {
-            Vector3f[] positions = new Vector3f[4];
-            Vector3f[] normals   = new Vector3f[4];
-            float[][] uvs        = new float[4][2];
+            Vec3f[] positions = new Vec3f[4];
+            Vec3f[] normals   = new Vec3f[4];
+            float[][] uvs     = new float[4][2];
             for (int i = 0; i < 3; i++) {
                 int vIndex = tri.getVertexIndex(i);
                 int tIndex = tri.getTexCoordIndex(i);
@@ -88,7 +88,7 @@ public class ObjUnbakedModel {
 
                 positions[i] = vector3f(pos);
                 uvs[i] = new float[] {uv.getX(), 1.0f - uv.getY()};
-                normals[i] = (norm != null) ? vector3f(norm) : new Vector3f(0, 1, 0);
+                normals[i] = (norm != null) ? vector3f(norm) : new Vec3f(0, 1, 0);
             }
             positions[3] = positions[2];
             uvs[3] = uvs[2];
@@ -149,11 +149,11 @@ public class ObjUnbakedModel {
         @Override public int getNormalIndex(int i) { return parent.getNormalIndex(indices[i]); }
     }
 
-    public static Vector3f vector3f(FloatTuple tuple) {
-        return new Vector3f(tuple.getX(), tuple.getY(), tuple.getZ());
+    public static Vec3f vector3f(FloatTuple tuple) {
+        return new Vec3f(tuple.getX(), tuple.getY(), tuple.getZ());
     }
 
-    private int[] packQuadData(Vector3f[] positions, Vector3f[] normals, float[][] uvs, TextureAtlasSprite sprite) {
+    private int[] packQuadData(Vec3f[] positions, Vec3f[] normals, float[][] uvs, TextureAtlasSprite sprite) {
         int[] data = new int[DefaultVertexFormat.BLOCK.getVertexSize() / 4 * 4];
         for (int i = 0; i < 4; i++) {
             int offset = i * (DefaultVertexFormat.BLOCK.getVertexSize() / 4);

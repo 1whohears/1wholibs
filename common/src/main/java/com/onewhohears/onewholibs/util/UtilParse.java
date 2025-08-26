@@ -11,7 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import com.mojang.math.Vector4f;
+import com.onewhohears.onewholibs.util.math.QuaternionF;
+import com.onewhohears.onewholibs.util.math.Vec3f;
+import com.onewhohears.onewholibs.util.math.Vec4f;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import org.slf4j.Logger;
@@ -20,8 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -153,7 +153,7 @@ public class UtilParse {
 		return String.format("["+f+","+f+"]", v.x, v.y);
 	}
 	
-	public static String prettyQ(Quaternion q, int decimals) {
+	public static String prettyQ(QuaternionF q, int decimals) {
 		String f = "%1."+decimals+"f";
 		return String.format("["+f+","+f+"i,"+f+"j,"+f+"k]", q.r(), q.i(), q.j(), q.k());
 	}
@@ -298,17 +298,17 @@ public class UtilParse {
 		return r;
 	}
 	
-	public static Vector3f readVec3f(JsonObject json, String name) {
-		if (!json.has(name)) return Vector3f.ZERO;
+	public static Vec3f readVec3f(JsonObject json, String name) {
+		if (!json.has(name)) return Vec3f.ZERO;
 		JsonObject vec = json.get(name).getAsJsonObject();
 		float x = 0, y = 0, z = 0;
 		if (vec.has("x")) x = vec.get("x").getAsFloat();
 		if (vec.has("y")) y = vec.get("y").getAsFloat();
 		if (vec.has("z")) z = vec.get("z").getAsFloat();
-		return new Vector3f(x, y, z);
+		return new Vec3f(x, y, z);
 	}
 	
-	public static void writeVec3f(JsonObject json, String name, Vector3f vec) {
+	public static void writeVec3f(JsonObject json, String name, Vec3f vec) {
 		JsonObject v = new JsonObject();
 		v.addProperty("x", vec.x());
 		v.addProperty("y", vec.y());
@@ -316,9 +316,9 @@ public class UtilParse {
 		json.add(name, v);
 	}
 
-	public static Vector3f parseVector4To3(String[] line) {
-		Vector4f vec4 = parseVector4(line);
-		return new Vector3f(vec4.x() / vec4.w(), vec4.y() / vec4.w(), vec4.z() / vec4.w());
+	public static Vec3f parseVector4To3(String[] line) {
+		Vec4f vec4 = parseVector4(line);
+		return new Vec3f(vec4.x() / vec4.w(), vec4.y() / vec4.w(), vec4.z() / vec4.w());
 	}
 
 	public static Vec2 parseVector2(String[] line) {
@@ -332,26 +332,26 @@ public class UtilParse {
 		return var10000;
 	}
 
-	public static Vector3f parseVector3(String[] line) {
-		Vector3f var10000;
+	public static Vec3f parseVector3(String[] line) {
+        Vec3f var10000;
 		switch (line.length) {
-			case 1 -> var10000 = new Vector3f(0.0F, 0.0F, 0.0F);
-			case 2 -> var10000 = new Vector3f(Float.parseFloat(line[1]), 0.0F, 0.0F);
-			case 3 -> var10000 = new Vector3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F);
-			default -> var10000 = new Vector3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]));
+			case 1 -> var10000 = new Vec3f(0.0F, 0.0F, 0.0F);
+			case 2 -> var10000 = new Vec3f(Float.parseFloat(line[1]), 0.0F, 0.0F);
+			case 3 -> var10000 = new Vec3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F);
+			default -> var10000 = new Vec3f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]));
 		}
 
 		return var10000;
 	}
 
-	public static Vector4f parseVector4(String[] line) {
-		Vector4f var10000;
+	public static Vec4f parseVector4(String[] line) {
+        Vec4f var10000;
 		switch (line.length) {
-			case 1 -> var10000 = new Vector4f(0.0F, 0.0F, 0.0F, 1.0F);
-			case 2 -> var10000 = new Vector4f(Float.parseFloat(line[1]), 0.0F, 0.0F, 1.0F);
-			case 3 -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F, 1.0F);
-			case 4 -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), 1.0F);
-			default -> var10000 = new Vector4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), Float.parseFloat(line[4]));
+			case 1 -> var10000 = new Vec4f(0.0F, 0.0F, 0.0F, 1.0F);
+			case 2 -> var10000 = new Vec4f(Float.parseFloat(line[1]), 0.0F, 0.0F, 1.0F);
+			case 3 -> var10000 = new Vec4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), 0.0F, 1.0F);
+			case 4 -> var10000 = new Vec4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), 1.0F);
+			default -> var10000 = new Vec4f(Float.parseFloat(line[1]), Float.parseFloat(line[2]), Float.parseFloat(line[3]), Float.parseFloat(line[4]));
 		}
 
 		return var10000;

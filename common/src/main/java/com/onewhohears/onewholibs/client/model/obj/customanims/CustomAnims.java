@@ -17,7 +17,7 @@ public class CustomAnims {
 
 	/**
 	 * Add custom {@link EntityModelTransform} in
-	 * {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent}
+	 * {@link dev.architectury.event.events.client.ClientLifecycleEvent#CLIENT_SETUP}
 	 */
 	public static void addAnim(String id, AnimationFactory animationFactory) {
 		map.put(id, animationFactory);

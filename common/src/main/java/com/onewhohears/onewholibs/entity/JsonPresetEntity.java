@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.entity;
 
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
+import com.onewhohears.onewholibs.util.UtilEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -24,7 +25,7 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
 
     @Override
     public boolean isClientSide() {
-        return getLevel().isClientSide();
+        return UtilEntity.getLevel(this).isClientSide();
     }
 
     @Override
