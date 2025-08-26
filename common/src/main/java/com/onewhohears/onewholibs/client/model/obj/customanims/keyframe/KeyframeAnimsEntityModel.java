@@ -1,8 +1,8 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe;
 
 import com.google.gson.JsonArray;
-import com.mojang.math.Matrix4f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.CustomAnimsEntityModel;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.world.entity.Entity;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntit
     }
 
     @Override
-    protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+    protected void addComponentTransforms(Map<String, Mat4f> transforms, T entity, float partialTicks) {
         super.addComponentTransforms(transforms, entity, partialTicks);
         for (KeyframeAnimationPlayer<T> anim : getKeyframeAnimations())
             if (anim.isAnimationActive(entity))

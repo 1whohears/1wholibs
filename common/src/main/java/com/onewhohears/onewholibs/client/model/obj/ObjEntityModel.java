@@ -1,12 +1,8 @@
 package com.onewhohears.onewholibs.client.model.obj;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels.ModelOverrides;
-import com.onewhohears.onewholibs.util.math.UtilAngles;
-import com.onewhohears.onewholibs.util.math.UtilGeometry;
+import com.onewhohears.onewholibs.util.math.*;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -26,11 +22,11 @@ import java.util.function.Function;
  */
 public class ObjEntityModel<T extends Entity> {
 	
-	public static final Matrix4f INVISIBLE = Matrix4f.createScaleMatrix(0, 0, 0);
+	public static final Mat4f INVISIBLE = Mat4f.createScaleMatrix(0, 0, 0);
 	
 	public final String modelId;
 
-	private final Map<String, Matrix4f> transforms = new HashMap<>();
+	private final Map<String, Mat4f> transforms = new HashMap<>();
 
 	private ModelOverrides modelOverride;
     private ObjModelHandler modelHandler;
@@ -55,20 +51,20 @@ public class ObjEntityModel<T extends Entity> {
     }
 	
 	protected void rotate(T entity, float partialTicks, PoseStack poseStack) {
-		Vector3f pivot = getGlobalPivot();
-		Quaternion yRot = Vector3f.YN.rotationDegrees(entity.getViewYRot(partialTicks));
-		Quaternion xRot = Vector3f.XP.rotationDegrees(entity.getViewXRot(partialTicks));
+		Vec3f pivot = getGlobalPivot();
+		QuaternionF yRot = Vec3f.YN.rotationDegrees(entity.getViewYRot(partialTicks));
+		QuaternionF xRot = Vec3f.XP.rotationDegrees(entity.getViewXRot(partialTicks));
 		if (!UtilGeometry.isZero(pivot)) {
-			if (globalRotateY()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, yRot));
-			if (globalRotateX()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, xRot));
+			if (globalRotateY()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, yRot).convert());
+			if (globalRotateX()) poseStack.mulPoseMatrix(UtilAngles.pivotInvRot(pivot, xRot).convert());
 		} else {
-			if (globalRotateY()) poseStack.mulPose(yRot);
-			if (globalRotateX()) poseStack.mulPose(xRot);
+			if (globalRotateY()) poseStack.mulPose(yRot.convert());
+			if (globalRotateX()) poseStack.mulPose(xRot.convert());
 		}
 	}
 	
 	protected void handleGlobalOverrides(T entity, float partialTicks, PoseStack poseStack) {
-		Vector3f pivot = getGlobalPivot();
+		Vec3f pivot = getGlobalPivot();
 		if (!UtilGeometry.isZero(pivot)) poseStack.translate(pivot.x(), pivot.y(), pivot.z());
 		getModelOverride().applyNoTranslate(poseStack);
 	}
@@ -78,7 +74,7 @@ public class ObjEntityModel<T extends Entity> {
 		return modelOverride;
 	}
 
-	protected void addComponentTransforms(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+	protected void addComponentTransforms(Map<String, Mat4f> transforms, T entity, float partialTicks) {
 
 	}
 	
@@ -94,7 +90,7 @@ public class ObjEntityModel<T extends Entity> {
 		return OverlayTexture.NO_OVERLAY;
 	}
 	
-	public Vector3f getGlobalPivot() {
+	public Vec3f getGlobalPivot() {
 		return getModelOverride().translate;
 	}
 

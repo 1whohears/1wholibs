@@ -2,11 +2,11 @@ package com.onewhohears.onewholibs.client.renderer;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
 import com.onewhohears.onewholibs.item.ObjModelItem;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
+import com.onewhohears.onewholibs.util.math.Mat4f;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -74,7 +74,7 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
         } 
     }
 
-    public static final Map<String, Matrix4f> EMPTY_TRANSFORMS = ImmutableMap.of();
+    public static final Map<String, Mat4f> EMPTY_TRANSFORMS = ImmutableMap.of();
 
     public static class ItemObjModelData {
         public static final float SIZE_SCALE_FACTOR = 1.25f;
@@ -102,33 +102,33 @@ public class RendererObjModelItems extends BlockEntityWithoutLevelRenderer {
             itemModelOverrides.apply(poseStack);
             if (transformType == ItemTransforms.TransformType.GUI) {
                 poseStack.translate(0.5, 0.5, 0.5);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(30));
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(45));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(30).convert());
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(45).convert());
             } else if (transformType == ItemTransforms.TransformType.FIXED) {
                 poseStack.translate(0.5, 0.5, 0.35);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(-90));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(-90).convert());
             } else if (transformType == ItemTransforms.TransformType.GROUND) {
                 poseStack.translate(0.5, 0.5, 0.5);
             } else if (transformType == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) {
                 poseStack.translate(0.5, 0.5, 0.3);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(30));
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(225));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(30).convert());
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(225).convert());
             } else if (transformType == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND) {
                 poseStack.translate(0.5, 0.5, 0.3);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(30));
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(135));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(30).convert());
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(135).convert());
             } else if (transformType == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND) {
                 poseStack.translate(0.5, 0.5, 0.5);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(225));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(90).convert());
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(225).convert());
             } else if (transformType == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND) {
                 poseStack.translate(0.5, 0.5, 0.5);
-                poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(135));
+                poseStack.mulPose(Vec3f.XP.rotationDegrees(90).convert());
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(135).convert());
             } else if (transformType == ItemTransforms.TransformType.HEAD) {
                 poseStack.translate(0.5, 1.2, 0.5);
                 poseStack.scale(2f, 2f, 2f);
-                poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
+                poseStack.mulPose(Vec3f.YP.rotationDegrees(180).convert());
             } else if (transformType == ItemTransforms.TransformType.NONE) {
                 poseStack.translate(0.5, 0.5, 0.5);
             }

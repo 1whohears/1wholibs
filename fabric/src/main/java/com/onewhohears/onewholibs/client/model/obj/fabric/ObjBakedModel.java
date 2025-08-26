@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.client.model.obj.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -26,7 +26,7 @@ public class ObjBakedModel {
     public void render(PoseStack poseStack, MultiBufferSource bufferSource,
                        Function<ResourceLocation, RenderType> renderType,
                        int lightmap, int overlay, float partialTicks,
-                       Map<String, Matrix4f> transforms) {
+                       Map<String, Mat4f> transforms) {
         for (var component : components)
             component.render(poseStack, bufferSource, renderType, lightmap, overlay, transforms);
     }
@@ -51,11 +51,11 @@ public class ObjBakedModel {
 
         public void render(PoseStack poseStack, MultiBufferSource bufferSource,
                            Function<ResourceLocation, RenderType> renderType,
-                           int lightmap, int overlay, Map<String, Matrix4f> context) {
-            Matrix4f matrix = context.get(name);
+                           int lightmap, int overlay, Map<String, Mat4f> context) {
+            Mat4f matrix = context.get(name);
             if (matrix != null) {
                 poseStack.pushPose();
-                poseStack.mulPoseMatrix(matrix);
+                poseStack.mulPoseMatrix(matrix.convert());
             }
 
             for (var part : children)

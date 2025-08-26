@@ -3,10 +3,10 @@ package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimParser;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimation;
 import com.onewhohears.onewholibs.util.UtilParse;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -60,7 +60,7 @@ public class BlockBenchAnims implements KeyframeAnimParser {
                 JsonObject json = UtilParse.GSON.fromJson(resource.openAsReader(), JsonObject.class);
                 String pivotLoc = key.getNamespace()+":"+DIRECTORY+"/"+name+PIVOTS_FILE_TYPE;
                 Optional<Resource> pivotRec = manager.getResource(new ResourceLocation(pivotLoc));
-                Map<String, Vector3f> pivots = new HashMap<>();
+                Map<String, Vec3f> pivots = new HashMap<>();
                 if (pivotRec.isPresent()) {
                     readPivots(pivotRec.get(), pivots);
                     LOGGER.debug("PIVOTS: {} {}", name, pivots.size());
@@ -73,7 +73,7 @@ public class BlockBenchAnims implements KeyframeAnimParser {
         });
     }
 
-    protected void readPivots(Resource pivotRec, Map<String, Vector3f> pivots) throws Exception {
+    protected void readPivots(Resource pivotRec, Map<String, Vec3f> pivots) throws Exception {
         BufferedReader bufferedReader = pivotRec.openAsReader();
         String line = bufferedReader.readLine();
         while (line != null) {
@@ -82,13 +82,13 @@ public class BlockBenchAnims implements KeyframeAnimParser {
             float x = Float.parseFloat(params[1]);
             float y = Float.parseFloat(params[2]);
             float z = Float.parseFloat(params[3]);
-            pivots.put(bone, new Vector3f(x, y, z));
+            pivots.put(bone, new Vec3f(x, y, z));
             line = bufferedReader.readLine();
         }
         bufferedReader.close();
     }
 
-    protected void processBBJson(String fileName, JsonObject json, Map<String, Vector3f> pivots) throws Exception {
+    protected void processBBJson(String fileName, JsonObject json, Map<String, Vec3f> pivots) throws Exception {
         String formatVersion = json.get("format_version").getAsString();
         if (!formatVersion.equals(COMPATIBLE_FORMAT_VERSIONS)) // TODO version checking system
             throw new InvalidPropertiesFormatException(
@@ -102,7 +102,7 @@ public class BlockBenchAnims implements KeyframeAnimParser {
         }
     }
 
-    private static BBAnim getBBAnimFromJson(JsonObject json, Map<String, Vector3f> pivots) throws Exception {
+    private static BBAnim getBBAnimFromJson(JsonObject json, Map<String, Vec3f> pivots) throws Exception {
         return new BBAnim(json, pivots);
     }
 

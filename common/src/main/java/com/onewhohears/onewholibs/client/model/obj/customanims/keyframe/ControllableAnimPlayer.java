@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.client.model.obj.customanims.keyframe;
 
-import com.mojang.math.Matrix4f;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Map;
@@ -17,12 +17,12 @@ public class ControllableAnimPlayer<T extends Entity> extends TriggerableAnimPla
         this.controller = controller;
     }
 
-    public void applyAnimationAtTime(Map<String, Matrix4f> transforms, float animationTime) {
+    public void applyAnimationAtTime(Map<String, Mat4f> transforms, float animationTime) {
         getAnimation().applyAnimationAtSecond(transforms, animationTime);
     }
 
     @Override
-    public void applyAnimation(Map<String, Matrix4f> transforms, T entity, float partialTicks) {
+    public void applyAnimation(Map<String, Mat4f> transforms, T entity, float partialTicks) {
         applyAnimationAtTime(transforms, getAnimationTime(entity, partialTicks));
     }
 

@@ -1,8 +1,8 @@
 package com.onewhohears.onewholibs.client.model.obj.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
+import com.onewhohears.onewholibs.util.math.Mat4f;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import de.javagl.obj.FloatTuple;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -32,7 +32,7 @@ public class FabricObjModelHandler implements ObjModelHandler {
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTicks,
-                       int lightmap, int overlay, Map<String, Matrix4f> transforms,
+                       int lightmap, int overlay, Map<String, Mat4f> transforms,
                        Function<ResourceLocation, RenderType> renderType) {
         bakedModel.render(poseStack, bufferSource, renderType,
                 lightmap, overlay, partialTicks, transforms);

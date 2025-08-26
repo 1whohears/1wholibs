@@ -2,9 +2,9 @@ package com.onewhohears.onewholibs.client.model.obj.customanims;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransform.RotationAxis;
 import com.onewhohears.onewholibs.util.UtilParse;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 
 /**
  * @author 1whohears
@@ -32,7 +32,7 @@ public class CustomAnimsBuilder {
 	}
 	
 	protected void fillAxisRotationParams(JsonObject anim, float pivotX, float pivotY, float pivotZ, RotationAxis rot_axis) {
-		UtilParse.writeVec3f(anim, "pivot", new Vector3f(pivotX, pivotY, pivotZ));
+		UtilParse.writeVec3f(anim, "pivot", new Vec3f(pivotX, pivotY, pivotZ));
 		UtilParse.writeEnum(anim, "rot_axis", rot_axis);
 	}
 

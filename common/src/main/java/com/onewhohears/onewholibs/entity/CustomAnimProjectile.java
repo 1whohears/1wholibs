@@ -3,6 +3,7 @@ package com.onewhohears.onewholibs.entity;
 import com.onewhohears.onewholibs.data.jsonpreset.CustomAnimStats;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
+import com.onewhohears.onewholibs.util.UtilEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -27,7 +28,7 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
 
     @Override
     public boolean isClientSide() {
-        return getLevel().isClientSide();
+        return UtilEntity.getLevel(this).isClientSide();
     }
 
     @Override

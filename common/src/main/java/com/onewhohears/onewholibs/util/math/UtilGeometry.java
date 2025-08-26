@@ -4,10 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
-
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -114,7 +110,7 @@ public class UtilGeometry {
 		return v.x == 0 && v.y == 0 && v.z == 0;
 	}
 	
-	public static boolean isZero(Vector3f v) {
+	public static boolean isZero(Vec3f v) {
 		return v.x() == 0 && v.y() == 0 && v.z() == 0;
 	}
 	
@@ -134,28 +130,28 @@ public class UtilGeometry {
 		return Double.isNaN(v.x) || Double.isNaN(v.y) || Double.isNaN(v.z);
 	}
 	
-	public static int[] worldToScreenPosInt(Vec3 world_pos, Matrix4f view_mat, Matrix4f proj_mat, int width, int height) {
+	public static int[] worldToScreenPosInt(Vec3 world_pos, Mat4f view_mat, Mat4f proj_mat, int width, int height) {
 		float[] sp = worldToScreenPos(world_pos, view_mat, proj_mat, width, height);
 		return new int[] {(int)sp[0], (int)sp[1]};
 	}
 	
-	public static float[] worldToScreenPos(Vec3 world_pos, Matrix4f view_mat, Matrix4f proj_mat, int width, int height) {
-		Vector4f clipSpace = new Vector4f((float)world_pos.x, (float)world_pos.y, (float)world_pos.z, 1f);
+	public static float[] worldToScreenPos(Vec3 world_pos, Mat4f view_mat, Mat4f proj_mat, int width, int height) {
+		Vec4f clipSpace = new Vec4f((float)world_pos.x, (float)world_pos.y, (float)world_pos.z, 1f);
 		clipSpace.transform(view_mat);
 		clipSpace.transform(proj_mat);
 		if (clipSpace.w() <= 0) return new float[] {-1,-1};
-		Vector3f ndcSpace = new Vector3f(clipSpace);
+		Vec3f ndcSpace = new Vec3f(clipSpace);
 		ndcSpace.mul(1/clipSpace.w());
 		float win_x = (ndcSpace.x()+1f)/2f*width;
 		float win_y = (ndcSpace.y()+1f)/2f*height;
 		return new float[] {win_x, height - win_y};
 	}
 	
-	public static Vector3f convertVector(Vec3 v) {
-		return new Vector3f((float)v.x, (float)v.y, (float)v.z);
+	public static Vec3f convertVector(Vec3 v) {
+		return new Vec3f((float)v.x, (float)v.y, (float)v.z);
 	}
 	
-	public static Vec3 convertVector(Vector3f v) {
+	public static Vec3 convertVector(Vec3f v) {
 		return new Vec3(v.x(), v.y(), v.z());
 	}
 	
@@ -478,9 +474,9 @@ public class UtilGeometry {
 		return new Vec3[]{size, center};
 	}
 
-	public static Vec3[] getSizeCenter(List<Vector3f> positions) {
+	public static Vec3[] getSizeCenter(List<Vec3f> positions) {
 		double minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
-		for (Vector3f pos : positions) {
+		for (Vec3f pos : positions) {
 			if (pos.x() < minX) minX = pos.x();
 			if (pos.y() < minY) minY = pos.y();
 			if (pos.z() < minZ) minZ = pos.z();

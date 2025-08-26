@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonElement;
+import com.onewhohears.onewholibs.util.math.Vec3f;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.server.packs.PackType;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Vector3f;
 import com.onewhohears.onewholibs.util.UtilParse;
 
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -107,7 +107,7 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 	public static class ModelOverrides {
 		public float scale = 1;
 		public float[] scale3d = {1, 1, 1};
-		public Vector3f translate = new Vector3f();
+		public Vec3f translate = new Vec3f();
 		public float[] rotation = {0, 0, 0};
 		private boolean none = false;
 		public ModelOverrides(JsonObject json) {
@@ -173,9 +173,9 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 		}
 		public void applyRotation(PoseStack poseStack) {
 			if (isNone()) return;
-			if (rotation[0] != 0) poseStack.mulPose(Vector3f.XP.rotationDegrees(rotation[0]));
-			if (rotation[1] != 0) poseStack.mulPose(Vector3f.YN.rotationDegrees(rotation[1]));
-			if (rotation[2] != 0) poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation[2]));
+			if (rotation[0] != 0) poseStack.mulPose(Vec3f.XP.rotationDegrees(rotation[0]).convert());
+			if (rotation[1] != 0) poseStack.mulPose(Vec3f.YN.rotationDegrees(rotation[1]).convert());
+			if (rotation[2] != 0) poseStack.mulPose(Vec3f.ZP.rotationDegrees(rotation[2]).convert());
 		}
 	}
 
