@@ -17,7 +17,7 @@ import com.onewhohears.onewholibs.init.OWLModEntities;
 import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
-import dev.architectury.registry.registries.Registries;
+import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.utils.Env;
 import net.minecraft.server.packs.PackType;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class OWLMod {
     public static final String MOD_ID = "onewholibs";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final Supplier<Registries> REGISTRIES = Suppliers.memoize(() -> Registries.get(MOD_ID));
+    public static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(MOD_ID));
 
     public static void init() {
         PacketHandler.register();

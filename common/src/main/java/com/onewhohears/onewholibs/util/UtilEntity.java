@@ -79,7 +79,7 @@ public class UtilEntity {
 	 * @return true if there is direct line of sight between pos and the eye position of entity
 	 */
 	public static boolean canPosSeeEntity(Vec3 start_pos, Entity entity, int maxBlockCheckDepth, double throWater, double throBlock) {
-		return canPosSeePos(entity.getLevel(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
+		return canPosSeePos(entity.level(), start_pos, entity.getEyePosition(), maxBlockCheckDepth, throWater, throBlock);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class UtilEntity {
 	 * @return entity's vertical distance from the ground. positive integer
 	 */
 	public static int getDistFromGround(Entity entity) {
-		Level l = entity.getLevel();
+		Level l = entity.level();
 		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
 		int dist = 0;
 		while (pos[1] >= -64) {
@@ -209,7 +209,7 @@ public class UtilEntity {
 	 * @return returns the position of a block the entity is looking at
 	 */
 	public static Vec3 getLookingAtBlockPos(Entity entity, int max) {
-		Level level = entity.level;
+		Level level = entity.level();
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
 		for (int i = 0; i < max; ++i) {
@@ -313,7 +313,7 @@ public class UtilEntity {
 	}
 	
 	public static void dropItemStack(Entity entity, ItemStack stack) {
-		dropItemStack(entity.level, stack, entity.position());
+		dropItemStack(entity.level(), stack, entity.position());
 	}
 
 	/**
@@ -346,8 +346,8 @@ public class UtilEntity {
 	}
 
     public static List<ServerPlayer> getPlayersTrackingEntity(Entity entity) {
-        if (entity.getLevel().isClientSide()) return new ArrayList<>();
-        return ((ServerLevel)entity.getLevel()).getChunkSource().chunkMap
+        if (entity.level().isClientSide()) return new ArrayList<>();
+        return ((ServerLevel)entity.level()).getChunkSource().chunkMap
                 .getPlayers(entity.chunkPosition(), false);
     }
 	

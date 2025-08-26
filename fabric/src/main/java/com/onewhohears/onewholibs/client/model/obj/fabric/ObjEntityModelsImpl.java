@@ -76,7 +76,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         if (unbakedModels.containsKey(name)) {
                             LOGGER.info("The model {} is overriding {}!", key, unbakedModels.get(name));
                         }
-                        Obj obj = ObjReader.read(resource.openAsReader());
+                        Obj obj = ObjReader.read(resource.openAsReader()); // FIXME ObjReader ignores o groups
                         Optional<Resource> mtlRes = manager.getResource(ResourceLocation.tryBuild(
                                 key.getNamespace(), DIRECTORY+"/"+name+MATERIAL_FILE_TYPE));
                         Map<String, Mtl> mtl;
