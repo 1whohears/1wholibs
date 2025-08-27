@@ -29,6 +29,12 @@ allprojects {
     }
 }
 
+ext.localProps = new Properties()
+def localFile = rootProject.file("local.properties")
+if (localFile.exists()) {
+    localFile.withInputStream { ext.localProps.load(it) }
+}
+
 subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
@@ -49,6 +55,7 @@ subprojects {
 
     java {
         withSourcesJar()
+        withJavadocJar()
 
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -58,32 +65,23 @@ subprojects {
         it.options.release = 17
     }
 
-    // FIXME - Good chance this isn't publishing properly
     publishing {
         publications {
             mavenJava(MavenPublication) {
                 artifactId = base.archivesName.get()
-                artifact jar
+                //artifact jar
+                from components.java
             }
         }
 
-        File localPropertiesFile = new File("$projectDir/local.properties")
-
-        if (localPropertiesFile.exists()) {
-            Properties props = new Properties()
-            props.load(new FileInputStream(localPropertiesFile))
-
-            repositories {
-                maven {
-                    credentials {
-                        username = props.repsyMavenUsername
-                        password = props.repsyMavenPassword
-                    }
-                    url "https://repo.repsy.io/mvn/1whohears/1wholibs"
+        repositories {
+            maven {
+                credentials {
+                    username = rootProject.ext.localProps.repsyMavenUsername
+                    password = rootProject.ext.localProps.repsyMavenPassword
                 }
+                url "https://repo.repsy.io/mvn/1whohears/1wholibs"
             }
-        } else {
-            logger.lifecycle("Skipping repository configuration: local.properties not found.")
         }
     }
 }
