@@ -138,11 +138,11 @@ public class UtilEntity {
 	}
 
     public static boolean blocksMotion(BlockState state) {
-        return state.blocksMotion();
+        return state.getMaterial().blocksMotion();
     }
 
     public static boolean isLiquid(BlockState state) {
-        return state.liquid();
+        return state.getMaterial().isLiquid();
     }
 
 	/**
