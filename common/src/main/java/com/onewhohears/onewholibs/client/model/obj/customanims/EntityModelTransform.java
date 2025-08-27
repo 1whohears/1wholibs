@@ -10,13 +10,12 @@ import net.minecraft.world.entity.Entity;
 
 /**
  * Forge's obj model render allows the manipulation of individual groups/folders/bones within the model.
- * See {@link net.minecraftforge.client.model.renderable.CompositeRenderable#render} and
- * {@link net.minecraftforge.client.model.renderable.CompositeRenderable.Transforms}.
+ * See {@link com.onewhohears.onewholibs.client.model.obj.ObjBakedModel#render}.
  * I call the names of these groups the {@link #model_part_key}.
  * Instead of hard coding these Transforms, my CustomAnims system allows you to define animations with
  * json assets. 1wholibs doesn't come with many premade animations, but it should be fairly straight forward
  * to make your own. Simply call {@link CustomAnims#addAnim(String, CustomAnims.AnimationFactory)} in
- * {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent}.
+ * {@link dev.architectury.event.events.client.ClientLifecycleEvent#CLIENT_SETUP}.
  * You'll also have to set up a {@link com.onewhohears.onewholibs.data.jsonpreset.JsonPresetAssetReader}
  * using {@link com.onewhohears.onewholibs.data.jsonpreset.CustomAnimStats} to read the anims.
  * Then {@link CustomAnimsEntityModel} can use
