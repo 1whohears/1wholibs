@@ -121,10 +121,14 @@ public class UtilItem {
 		NonNullList<ItemStack> remainingItems = getRemainingItemsStackIngredients(player.getInventory(), recipe.getIngredients());
 		for (int i = 0; i < player.getInventory().getContainerSize(); ++i) 
 			player.getInventory().setItem(i, remainingItems.get(i));
-		ItemStack stack = recipe.assemble(player.getInventory());
+		ItemStack stack = assembleRecipe(player, recipe);
 		Containers.dropItemStack(player.level(), pos.getX()+0.5,
 			pos.getY()+1.125, pos.getZ()+0.5, stack);
 	}
+
+    public static ItemStack assembleRecipe(Player player, Recipe<Inventory> recipe) {
+        return recipe.assemble(player.getInventory(), UtilEntity.getLevel(player).registryAccess());
+    }
 	
 	public static MenuType<?> getChestMenuTypeByRows(int rows) {
 		if (rows == 1) return MenuType.GENERIC_9x1;
