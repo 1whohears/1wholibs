@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.onewhohears.onewholibs.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "refmap": "onewholibs.fabric.refmap.json",
+  "client": [
+    "BlockEntityWithoutLevelRendererMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

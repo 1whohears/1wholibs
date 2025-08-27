@@ -1,0 +1,65 @@
+modLoader = "javafml"
+loaderVersion = "${forge_loader_version_range}"
+issueTrackerURL = "${issue_tracker}"
+license = "MIT"
+
+[[mods]]
+modId = "onewholibs"
+version = "${version}"
+displayName = "1wholibs"
+updateJSONURL="https://raw.githubusercontent.com/1whohears/ModVersions/main/1wholibs/update.json" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/onewholibs" #optional
+displayTest="MATCH_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
+authors = [
+    "${mod_authors}"
+]
+description = '''
+{$mod_description}
+'''
+logoFile = "icon.png"
+
+[[mixins]]
+config = "onewholibs.common.mixins.json"
+
+[[dependencies.onewholibs]]
+modId = "forge"
+mandatory = true
+versionRange = "${forge_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.onewholibs]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${minecraft_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+
+[[dependencies.onewholibs]]
+modId = "ftbteams"
+mandatory = false
+versionRange = "[${ftb_teams_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.onewholibs]]
+modId = "ftblibrary"
+mandatory = false
+versionRange = "[${ftb_library_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.onewholibs]]
+modId = "architectury"
+mandatory = true
+versionRange = "[${architectury_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.onewholibs]]
+modId = "openpartiesandclaims"
+mandatory = false
+versionRange = "[${openpartiesandclaims_version},)"
+ordering = "NONE"
+side = "BOTH"

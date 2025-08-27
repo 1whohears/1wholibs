@@ -1,0 +1,77 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+
+    mods {
+        forge {
+            sourceSet project(":forge").sourceSets.main
+        }
+    }
+
+    forge {
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+    }
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+configurations {
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:$rootProject.forge_version"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
+    shadowBundle common(project(path: ':common', configuration: 'shadowedElements')) { transitive false }
+    shadowBundle project(path: ':common', configuration: 'transformProductionForge')
+
+    modImplementation("dev.architectury:architectury-forge:${rootProject.architectury_version}")
+    modImplementation("curse.maven:open-parties-and-claims-636608:6055470")
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    filesMatching('META-INF/mods.toml') {
+        expand version: project.version,
+                mod_authors: project.findProperty("mod_authors"),
+                issue_tracker: project.findProperty("issue_tracker"),
+                mod_description: project.findProperty("mod_description"),
+                minecraft_version: project.findProperty("minecraft_version"),
+                forge_version: project.findProperty("forge_version"),
+                forge_version_range: project.findProperty("forge_version_range"),
+                forge_loader_version_range: project.findProperty("forge_loader_version_range"),
+                ftb_library_version: project.findProperty("ftb_library_version"),
+                ftb_teams_version: project.findProperty("ftb_teams_version"),
+                architectury_version: project.findProperty("architectury_version"),
+                openpartiesandclaims_version: project.findProperty("openpartiesandclaims_version")
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+}

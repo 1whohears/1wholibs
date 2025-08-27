@@ -1,0 +1,18 @@
+accessWidener   v2  named
+# Projectile
+accessible  method  net/minecraft/world/entity/projectile/Projectile    <init>  (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V
+# Tags
+accessible  method  net/minecraft/tags/ItemTags bind    (Ljava/lang/String;)Lnet/minecraft/tags/TagKey;
+# Ingredients
+extendable  class   net/minecraft/world/item/crafting/Ingredient
+accessible  method  net/minecraft/world/item/crafting/Ingredient    <init>  (Ljava/util/stream/Stream;)V
+accessible  class   net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible  method  net/minecraft/world/item/crafting/Ingredient$ItemValue  <init>  (Lnet/minecraft/world/item/ItemStack;)V
+accessible  class   net/minecraft/world/item/crafting/Ingredient$TagValue
+accessible  method  net/minecraft/world/item/crafting/Ingredient$TagValue   <init>  (Lnet/minecraft/tags/TagKey;)V
+accessible  class   net/minecraft/world/item/crafting/Ingredient$Value
+# GameRules
+accessible  method  net/minecraft/world/level/GameRules register    (Ljava/lang/String;Lnet/minecraft/world/level/GameRules$Category;Lnet/minecraft/world/level/GameRules$Type;)Lnet/minecraft/world/level/GameRules$Key;
+accessible  method  net/minecraft/world/level/GameRules$BooleanValue    create  (Z)Lnet/minecraft/world/level/GameRules$Type;
+accessible  method  net/minecraft/world/level/GameRules$BooleanValue    create  (ZLjava/util/function/BiConsumer;)Lnet/minecraft/world/level/GameRules$Type;
+accessible  method  net/minecraft/world/level/GameRules$IntegerValue    create  (I)Lnet/minecraft/world/level/GameRules$Type;

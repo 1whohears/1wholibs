@@ -1,0 +1,1 @@
+This software uses the [Special Model Loader](https://github.com/TeamFelNull/SpecialModelLoader) for OBJ model loading on Fabric under the MIT License. Credit for this library goes to TeamFelNull, who are included in this software's license.
