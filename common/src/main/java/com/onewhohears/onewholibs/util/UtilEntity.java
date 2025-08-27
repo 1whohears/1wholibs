@@ -121,7 +121,7 @@ public class UtilEntity {
 			if (!level.hasChunk(cp.x, cp.z)) continue;
 			BlockState block = level.getBlockState(bp);
 			if (block == null || block.isAir()) continue;
-			if (!block.getMaterial().blocksMotion() && !block.getMaterial().isLiquid()) continue;
+			if (!blocksMotion(block) && !isLiquid(block)) continue;
 			if (through[0] <= 0 && through[1] <= 0) return false;
 			if (block.getFluidState().getType().isSame(Fluids.WATER)) {
 				if (through[0] > 0) {
@@ -136,6 +136,14 @@ public class UtilEntity {
 		}
 		return true;
 	}
+
+    public static boolean blocksMotion(BlockState state) {
+        return state.blocksMotion();
+    }
+
+    public static boolean isLiquid(BlockState state) {
+        return state.liquid();
+    }
 
 	/**
 	 * @param level the level blocks are checked in
@@ -169,7 +177,7 @@ public class UtilEntity {
 		if (!level.hasChunk(cp.x, cp.z)) return false;
 		BlockState block = level.getBlockState(bp);
 		if (block == null || block.isAir()) return false;
-		return block.getMaterial().blocksMotion();
+		return blocksMotion(block);
 	}
 
 	/**
