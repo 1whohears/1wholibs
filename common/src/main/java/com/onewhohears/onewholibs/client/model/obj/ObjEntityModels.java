@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.google.gson.JsonElement;
 import com.onewhohears.onewholibs.util.math.Vec3f;
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.phys.Vec3;
@@ -41,9 +40,8 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
         ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, instance);
     }
 
-    @ExpectPlatform
     public static ObjEntityModels createNew() {
-        throw new AssertionError();
+        return new ObjEntityModelsImpl();
     }
 
 	public static final String DIRECTORY = "models/entity";
@@ -74,7 +72,8 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
     }
 
     protected abstract void setupObjModels(ResourceManager manager);
-	
+	public abstract void bakeModels();
+
 	public final static ModelOverrides NO_OVERRIDES = new ModelOverrides();
 	
 	public ModelOverrides getModelOverride(String name) {
@@ -83,6 +82,9 @@ public abstract class ObjEntityModels implements ResourceManagerReloadListener {
 	}
 	
 	public abstract boolean hasModel(String id);
+
+    public abstract ObjUnbakedModel getUnbakedModel(String name);
+    public abstract ObjBakedModel getBakedModel(String name);
 	
 	public void readModelOverrides(ResourceManager manager) {
 		modelOverrides.clear();

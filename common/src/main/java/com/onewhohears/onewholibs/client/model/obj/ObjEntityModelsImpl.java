@@ -1,25 +1,23 @@
-package com.onewhohears.onewholibs.client.model.obj.fabric;
+package com.onewhohears.onewholibs.client.model.obj;
 
 import com.google.common.collect.ImmutableBiMap;
-import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
-import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
 import de.javagl.obj.Mtl;
 import de.javagl.obj.MtlReader;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjReader;
+import dev.architectury.platform.Platform;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ObjEntityModelsImpl extends ObjEntityModels {
-
-    public static ObjEntityModels createNew() {
-        return new ObjEntityModelsImpl();
-    }
 
     private final Map<String, ObjUnbakedModel> unbakedModels = new HashMap<>();
     private final Map<String, ObjBakedModel> models = new HashMap<>();
@@ -29,14 +27,16 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
 
     @Override
     public ObjModelHandler createObjModelHandler(String id) {
-        return new FabricObjModelHandler(id, getBakedModel(id), getUnbakedModel(id));
+        return new ObjModelHandlerImpl(id, getBakedModel(id), getUnbakedModel(id));
     }
 
+    @Override
     public ObjUnbakedModel getUnbakedModel(String name) {
         if (!unbakedModels.containsKey(name)) return unbakedModels.get(NULL_MODEL_NAME);
         return unbakedModels.get(name);
     }
 
+    @Override
     public ObjBakedModel getBakedModel(String name) {
         if (!models.containsKey(name)) return models.get(NULL_MODEL_NAME);
         return models.get(name);
@@ -46,6 +46,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
         return models.containsKey(id);
     }
 
+    @Override
     public void bakeModels() {
         LOGGER.info("BAKING OBJ MODELS");
         models.clear();
@@ -64,7 +65,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
     @Override
     protected void setupObjModels(ResourceManager manager) {
         readUnbakedModels(manager);
-        bakeModels();
+        if (Platform.isFabric()) bakeModels();
     }
 
     public void readUnbakedModels(ResourceManager manager) {

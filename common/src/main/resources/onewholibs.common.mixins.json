@@ -3,11 +3,13 @@
   "package": "com.onewhohears.onewholibs.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "refmap": "onewholibs.common.refmap.json",
   "client": [
+    "ObjReaderMixin"
   ],
   "mixins": [
   ],
   "injectors": {
-    "defaultRequire": 0
+    "defaultRequire": 1
   }
 }

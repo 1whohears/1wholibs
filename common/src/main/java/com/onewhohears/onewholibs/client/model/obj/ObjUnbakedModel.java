@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.model.obj.fabric;
+package com.onewhohears.onewholibs.client.model.obj;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.onewhohears.onewholibs.util.math.Vec3f;
@@ -11,7 +11,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ObjUnbakedModel {
 
