@@ -190,7 +190,7 @@ public class UtilEntity {
 	}
 	
 	public static int getDistFromSeaLevel(Entity e) {
-		return getDistFromSeaLevel(e.position().y, e.level);
+		return getDistFromSeaLevel(e.position().y, UtilEntity.getLevel(e));
 	}
 	
 	public static int getDistFromSeaLevel(double yPos, Level level) {
@@ -209,7 +209,7 @@ public class UtilEntity {
 	 * @return returns the position of a block the entity is looking at
 	 */
 	public static Vec3 getLookingAtBlockPos(Entity entity, int max) {
-		Level level = entity.level;
+		Level level = UtilEntity.getLevel(entity);
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
 		for (int i = 0; i < max; ++i) {
