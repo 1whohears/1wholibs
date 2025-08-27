@@ -43,8 +43,6 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
-
-
 }
 
 configurations.configureEach {
@@ -63,8 +61,8 @@ dependencies {
 
     modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
 
-    modCompileOnly("curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}")
-    modCompileOnly "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
+    modImplementation("curse.maven:open-parties-and-claims-636608:6055471")
+    modApi "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
 }
 
 processResources {
