@@ -117,15 +117,19 @@ public class UtilItem {
 	 * @param pos the position the crafted item should land
 	 */
 	public static void handleInventoryRecipe(Player player, Recipe<Inventory> recipe, BlockPos pos) {
-		if (!recipe.matches(player.getInventory(), player.level)) return;
+		if (!recipe.matches(player.getInventory(), player.level())) return;
 		NonNullList<ItemStack> remainingItems = getRemainingItemsStackIngredients(player.getInventory(), recipe.getIngredients());
 		for (int i = 0; i < player.getInventory().getContainerSize(); ++i) 
 			player.getInventory().setItem(i, remainingItems.get(i));
-		ItemStack stack = recipe.assemble(player.getInventory());
-		Containers.dropItemStack(player.level, pos.getX()+0.5, 
+		ItemStack stack = assembleRecipe(player, recipe);
+		Containers.dropItemStack(player.level(), pos.getX()+0.5,
 			pos.getY()+1.125, pos.getZ()+0.5, stack);
 	}
-	
+
+    public static ItemStack assembleRecipe(Player player, Recipe<Inventory> recipe) {
+        return recipe.assemble(player.getInventory());
+    }
+
 	public static MenuType<?> getChestMenuTypeByRows(int rows) {
 		if (rows == 1) return MenuType.GENERIC_9x1;
 		else if (rows == 2) return MenuType.GENERIC_9x2;
