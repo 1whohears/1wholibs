@@ -600,10 +600,16 @@ public final class Mat3f {
     }
 
     public Matrix3f convert() {
-        return new Matrix3f(
-                m00, m01, m02,
-                m10, m11, m12,
-                m20, m21, m22
-        );
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(9);
+        buffer.put(bufferIndex(0, 0), m00);
+        buffer.put(bufferIndex(0, 1), m01);
+        buffer.put(bufferIndex(0, 2), m02);
+        buffer.put(bufferIndex(1, 0), m10);
+        buffer.put(bufferIndex(1, 1), m11);
+        buffer.put(bufferIndex(1, 2), m12);
+        buffer.put(bufferIndex(2, 0), m20);
+        buffer.put(bufferIndex(2, 1), m21);
+        buffer.put(bufferIndex(2, 2), m22);
+        return new Matrix3f(buffer);
     }
 }

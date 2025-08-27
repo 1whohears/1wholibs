@@ -571,11 +571,29 @@ public final class Mat4f {
     }
 
     public Matrix4f convert() {
-        return new Matrix4f(
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        buffer.put(bufferIndex(0, 0), m00);
+        buffer.put(bufferIndex(0, 1), m01);
+        buffer.put(bufferIndex(0, 2), m02);
+        buffer.put(bufferIndex(0, 3), m03);
+        buffer.put(bufferIndex(1, 0), m10);
+        buffer.put(bufferIndex(1, 1), m11);
+        buffer.put(bufferIndex(1, 2), m12);
+        buffer.put(bufferIndex(1, 3), m13);
+        buffer.put(bufferIndex(2, 0), m20);
+        buffer.put(bufferIndex(2, 1), m21);
+        buffer.put(bufferIndex(2, 2), m22);
+        buffer.put(bufferIndex(2, 3), m23);
+        buffer.put(bufferIndex(3, 0), m30);
+        buffer.put(bufferIndex(3, 1), m31);
+        buffer.put(bufferIndex(3, 2), m32);
+        buffer.put(bufferIndex(3, 3), m33);
+        return new Matrix4f(buffer);
+        /*return new Matrix4f(
                 m00, m01, m02, m03,
                 m10, m11, m12, m13,
                 m20, m21, m22, m23,
                 m30, m31, m32, m33
-        );
+        );*/
     }
 }
