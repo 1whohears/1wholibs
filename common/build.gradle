@@ -36,11 +36,7 @@ dependencies {
 tasks.register("commonShadowJar", ShadowJar) {
     archiveClassifier.set("shadowed")
 
-    // use the resolvable configuration instead of implementation
     configurations = [project.configurations.shadowImpl]
-
-    // optional: relocate to avoid conflicts
-    // relocate "de.javagl.obj", "com.onewhohears.onewholibs.shadow.obj"
 }
 
 configurations {
