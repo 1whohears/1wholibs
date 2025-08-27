@@ -61,8 +61,8 @@ dependencies {
 
     modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
 
-    modImplementation("curse.maven:open-parties-and-claims-636608:6055471")
-    modApi "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
+    modCompileOnly("curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}")
+    modCompileOnly "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
 }
 
 processResources {
@@ -81,8 +81,8 @@ processResources {
                 ftb_teams_version: project.findProperty("ftb_teams_version"),
                 architectury_version: project.findProperty("architectury_version"),
                 openpartiesandclaims_version: project.findProperty("openpartiesandclaims_version"),
-                sml_version: project.findProperty("sml_version"),
-                forgeconfigapiport_version: project.findProperty("forgeconfigapiport_version")
+                forgeconfigapiport_version: project.findProperty("forgeconfigapiport_version"),
+                fabric_openpartiesandclaims_id: project.findProperty("fabric_openpartiesandclaims_id")
     }
 }
 
