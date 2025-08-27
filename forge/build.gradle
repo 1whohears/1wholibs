@@ -45,7 +45,8 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 
     modImplementation("dev.architectury:architectury-forge:${rootProject.architectury_version}")
-    modImplementation("curse.maven:open-parties-and-claims-636608:${rootProject.forge_openpartiesandclaims_id}")
+
+    modCompileOnly("curse.maven:open-parties-and-claims-636608:${rootProject.forge_openpartiesandclaims_id}")
 }
 
 processResources {
