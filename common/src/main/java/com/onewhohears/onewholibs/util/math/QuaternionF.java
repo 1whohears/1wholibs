@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.util.math;
 
-import com.mojang.math.Quaternion;
 import net.minecraft.util.Mth;
+import org.joml.Quaternionf;
 
 /**
  * Mojang in their infinite wisdom decided to refactor/remove a bunch of their math util classes from 1.19.2.
@@ -215,7 +215,7 @@ public final class QuaternionF {
     public void normalize() {
         float f = this.i() * this.i() + this.j() * this.j() + this.k() * this.k() + this.r() * this.r();
         if (f > 1.0E-6F) {
-            float g = Mth.fastInvSqrt(f);
+            float g = (float) Mth.fastInvSqrt(f);
             this.i *= g;
             this.j *= g;
             this.k *= g;
@@ -237,7 +237,7 @@ public final class QuaternionF {
         return new QuaternionF(this);
     }
 
-    public Quaternion convert() {
-        return new Quaternion(i, j, k, r);
+    public Quaternionf convert() {
+        return new Quaternionf(i, j, k, r);
     }
 }

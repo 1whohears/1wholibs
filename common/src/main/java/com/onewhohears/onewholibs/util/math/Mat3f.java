@@ -1,9 +1,9 @@
 package com.onewhohears.onewholibs.util.math;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Matrix3f;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.Triple;
+import org.joml.Matrix3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -93,7 +93,7 @@ public final class Mat3f {
     private static Pair<Float, Float> approxGivensQuat(float f, float g, float h) {
         float i = 2.0F * (f - h);
         if (G * g * g < i * i) {
-            float k = Mth.fastInvSqrt(g * g + i * i);
+            float k = (float) Mth.fastInvSqrt(g * g + i * i);
             return Pair.of(k * g, k * i);
         } else {
             return Pair.of(SS, CS);
@@ -110,7 +110,7 @@ public final class Mat3f {
             j = k;
         }
 
-        float k = Mth.fastInvSqrt(j * j + i * i);
+        float k = (float) Mth.fastInvSqrt(j * j + i * i);
         j *= k;
         i *= k;
         return Pair.of(i, j);
@@ -600,18 +600,10 @@ public final class Mat3f {
     }
 
     public Matrix3f convert() {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(9);
-        Matrix3f mat = new Matrix3f();
-        buffer.put(bufferIndex(0, 0), m00);
-        buffer.put(bufferIndex(0, 1), m01);
-        buffer.put(bufferIndex(0, 2), m02);
-        buffer.put(bufferIndex(1, 0), m10);
-        buffer.put(bufferIndex(1, 1), m11);
-        buffer.put(bufferIndex(1, 2), m12);
-        buffer.put(bufferIndex(2, 0), m20);
-        buffer.put(bufferIndex(2, 1), m21);
-        buffer.put(bufferIndex(2, 2), m22);
-        mat.load(buffer);
-        return mat;
+        return new Matrix3f(
+                m00, m01, m02,
+                m10, m11, m12,
+                m20, m21, m22
+        );
     }
 }

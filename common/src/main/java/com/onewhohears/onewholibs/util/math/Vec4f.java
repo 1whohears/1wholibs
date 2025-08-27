@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.util.math;
 
-import com.mojang.math.Vector4f;
 import net.minecraft.util.Mth;
+import org.joml.Vector4f;
 
 /**
  * Mojang in their infinite wisdom decided to refactor/remove a bunch of their math util classes from 1.19.2.
@@ -108,7 +108,7 @@ public final class Vec4f {
         if ((double)f < 1.0E-5) {
             return false;
         } else {
-            float g = Mth.fastInvSqrt(f);
+            float g = (float) Mth.fastInvSqrt(f);
             this.x *= g;
             this.y *= g;
             this.z *= g;

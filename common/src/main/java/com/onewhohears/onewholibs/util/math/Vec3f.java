@@ -1,12 +1,12 @@
 package com.onewhohears.onewholibs.util.math;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 /**
  * Mojang in their infinite wisdom decided to refactor/remove a bunch of their math util classes from 1.19.2.
@@ -143,7 +143,7 @@ public final class Vec3f {
         if ((double)f < 1.0E-5) {
             return false;
         } else {
-            float g = Mth.fastInvSqrt(f);
+            float g = (float) Mth.fastInvSqrt(f);
             this.x *= g;
             this.y *= g;
             this.z *= g;
