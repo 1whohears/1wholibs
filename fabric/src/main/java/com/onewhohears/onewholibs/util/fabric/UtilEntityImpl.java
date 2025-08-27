@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.util.fabric;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
@@ -13,7 +13,7 @@ public class UtilEntityImpl {
         try {
             ResourceLocation rl = ResourceLocation.tryParse(entityTypeKey);
             if (rl == null) return alt;
-            return Registry.ENTITY_TYPE.get(rl);
+            return BuiltInRegistries.ENTITY_TYPE.get(rl);
         } catch(NoSuchElementException e) {
             return alt;
         }
@@ -22,7 +22,7 @@ public class UtilEntityImpl {
     public static boolean doesEntityTypeExist(String entityTypeKey) {
         ResourceLocation rl = ResourceLocation.tryParse(entityTypeKey);
         if (rl == null) return false;
-        return Registry.ENTITY_TYPE.containsKey(rl);
+        return BuiltInRegistries.ENTITY_TYPE.containsKey(rl);
     }
 
 }

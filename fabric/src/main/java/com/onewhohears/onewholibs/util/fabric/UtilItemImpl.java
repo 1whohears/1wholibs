@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.util.fabric;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -12,12 +12,12 @@ public class UtilItemImpl {
         try {
             ResourceLocation rl = ResourceLocation.tryParse(itemKey);
             if (rl == null) return alt;
-            return Registry.ITEM.get(rl);
+            return BuiltInRegistries.ITEM.get(rl);
         } catch(NoSuchElementException e) { return alt; }
     }
 
     public static ResourceLocation getItemKey(Item item) {
-        return Registry.ITEM.getKey(item);
+        return BuiltInRegistries.ITEM.getKey(item);
     }
 
 }
