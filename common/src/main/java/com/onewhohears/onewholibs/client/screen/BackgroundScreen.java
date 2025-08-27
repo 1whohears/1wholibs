@@ -1,8 +1,8 @@
 package com.onewhohears.onewholibs.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.onewhohears.onewholibs.util.UtilMCText;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -58,8 +58,8 @@ public abstract class BackgroundScreen extends Screen {
         int widget_y = guiY + vertical_widget_shift + top_padding + widget_row * row_height;
         widget_y += (row_height - widget.getHeight() + padding) / 2;
         int widget_width = column_width * widget_columns - padding;
-        widget.x = widget_x;
-        widget.y = widget_y;
+        widget.setX(widget_x);
+        widget.setY(widget_y);
         widget.setWidth(widget_width);
         addRenderableWidget(widget);
         return widget;
@@ -74,16 +74,15 @@ public abstract class BackgroundScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack poseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(poseStack);
-        super.render(poseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(@NotNull GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        renderBackground(guiGraphics);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
     }
 
     @Override
-    public void renderBackground(@NotNull PoseStack poseStack) {
+    public void renderBackground(@NotNull GuiGraphics guiGraphics) {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, background_texture);
-        blit(poseStack, guiX, guiY, 0, 0,
+        guiGraphics.blit(background_texture, guiX, guiY, 0, 0,
                 image_width, image_height, texture_width, texture_height);
     }
 }
