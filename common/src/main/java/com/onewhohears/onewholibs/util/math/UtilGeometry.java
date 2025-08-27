@@ -6,6 +6,7 @@ import java.util.Random;
 
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
@@ -488,5 +489,13 @@ public class UtilGeometry {
 		Vec3 center = new Vec3(minX, minY, minZ).add(size.scale(0.5));
 		return new Vec3[]{size, center};
 	}
+
+    public static Vec3i toVec3i(Vec3 vec) {
+        return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
+    }
+
+    public static BlockPos toBlockPos(Vec3 vec) {
+        return new BlockPos((int) vec.x, (int) vec.y, (int) vec.z);
+    }
 
 }
