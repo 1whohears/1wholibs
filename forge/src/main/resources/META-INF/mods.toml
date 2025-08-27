@@ -18,6 +18,9 @@ description = '''
 '''
 logoFile = "icon.png"
 
+[[mixins]]
+config = "onewholibs.common.mixins.json"
+
 [[dependencies.onewholibs]]
 modId = "forge"
 mandatory = true

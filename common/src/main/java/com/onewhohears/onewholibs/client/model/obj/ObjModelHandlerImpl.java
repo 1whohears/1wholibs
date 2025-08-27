@@ -1,7 +1,6 @@
-package com.onewhohears.onewholibs.client.model.obj.fabric;
+package com.onewhohears.onewholibs.client.model.obj;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.onewhohears.onewholibs.client.model.obj.ObjModelHandler;
 import com.onewhohears.onewholibs.util.math.Mat4f;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import de.javagl.obj.FloatTuple;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 
-public class FabricObjModelHandler implements ObjModelHandler {
+public class ObjModelHandlerImpl implements ObjModelHandler {
 
     @NotNull private final String modelId;
     @NotNull private final ObjBakedModel bakedModel;
@@ -23,8 +22,8 @@ public class FabricObjModelHandler implements ObjModelHandler {
     @Nullable private Vec3 size = null;
     @Nullable private Vec3 center = null;
 
-    public FabricObjModelHandler(@NotNull String modelId, @NotNull ObjBakedModel bakedModel,
-                                 @NotNull ObjUnbakedModel unbakedModel) {
+    public ObjModelHandlerImpl(@NotNull String modelId, @NotNull ObjBakedModel bakedModel,
+                               @NotNull ObjUnbakedModel unbakedModel) {
         this.modelId = modelId;
         this.bakedModel = bakedModel;
         this.unbakedModel = unbakedModel;

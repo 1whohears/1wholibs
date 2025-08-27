@@ -1,9 +1,27 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    id "com.gradleup.shadow"
+}
+
 architectury {
     common rootProject.enabled_platforms.split(',')
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/onewholibs.accesswidener")
+
+    runs {
+        client {
+            property "mixin.config", "onewholibs.common.mixins.json"
+        }
+    }
+
+    loom {
+        mixin {
+            defaultRefmapName = "onewholibs.common.refmap.json"
+        }
+    }
 }
 
 dependencies {
@@ -11,4 +29,32 @@ dependencies {
 
     modImplementation("dev.ftb.mods:ftb-library:${rootProject.ftb_library_version}") { transitive = false }
     modImplementation("dev.ftb.mods:ftb-teams:${rootProject.ftb_teams_version}") { transitive = false }
+
+    implementation "de.javagl:obj:${rootProject.javaglobj_version}"
+}
+
+tasks.register("commonShadowJar", ShadowJar) {
+    archiveClassifier.set("shadowed")
+
+    // use the resolvable configuration instead of implementation
+    configurations = [project.configurations.shadowImpl]
+
+    // optional: relocate to avoid conflicts
+    // relocate "de.javagl.obj", "com.onewhohears.onewholibs.shadow.obj"
+}
+
+configurations {
+    shadowedElements {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+    shadowImpl {
+        canBeResolved = true
+        canBeConsumed = false
+        extendsFrom implementation
+    }
+}
+
+artifacts {
+    shadowedElements tasks.named("commonShadowJar")
 }

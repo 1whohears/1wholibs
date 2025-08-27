@@ -23,6 +23,7 @@
     ]
   },
   "mixins": [
+    "onewholibs.common.mixins.json",
     "onewholibs.fabric.mixins.json"
   ],
   "depends": {

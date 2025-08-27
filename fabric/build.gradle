@@ -25,7 +25,7 @@ loom {
 
     loom {
         mixin {
-            defaultRefmapName = "onewholibs.refmap.json"
+            defaultRefmapName = "onewholibs.fabric.refmap.json"
         }
     }
 }
@@ -54,16 +54,14 @@ configurations.configureEach {
 }
 
 dependencies {
-    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
+    common(project(path: ':common', configuration: 'shadowedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
     modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
-
-    implementation "de.javagl:obj:${rootProject.javaglobj_version}"
-    include "de.javagl:obj:${rootProject.javaglobj_version}"
 
     modImplementation("curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}")
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"

@@ -1,4 +1,4 @@
-package com.onewhohears.onewholibs.client.model.obj.fabric;
+package com.onewhohears.onewholibs.client.model.obj;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.onewhohears.onewholibs.util.math.Mat4f;
