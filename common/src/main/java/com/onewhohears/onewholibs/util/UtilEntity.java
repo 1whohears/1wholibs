@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import com.onewhohears.onewholibs.OWLDependencySafety;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
+import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -115,7 +116,7 @@ public class UtilEntity {
 		int k = 0;
 		while (k++ < dist) {
 			pos = pos.add(look);
-			BlockPos bp = new BlockPos(pos);
+			BlockPos bp = UtilGeometry.toBlockPos(pos);
 			ChunkPos cp = new ChunkPos(bp);
 			if (!level.hasChunk(cp.x, cp.z)) continue;
 			BlockState block = level.getBlockState(bp);
@@ -163,7 +164,7 @@ public class UtilEntity {
 	 * @return true if the chunk is loaded and there is a block at pos.
 	 */
 	public static boolean posBlocksMotion(Level level, Vec3 pos) {
-		BlockPos bp = new BlockPos(pos);
+		BlockPos bp = UtilGeometry.toBlockPos(pos);
 		ChunkPos cp = new ChunkPos(bp);
 		if (!level.hasChunk(cp.x, cp.z)) return false;
 		BlockState block = level.getBlockState(bp);
@@ -212,7 +213,7 @@ public class UtilEntity {
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
 		for (int i = 0; i < max; ++i) {
-			BlockState block = level.getBlockState(new BlockPos(pos));
+			BlockState block = level.getBlockState(UtilGeometry.toBlockPos(pos));
 			if (block != null && !block.isAir()) return pos;
 			pos = pos.add(look);
 		}
