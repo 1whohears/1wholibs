@@ -76,7 +76,7 @@ processResources {
                 mod_description: project.findProperty("mod_description"),
                 minecraft_version: project.findProperty("minecraft_version"),
                 fabric_loader_version: project.findProperty("fabric_loader_version"),
-                fabric_api_version: project.findProperty("forge_version_range"),
+                fabric_api_version: project.findProperty("fabric_api_version"),
                 ftb_library_version: project.findProperty("ftb_library_version"),
                 ftb_teams_version: project.findProperty("ftb_teams_version"),
                 architectury_version: project.findProperty("architectury_version"),
