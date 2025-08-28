@@ -7,6 +7,7 @@ import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims.BlockBenchAnims;
 import com.onewhohears.onewholibs.client.renderer.RendererObjModelItems;
+import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.common.event.OWLCommonEventHandlers;
 import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
@@ -36,7 +37,7 @@ public class OWLMod {
     public static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(MOD_ID));
 
     public static void init() {
-        OWLPacketHandler.register();
+        OWLPacketHandler.init();
         if (Platform.getEnvironment() == Env.CLIENT) {
             ObjEntityModels.register();
             BlockBenchAnims.register();
@@ -46,6 +47,7 @@ public class OWLMod {
         } else {
             ServerHolder.init();
         }
+        CustomGameRules.register();
         OWLModItems.init();
         OWLModEntities.init();
         OWLCommonEventHandlers.init();
