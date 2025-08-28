@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.util;
 
-import com.onewhohears.onewholibs.common.network.PacketHandler;
+import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
 import com.onewhohears.onewholibs.common.network.toclient.ToClientDataPackSync;
 import com.onewhohears.onewholibs.common.network.toclient.ToClientSyncGameRules;
 import net.minecraft.server.MinecraftServer;
@@ -22,7 +22,7 @@ public class UtilSync {
      * @param players the clients to send the gamerules too.
      */
     public static void syncGameRules(Iterable<ServerPlayer> players, @NotNull MinecraftServer server) {
-        PacketHandler.INSTANCE.sendToPlayers(players, new ToClientSyncGameRules(server));
+        OWLPacketHandler.INSTANCE.sendToPlayers(players, new ToClientSyncGameRules(server));
     }
     /**
      * syncs custom gamerules with client and server for all players.
@@ -44,7 +44,7 @@ public class UtilSync {
      * @param players the clients to send the preset data to.
      */
     public static void syncPresets(Iterable<ServerPlayer> players) {
-        PacketHandler.INSTANCE.sendToPlayers(players, new ToClientDataPackSync());
+        OWLPacketHandler.INSTANCE.sendToPlayers(players, new ToClientDataPackSync());
     }
     /**
      * Syncs preset data with all clients.
