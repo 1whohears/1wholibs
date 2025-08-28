@@ -1,25 +1,47 @@
 package com.onewhohears.onewholibs.common.network.toclient;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.mojang.logging.LogUtils;
 import com.onewhohears.onewholibs.common.event.OWLEvents;
+import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.sun.nio.sctp.IllegalReceiveException;
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.networking.simple.BaseS2CMessage;
+import dev.architectury.networking.simple.MessageType;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-public class ToClientDataPackSync {
+public class ToClientDataPackSync extends BaseS2CMessage {
 
 	static final Logger LOGGER = LogUtils.getLogger();
 
 	public ToClientDataPackSync() {
 	}
-	
-	public ToClientDataPackSync(FriendlyByteBuf buffer) {
+
+    @Override
+    public MessageType getType() {
+        return OWLPacketHandler.S2C_DATA_PACK_SYNC;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
+        buffer.writeInt(listeners.size());
+        for (JsonPresetReloadListener<?> listener : listeners) {
+            buffer.writeUtf(listener.getName());
+            listener.writeToBuffer(buffer);
+        }
+    }
+
+    @Override
+    public void handle(NetworkManager.PacketContext context) {
+
+    }
+
+    public ToClientDataPackSync(FriendlyByteBuf buffer) {
         OWLEvents.registerPresetTypesEvent();
         List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
 		int num = buffer.readInt();
@@ -43,19 +65,6 @@ public class ToClientDataPackSync {
 			if (listener.getName().equals(name))
 				return listener;
 		return null;
-	}
-
-	public void encode(FriendlyByteBuf buffer) {
-        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
-		buffer.writeInt(listeners.size());
-		for (JsonPresetReloadListener<?> listener : listeners) {
-			buffer.writeUtf(listener.getName());
-			listener.writeToBuffer(buffer);
-		}
-	}
-
-	public void handle(Supplier<NetworkManager.PacketContext> ctx) {
-
 	}
 
 }

@@ -1,16 +1,17 @@
 package com.onewhohears.onewholibs.common.network.toclient;
 
-import java.util.function.Supplier;
-
 import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.common.event.OWLEvents;
+import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.networking.simple.BaseS2CMessage;
+import dev.architectury.networking.simple.MessageType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.NotNull;
 
-public class ToClientSyncGameRules {
+public class ToClientSyncGameRules extends BaseS2CMessage {
 
 	private final MinecraftServer server;
 
@@ -34,22 +35,28 @@ public class ToClientSyncGameRules {
 		}
 	}
 
-	public void encode(FriendlyByteBuf buffer) {
-		GameRules gamerules = server.getGameRules();
-		buffer.writeInt(CustomGameRules.getSyncBools().size());
-		CustomGameRules.getSyncBools().forEach((booleanValueKey) -> {
-			buffer.writeUtf(booleanValueKey.getId());
-			buffer.writeBoolean(gamerules.getBoolean(booleanValueKey));
-		});
-		buffer.writeInt(CustomGameRules.getSyncInts().size());
-		CustomGameRules.getSyncInts().forEach((integerValueKey) -> {
-			buffer.writeUtf(integerValueKey.getId());
-			buffer.writeInt(gamerules.getInt(integerValueKey));
-		});
-	}
+    @Override
+    public MessageType getType() {
+        return OWLPacketHandler.S2C_SYNC_GAME_RULES;
+    }
 
-	public void handle(Supplier<NetworkManager.PacketContext> ctx) {
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        GameRules gamerules = server.getGameRules();
+        buffer.writeInt(CustomGameRules.getSyncBools().size());
+        CustomGameRules.getSyncBools().forEach((booleanValueKey) -> {
+            buffer.writeUtf(booleanValueKey.getId());
+            buffer.writeBoolean(gamerules.getBoolean(booleanValueKey));
+        });
+        buffer.writeInt(CustomGameRules.getSyncInts().size());
+        CustomGameRules.getSyncInts().forEach((integerValueKey) -> {
+            buffer.writeUtf(integerValueKey.getId());
+            buffer.writeInt(gamerules.getInt(integerValueKey));
+        });
+    }
 
-	}
+    @Override
+    public void handle(NetworkManager.PacketContext context) {
 
+    }
 }
