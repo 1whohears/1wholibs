@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.common.event;
 
-import com.onewhohears.onewholibs.common.network.PacketHandler;
+import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
 import com.onewhohears.onewholibs.entity.JsonPresetEntityHolder;
 import com.onewhohears.onewholibs.util.UtilSync;
 import dev.architectury.event.EventResult;
@@ -23,7 +23,7 @@ public class OWLCommonEventHandlers {
     public static EventResult onAddEntity(Entity entity, Level level) {
         if (level.isClientSide()) return EventResult.pass();
         if (!(entity instanceof JsonPresetEntityHolder<?> holder)) return EventResult.pass();
-        PacketHandler.sendSyncPresetEntityPacket(holder, (ServerLevel) level, entity.chunkPosition());
+        OWLPacketHandler.sendSyncPresetEntityPacket(holder, (ServerLevel) level, entity.chunkPosition());
         return EventResult.pass();
     }
 

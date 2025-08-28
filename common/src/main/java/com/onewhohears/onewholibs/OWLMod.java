@@ -11,7 +11,7 @@ import com.onewhohears.onewholibs.common.event.OWLCommonEventHandlers;
 import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
 import com.onewhohears.onewholibs.common.event.ServerHolder;
-import com.onewhohears.onewholibs.common.network.PacketHandler;
+import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.onewhohears.onewholibs.init.OWLModEntities;
 import com.onewhohears.onewholibs.init.OWLModItems;
@@ -36,7 +36,7 @@ public class OWLMod {
     public static final Supplier<Registries> REGISTRIES = Suppliers.memoize(() -> Registries.get(MOD_ID));
 
     public static void init() {
-        PacketHandler.register();
+        OWLPacketHandler.register();
         if (Platform.getEnvironment() == Env.CLIENT) {
             ObjEntityModels.register();
             BlockBenchAnims.register();

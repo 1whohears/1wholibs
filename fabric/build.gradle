@@ -59,7 +59,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
-    modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
+    modApi("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
 
     modCompileOnly("curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}")
     modCompileOnly "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"

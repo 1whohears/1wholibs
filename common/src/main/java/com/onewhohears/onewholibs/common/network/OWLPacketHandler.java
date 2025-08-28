@@ -19,14 +19,14 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
-public final class PacketHandler {
+public final class OWLPacketHandler {
 
     static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ResourceLocation SYNC_PRESET_ENTITY_ID = ResourceLocation.tryBuild(OWLMod.MOD_ID,
             "sync_preset_entity");
 
-    private PacketHandler() {}
+    private OWLPacketHandler() {}
 
     public static final NetworkChannel INSTANCE = NetworkChannel.create(new ResourceLocation(
             OWLMod.MOD_ID, "networking_channel"));
