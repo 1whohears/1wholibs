@@ -15,19 +15,6 @@ loom {
             sourceSet project(":fabric").sourceSets.main
         }
     }
-
-    runs {
-        client {
-            property "mixin.env.remapRefMap", "true"
-            property "mixin.env.refMapRemappingFile", "${project.buildDir}/createSrgToMcp/output.srg"
-        }
-    }
-
-    loom {
-        mixin {
-            defaultRefmapName = "onewholibs.fabric.refmap.json"
-        }
-    }
 }
 
 configurations {
