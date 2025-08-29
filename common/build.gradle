@@ -10,18 +10,6 @@ architectury {
 
 loom {
     accessWidenerPath = file("src/main/resources/onewholibs.accesswidener")
-
-    runs {
-        client {
-            property "mixin.config", "onewholibs.common.mixins.json"
-        }
-    }
-
-    loom {
-        mixin {
-            defaultRefmapName = "onewholibs.common.refmap.json"
-        }
-    }
 }
 
 dependencies {
