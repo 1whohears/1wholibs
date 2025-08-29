@@ -71,6 +71,7 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
+    relocate 'de.javagl.obj', 'com.onewhohears.onewholibs.shadow.de.javagl.obj'
     exclude 'META-INF/maven/**'
 }
 
