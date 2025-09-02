@@ -46,9 +46,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
-    modApi("dev.architectury:architectury-fabric:${rootProject.architectury_version}")
+    modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
-    modCompileOnly("curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}")
+    modCompileOnly "curse.maven:open-parties-and-claims-636608:${rootProject.fabric_openpartiesandclaims_id}"
     modCompileOnly "net.minecraftforge:forgeconfigapiport-fabric:${rootProject.forgeconfigapiport_version}"
 }
 
@@ -68,8 +68,8 @@ processResources {
                 ftb_teams_version: project.findProperty("ftb_teams_version"),
                 architectury_version: project.findProperty("architectury_version"),
                 openpartiesandclaims_version: project.findProperty("openpartiesandclaims_version"),
-                forgeconfigapiport_version: project.findProperty("forgeconfigapiport_version"),
-                fabric_openpartiesandclaims_id: project.findProperty("fabric_openpartiesandclaims_id")
+                sml_version: project.findProperty("sml_version"),
+                forgeconfigapiport_version: project.findProperty("forgeconfigapiport_version")
     }
 }
 
