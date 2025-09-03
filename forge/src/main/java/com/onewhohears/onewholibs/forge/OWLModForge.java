@@ -4,12 +4,14 @@ import com.onewhohears.onewholibs.OWLMod;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
 import com.onewhohears.onewholibs.client.renderer.RendererObjEntity;
+import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresetGenerator;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.data.loading.DatagenModLoader;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,6 +31,8 @@ public final class OWLModForge {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
+        modEventBus.addListener(this::onGatherData);
+
         OWLMod.init();
         if (Platform.getEnvironment() == Env.CLIENT && !DatagenModLoader.isRunningDataGen()) {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> OWLMod::clientInit);
@@ -40,9 +44,17 @@ public final class OWLModForge {
         IEventBus modEventBus = loadingContext.getModEventBus();
         EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
+        modEventBus.addListener(this::onGatherData);
+
         OWLMod.init();
         if (Platform.getEnvironment() == Env.CLIENT && !DatagenModLoader.isRunningDataGen()) {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> OWLMod::clientInit);
+        }
+    }
+
+    private void onGatherData(GatherDataEvent event) {
+        if (event.includeServer()) {
+            TestPresetGenerator.register(event.getGenerator());
         }
     }
 

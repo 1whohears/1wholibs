@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 public final class OWLModFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        OWLMod.clientInit();
         EntityRendererRegistry.register(
                 BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(OWLMod.MOD_ID, "test")),
                 context -> new RendererObjEntity<>(context,

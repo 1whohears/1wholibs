@@ -18,6 +18,21 @@ loom {
                 "onewholibs.common.mixins.json"
         ]
     }
+
+    runs {
+        data {
+            data()
+
+            runDir("build/datagen")
+
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+
+            programArgs "--mod", "${mod_id}", "--all"
+            programArgs '--output', project(':common').file('src/generated/resources').getAbsolutePath()
+            programArgs "--existing", project(":common").file("src/main/resources").absolutePath
+        }
+    }
 }
 
 architectury {
@@ -80,4 +95,12 @@ shadowJar {
 
 remapJar {
     inputFile.set shadowJar.archiveFile
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/generated/resources'
+        }
+    }
 }
