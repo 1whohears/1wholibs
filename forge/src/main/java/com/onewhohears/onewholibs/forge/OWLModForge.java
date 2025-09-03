@@ -54,7 +54,7 @@ public final class OWLModForge {
 
     private void onGatherData(GatherDataEvent event) {
         if (event.includeServer()) {
-            TestPresetGenerator.register(event.getGenerator());
+            event.getGenerator().addProvider(true, new TestPresetGenerator(event.getGenerator().getPackOutput()));
         }
     }
 

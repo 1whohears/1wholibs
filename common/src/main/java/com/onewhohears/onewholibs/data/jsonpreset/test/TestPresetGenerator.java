@@ -1,16 +1,12 @@
 package com.onewhohears.onewholibs.data.jsonpreset.test;
 
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetGenerator;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;
 
 public class TestPresetGenerator extends JsonPresetGenerator<TestPresetStats> {
 
-    public static void register(DataGenerator generator) {
-        generator.addProvider(true, new TestPresetGenerator(generator));
-    }
-
-    public TestPresetGenerator(DataGenerator output) {
+    public TestPresetGenerator(PackOutput output) {
         super(output, "test_presets");
     }
 
