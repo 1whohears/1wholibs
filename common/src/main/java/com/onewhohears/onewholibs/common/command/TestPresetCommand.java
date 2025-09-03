@@ -32,8 +32,8 @@ public class TestPresetCommand {
                 context.getSource().sendFailure(UtilMCText.literal("The Test Preset "+presetId+" does not exist!"));
                 return 0;
             }
-            context.getSource().sendSuccess(UtilMCText.literal("The Test Preset "+presetId+" has a value of "
-                            +stats.getValue()+"!"), false);
+            context.getSource().sendSuccess(() -> UtilMCText.literal(
+                    "The Test Preset "+presetId+" has a value of "+stats.getValue()+"!"), false);
             ServerPlayer player = context.getSource().getPlayer();
             if (player != null) new ToClientTestPreset(presetId).sendTo(player);
             return 1;
