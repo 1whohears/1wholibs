@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.onewhohears.onewholibs.data.crafting.IngredientStack;
 
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.crafting.Recipe;
  */
 public class UtilItem {
 
+    @ExpectPlatform
 	public static Item getItem(String itemKey, Item alt) {
 		throw new AssertionError();
 	}
@@ -31,7 +33,8 @@ public class UtilItem {
 	public static Item getItem(String itemKey) {
 		return getItem(itemKey, Items.AIR);
 	}
-	
+
+    @ExpectPlatform
 	public static ResourceLocation getItemKey(Item item) {
 		throw new AssertionError();
 	}
