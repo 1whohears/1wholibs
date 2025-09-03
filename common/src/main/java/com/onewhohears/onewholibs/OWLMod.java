@@ -38,13 +38,7 @@ public class OWLMod {
 
     public static void init() {
         OWLPacketHandler.init();
-        if (Platform.getEnvironment() == Env.CLIENT) {
-            ObjEntityModels.register();
-            BlockBenchAnims.register();
-            KFAnimPlayers.register();
-            RendererObjModelItems.register();
-            OWLClientEventHandlers.init();
-        } else {
+        if (Platform.getEnvironment() == Env.SERVER) {
             ServerHolder.init();
         }
         CustomGameRules.register();
@@ -58,5 +52,13 @@ public class OWLMod {
             listener.registerDefaultPresetTypes();
             ReloadListenerRegistry.register(PackType.SERVER_DATA, listener);
         });
+    }
+
+    public static void clientInit() {
+        ObjEntityModels.register();
+        BlockBenchAnims.register();
+        KFAnimPlayers.register();
+        RendererObjModelItems.register();
+        OWLClientEventHandlers.init();
     }
 }

@@ -4,13 +4,17 @@ import com.onewhohears.onewholibs.OWLMod;
 import com.onewhohears.onewholibs.client.model.obj.ObjEntityModels;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel;
 import com.onewhohears.onewholibs.client.renderer.RendererObjEntity;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -26,6 +30,9 @@ public final class OWLModForge {
         EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
         OWLMod.init();
+        if (Platform.getEnvironment() == Env.CLIENT) {
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> OWLMod::clientInit);
+        }
     }
 
     // Compatible with newer versions of Forge
@@ -34,11 +41,13 @@ public final class OWLModForge {
         EventBuses.registerModEventBus(OWLMod.MOD_ID, modEventBus);
 
         OWLMod.init();
+        if (Platform.getEnvironment() == Env.CLIENT) {
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> OWLMod::clientInit);
+        }
     }
 
     @Mod.EventBusSubscriber(modid = OWLMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
-
         @SubscribeEvent
         public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
             //noinspection removal
@@ -51,7 +60,6 @@ public final class OWLModForge {
                             new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim"))
             );
         }
-
         @SubscribeEvent
         public static void onBakingComplete(ModelEvent.BakingCompleted event) {
             /*
