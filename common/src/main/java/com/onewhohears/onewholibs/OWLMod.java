@@ -11,15 +11,10 @@ import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
 import com.onewhohears.onewholibs.common.event.ServerHolder;
 import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
-import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.onewhohears.onewholibs.init.OWLModEntities;
 import com.onewhohears.onewholibs.init.OWLModItems;
 import dev.architectury.platform.Platform;
-import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
-import net.minecraft.server.packs.PackType;
-
-import java.util.List;
 
 /**
  * @author <a href="https://github.com/1whohears">1whohears</a>
@@ -39,11 +34,6 @@ public class OWLMod {
         OWLCommonEventHandlers.init();
         OWLReloadListener.register();
         OWLEvents.registerPresetTypesEvent();
-        List<JsonPresetReloadListener<?>> listeners = OWLEvents.getJsonPresetReloadListeners();
-        listeners.forEach(listener -> {
-            listener.registerDefaultPresetTypes();
-            ReloadListenerRegistry.register(PackType.SERVER_DATA, listener);
-        });
     }
 
     public static void clientInit() {

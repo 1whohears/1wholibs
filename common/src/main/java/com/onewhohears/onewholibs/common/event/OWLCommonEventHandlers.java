@@ -10,6 +10,7 @@ import com.onewhohears.onewholibs.util.UtilSync;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.EntityEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,6 +30,7 @@ public class OWLCommonEventHandlers {
         EntityEvent.ADD.register(OWLCommonEventHandlers::onAddEntity);
         CommandRegistrationEvent.EVENT.register(OWLCommonEventHandlers::registerCommands);
         OWLEvents.GET_JSON_PRESET_LISTENERS.register(OWLCommonEventHandlers::registerPresetListeners);
+        LifecycleEvent.SETUP.register(OWLEvents::registerAllJsonPresetReloadListeners);
     }
 
     public static void registerPresetListeners(List<JsonPresetReloadListener<?>> listeners) {
