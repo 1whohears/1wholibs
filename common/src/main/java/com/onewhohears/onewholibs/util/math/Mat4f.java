@@ -596,4 +596,12 @@ public final class Mat4f {
                 m30, m31, m32, m33
         );*/
     }
+
+    public static Mat4f from(Matrix4f mat4f) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        mat4f.store(buffer);
+        Mat4f mat = new Mat4f();
+        mat.load(buffer);
+        return mat;
+    }
 }

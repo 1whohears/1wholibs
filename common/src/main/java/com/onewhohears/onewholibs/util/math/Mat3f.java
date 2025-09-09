@@ -612,4 +612,12 @@ public final class Mat3f {
         buffer.put(bufferIndex(2, 2), m22);
         return new Matrix3f(buffer);
     }
+
+    public static Mat3f from(Matrix3f mat3f) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(9);
+        mat3f.store(buffer);
+        Mat3f mat = new Mat3f();
+        mat.load(buffer);
+        return mat;
+    }
 }

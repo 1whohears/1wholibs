@@ -159,4 +159,8 @@ public final class Vec4f {
     public Vector4f convert() {
         return new Vector4f(x, y, z, w);
     }
+
+    public static Vec4f from(Vector4f v) {
+        return new Vec4f(v.x(), v.y(), v.z(), v.w());
+    }
 }
