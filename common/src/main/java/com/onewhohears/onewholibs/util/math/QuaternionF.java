@@ -240,4 +240,8 @@ public final class QuaternionF {
     public Quaternion convert() {
         return new Quaternion(i, j, k, r);
     }
+
+    public static QuaternionF from(Quaternion q) {
+        return new QuaternionF(q.i(), q.j(), q.k(), q.r());
+    }
 }

@@ -224,4 +224,8 @@ public final class Vec3f {
     public Vector3f convert() {
         return new Vector3f(x, y, z);
     }
+
+    public static Vec3f from(Vector3f v) {
+        return new Vec3f(v.x(), v.y(), v.z());
+    }
 }
