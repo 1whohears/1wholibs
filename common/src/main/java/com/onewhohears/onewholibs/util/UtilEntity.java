@@ -55,13 +55,13 @@ public class UtilEntity {
 		double distance = diff.length();
 		double[] through = new double[] {throWater, throBlock};
 		if (distance <= maxBlockCheckDepth) {
-			if (!checkBlocksByRange(level, start_pos, look, (int)distance, through)) return false;
+			if (!checkBlocksByRange(level, start_pos, look, (int)distance, through, false)) return false;
 		} else {
 			int maxCheckDist = maxBlockCheckDepth / 2;
-			if (!checkBlocksByRange(level, start_pos, look, maxCheckDist, through)) return false;
+			if (!checkBlocksByRange(level, start_pos, look, maxCheckDist, through, false)) return false;
 			if (!checkBlocksByRange(level,
 					start_pos.add(look.scale(distance-maxCheckDist).subtract(look)),
-					look, maxCheckDist, through)) return false;
+					look, maxCheckDist, through, false)) return false;
 		}
 		return true;
 	}
@@ -112,13 +112,18 @@ public class UtilEntity {
 		return canPosSeeEntity(entity1.getEyePosition(), entity2, maxBlockCheckDepth, throWater, throBlock);
 	}
 	
-	private static boolean checkBlocksByRange(Level level, Vec3 pos, Vec3 look, int dist, double[] through) {
+	private static boolean checkBlocksByRange(Level level, Vec3 pos, Vec3 look, int dist,
+                                              double[] through, boolean endIfNoChunk) {
 		int k = 0;
 		while (k++ < dist) {
 			pos = pos.add(look);
 			BlockPos bp = UtilGeometry.toBlockPos(pos);
 			ChunkPos cp = new ChunkPos(bp);
-			if (!level.hasChunk(cp.x, cp.z)) continue;
+			//level.getChunk(cp.x, cp.z).clipWithInteractionOverride()
+			if (!level.hasChunk(cp.x, cp.z)) {
+                if (endIfNoChunk) return true;
+                else continue;
+            }
 			BlockState block = level.getBlockState(bp);
 			if (block == null || block.isAir()) continue;
 			if (!blocksMotion(block) && !isLiquid(block)) continue;
@@ -136,6 +141,14 @@ public class UtilEntity {
 		}
 		return true;
 	}
+
+    public static boolean isLocalVisionBlocked(Level level, Vec3 start, Vec3 end,
+                                               double throWater, double throBlock, int maxDepth) {
+        Vec3 diff = end.subtract(start);
+        Vec3 look = diff.normalize();
+        double[] through = new double[] {throWater, throBlock};
+        return checkBlocksByRange(level, start, look, maxDepth, through, true);
+    }
 
     public static boolean blocksMotion(BlockState state) {
         return state.blocksMotion();
