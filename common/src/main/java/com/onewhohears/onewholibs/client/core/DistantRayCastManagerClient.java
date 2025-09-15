@@ -26,7 +26,7 @@ public class DistantRayCastManagerClient {
                     "in the client level with id {}", perspectiveEntityId);
             return;
         }
-        int renderDistanceBlocks = Math.min(160, m.options.getEffectiveRenderDistance() * 16);
+        int renderDistanceBlocks = Math.min(192, m.options.getEffectiveRenderDistance() * 16);
         boolean result = UtilEntity.isLocalVisionBlocked(level, entity.getEyePosition(),
                 targetPos, throWater, throBlock, renderDistanceBlocks);
         sendRayCastResult(rayCastId, perspective, result);
