@@ -26,7 +26,6 @@ public class DistantRayCastManager {
                                double throWater, double throBlock) {
         RayCastData data = getRayCastWithEntities(eyeEntity, targetEntity);
         if (data != null) {
-            data.apply();
             data.sendPayloads();
             return;
         }
@@ -116,6 +115,8 @@ public class DistantRayCastManager {
         public void apply() {
             completeTime = System.currentTimeMillis();
             onComplete.apply(level, eyeEntity, targetEntity, isConfirmed());
+            eyeComplete = false;
+            targetComplete = false;
         }
         public void handle(RayCastPerspective perspective, boolean success) {
             if (perspective == RayCastPerspective.EYE) {
