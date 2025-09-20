@@ -1,10 +1,6 @@
 package com.onewhohears.onewholibs.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.onewhohears.onewholibs.data.crafting.IngredientStack;
-
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -19,6 +15,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 1whohears
@@ -142,5 +142,20 @@ public class UtilItem {
 		else if (rows == 6) return MenuType.GENERIC_9x6;
 		return MenuType.GENERIC_9x6;
 	}
+
+    public static boolean hasCraftingRemainingItem(@NotNull ItemStack stack) {
+        return stack.getItem().hasCraftingRemainingItem();
+    }
+
+    public static @NotNull ItemStack getCraftingRemainingItem(@NotNull ItemStack stack) {
+        if (hasCraftingRemainingItem(stack)) {
+            stack = stack.getItem().getCraftingRemainingItem().getDefaultInstance();
+            if (!stack.isEmpty() && stack.isDamageableItem() && stack.getDamageValue() > stack.getMaxDamage()) {
+                return ItemStack.EMPTY;
+            }
+            return stack;
+        }
+        return ItemStack.EMPTY;
+    }
 	
 }
