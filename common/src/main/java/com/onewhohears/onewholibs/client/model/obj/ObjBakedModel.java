@@ -40,6 +40,10 @@ public class ObjBakedModel {
         return c;
     }
 
+    public List<Component> getComponents() {
+        return components;
+    }
+
     public static class Component {
         private final String name;
         private final List<Component> children = new ArrayList<>();
@@ -76,6 +80,18 @@ public class ObjBakedModel {
             children.add(c);
             return c;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<Component> getChildren() {
+            return children;
+        }
+
+        public List<Mesh> getMeshes() {
+            return meshes;
+        }
     }
 
     public static class Mesh {
@@ -97,6 +113,14 @@ public class ObjBakedModel {
                 consumer.putBulkData(poseStack.last(), quad, ONES, 1, 1, 1,
                         new int[] { lightmap, lightmap, lightmap, lightmap }, overlay, true);
             }
+        }
+
+        public ResourceLocation getTexture() {
+            return texture;
+        }
+
+        public List<BakedQuad> getQuads() {
+            return quads;
         }
     }
 
