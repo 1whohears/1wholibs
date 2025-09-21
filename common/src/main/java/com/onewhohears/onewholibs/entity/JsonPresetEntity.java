@@ -1,9 +1,11 @@
 package com.onewhohears.onewholibs.entity;
 
+import com.onewhohears.onewholibs.common.network.toclient.ClientBoundAddJsonPresetEntityPacket;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
 import com.onewhohears.onewholibs.util.UtilEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -66,5 +68,10 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
     @Override
     public boolean isStatsHolderLoaded() {
         return isStatsHolderLoaded;
+    }
+
+    @Override
+    public @NotNull Packet<?> getAddEntityPacket() {
+        return new ClientBoundAddJsonPresetEntityPacket(this);
     }
 }
