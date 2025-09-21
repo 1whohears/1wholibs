@@ -10,11 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ObjEntityModelsImpl extends ObjEntityModels {
@@ -77,7 +74,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         if (unbakedModels.containsKey(name)) {
                             LOGGER.info("The model {} is overriding {}!", key, unbakedModels.get(name));
                         }
-                        Obj obj = ObjReader.read(resource.openAsReader());
+                        Obj obj = ObjReader.read(preprocessObj(resource.openAsReader()));
                         Optional<Resource> mtlRes = manager.getResource(ResourceLocation.tryBuild(
                                 key.getNamespace(), DIRECTORY+"/"+name+MATERIAL_FILE_TYPE));
                         Map<String, Mtl> mtl;
@@ -101,5 +98,32 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    public static Reader preprocessObj(BufferedReader reader) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        List<String> currentGroups = new ArrayList<>();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith("g ")) {
+                String[] groups = trimmed.substring(2).trim().split("\\s+");
+                currentGroups.clear();
+                currentGroups.addAll(Arrays.asList(groups));
+                sb.append(line).append("\n");
+            } else if (trimmed.startsWith("o ")) {
+                String objName = trimmed.substring(2).trim();
+                StringBuilder gLine = new StringBuilder("g ").append(objName);
+                if (!currentGroups.isEmpty()) {
+                    for (String g : currentGroups) {
+                        gLine.append(" ").append(g);
+                    }
+                }
+                sb.append(gLine).append("\n");
+            } else {
+                sb.append(line).append("\n");
+            }
+        }
+        return new StringReader(sb.toString());
     }
 }

@@ -31,7 +31,6 @@ public class TestEntity extends Entity {
 
     @Override
     public @NotNull Packet<?> getAddEntityPacket() {
-        // FIXME - NetworkHooks is a Forge API; replace this with a sided-impl if this doesn't work as intended
         return new ClientboundAddEntityPacket(this);
     }
 }
