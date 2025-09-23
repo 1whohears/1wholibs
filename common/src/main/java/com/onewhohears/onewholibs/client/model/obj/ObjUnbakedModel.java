@@ -98,7 +98,9 @@ public class ObjUnbakedModel {
             normals[3] = normals[2];
 
             int[] vertexData = packQuadData(positions, normals, uvs, sprite);
-            Direction facing = Direction.getNearest(normals[0].x(), normals[0].y(), normals[0].z());
+            // FIXME this direction code based on normals is not working well on the fighter jets. make this configurable.
+            //Direction facing = Direction.getNearest(normals[0].x(), normals[0].y(), normals[0].z());
+            Direction facing = Direction.UP;
 
             quads.add(new BakedQuad(vertexData, -1, facing, sprite, true));
         }
