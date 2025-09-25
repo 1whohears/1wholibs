@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.common.event;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
 import com.onewhohears.onewholibs.common.core.DistantRayCastManager;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
@@ -46,6 +47,7 @@ public class OWLCommonEventHandlers {
                                         CommandBuildContext context,
                                         Commands.CommandSelection selection) {
         new TestPresetCommand(dispatcher);
+        new TestIngredientStackCommand(dispatcher, context);
     }
 
 }
