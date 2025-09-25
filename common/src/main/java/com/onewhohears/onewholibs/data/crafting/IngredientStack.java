@@ -26,7 +26,7 @@ public class IngredientStack extends Ingredient {
 	}
 
 	public static IngredientStack fromIngredient(Ingredient ingredient) {
-		Value[] values = new Value[ingredient.getItems().length];
+        Ingredient.Value[] values = new Ingredient.Value[ingredient.getItems().length];
 		for (int i = 0; i < values.length; ++i)
 			values[i] = new Ingredient.ItemValue(ingredient.getItems()[i]);
 		return new IngredientStack(Stream.of(values), 1);
@@ -34,11 +34,11 @@ public class IngredientStack extends Ingredient {
 	
 	public final int cost;
 	
-	protected IngredientStack(Value value, int cost) {
+	protected IngredientStack(Ingredient.Value value, int cost) {
 		this(Stream.of(value), cost);
 	}
 
-	protected IngredientStack(Stream<Value> values, int cost) {
+	protected IngredientStack(Stream<Ingredient.Value> values, int cost) {
 		super(values);
 		this.cost = cost;
 	}
