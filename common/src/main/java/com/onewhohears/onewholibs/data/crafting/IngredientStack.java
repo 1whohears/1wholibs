@@ -18,17 +18,17 @@ import org.jetbrains.annotations.Nullable;
 public class IngredientStack extends Ingredient {
 	
 	public static IngredientStack fromItem(String itemId, int cost) {
-		return new IngredientStack(new ItemValue(UtilItem.getItem(itemId).getDefaultInstance()), cost);
+		return new IngredientStack(new Ingredient.ItemValue(UtilItem.getItem(itemId).getDefaultInstance()), cost);
 	}
 	
 	public static IngredientStack fromTag(String tagId, int cost) {
-		return new IngredientStack(new TagValue(ItemTags.bind(tagId)), cost);
+		return new IngredientStack(new Ingredient.TagValue(ItemTags.bind(tagId)), cost);
 	}
 
 	public static IngredientStack fromIngredient(Ingredient ingredient) {
 		Value[] values = new Value[ingredient.getItems().length];
 		for (int i = 0; i < values.length; ++i)
-			values[i] = new ItemValue(ingredient.getItems()[i]);
+			values[i] = new Ingredient.ItemValue(ingredient.getItems()[i]);
 		return new IngredientStack(Stream.of(values), 1);
 	}
 	
