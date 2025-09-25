@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.client.model.obj;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import com.onewhohears.onewholibs.util.math.Vec3f;
 import de.javagl.obj.*;
 import net.minecraft.client.Minecraft;
@@ -91,20 +92,37 @@ public class ObjUnbakedModel {
 
                 positions[i] = vector3f(pos);
                 uvs[i] = new float[] {uv.getX(), 1.0f - uv.getY()};
-                normals[i] = (norm != null) ? vector3f(norm) : new Vec3f(0, 1, 0);
+                normals[i] = (norm != null) ? vector3f(norm) : new Vec3f(0, 0, 0);
             }
             positions[3] = positions[2];
             uvs[3] = uvs[2];
             normals[3] = normals[2];
 
+            Vec3f faceNormal = cross(positions[0], positions[1], positions[2]);
+            for (int i = 0; i < normals.length; ++i) {
+                if (UtilGeometry.isZero(normals[i])) {
+                    normals[i] = faceNormal;
+                }
+            }
+
             int[] vertexData = packQuadData(positions, normals, uvs, sprite);
-            // FIXME this direction code based on normals is not working well on the fighter jets. make this configurable.
             //Direction facing = Direction.getNearest(normals[0].x(), normals[0].y(), normals[0].z());
-            Direction facing = Direction.UP;
+            //Direction facing = Direction.UP;
+            Direction facing = Direction.getNearest(faceNormal.x()*0.5f, faceNormal.y(), faceNormal.z()*0.5f);
 
             quads.add(new BakedQuad(vertexData, -1, facing, sprite, true));
         }
         builder.addMesh(texture, quads);
+    }
+
+    private static Vec3f cross(Vec3f pos1, Vec3f pos2, Vec3f pos3) {
+        Vec3f edge1 = pos2.copy();
+        edge1.sub(pos1);
+        Vec3f edge2 = pos3.copy();
+        edge2.sub(pos1);
+        Vec3f faceNormal = edge1.copy();
+        faceNormal.cross(edge2);
+        return faceNormal;
     }
 
     private List<ObjFace> triangulateFace(ObjFace face) {
