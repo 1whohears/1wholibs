@@ -1,8 +1,6 @@
 accessWidener   v2  named
 # Projectile
 accessible  method  net/minecraft/world/entity/projectile/Projectile    <init>  (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V
-# Tags
-accessible  method  net/minecraft/tags/ItemTags bind    (Ljava/lang/String;)Lnet/minecraft/tags/TagKey;
 # Ingredients
 extendable  class   net/minecraft/world/item/crafting/Ingredient
 accessible  method  net/minecraft/world/item/crafting/Ingredient    <init>  (Ljava/util/stream/Stream;)V

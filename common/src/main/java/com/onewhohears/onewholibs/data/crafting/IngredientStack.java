@@ -1,14 +1,16 @@
 package com.onewhohears.onewholibs.data.crafting;
 
-import java.util.stream.Stream;
-
 import com.onewhohears.onewholibs.util.UtilItem;
-
-import net.minecraft.tags.ItemTags;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.Stream;
 
 /**
  * An {@link Ingredient} with an additional {@link #cost} field.
@@ -22,8 +24,12 @@ public class IngredientStack extends Ingredient {
 	}
 	
 	public static IngredientStack fromTag(String tagId, int cost) {
-		return new IngredientStack(new Ingredient.TagValue(ItemTags.bind(tagId)), cost);
+		return new IngredientStack(new Ingredient.TagValue(createItemTag(tagId)), cost);
 	}
+
+    public static TagKey<Item> createItemTag(String id) {
+        return TagKey.create(Registry.ITEM_REGISTRY, ResourceLocation.tryParse(id));
+    }
 
 	public static IngredientStack fromIngredient(Ingredient ingredient) {
         Ingredient.Value[] values = new Ingredient.Value[ingredient.getItems().length];
