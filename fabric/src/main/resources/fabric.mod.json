@@ -26,7 +26,6 @@
     "onewholibs.common.mixins.json",
     "onewholibs.fabric.mixins.json"
   ],
-  "accessWidener": "onewholibs.accesswidener",
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": ">=${fabric_api_version}",
