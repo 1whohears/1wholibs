@@ -7,6 +7,7 @@
     "ObjReaderMixin"
   ],
   "mixins": [
+    "ConnectionProtocolMixin"
   ],
   "injectors": {
     "defaultRequire": 1

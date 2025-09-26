@@ -14,3 +14,7 @@ accessible  method  net/minecraft/world/level/GameRules register    (Ljava/lang/
 accessible  method  net/minecraft/world/level/GameRules$BooleanValue    create  (Z)Lnet/minecraft/world/level/GameRules$Type;
 accessible  method  net/minecraft/world/level/GameRules$BooleanValue    create  (ZLjava/util/function/BiConsumer;)Lnet/minecraft/world/level/GameRules$Type;
 accessible  method  net/minecraft/world/level/GameRules$IntegerValue    create  (I)Lnet/minecraft/world/level/GameRules$Type;
+
+accessible field net/minecraft/network/ConnectionProtocol flows Ljava/util/Map;
+accessible class net/minecraft/network/ConnectionProtocol$PacketSet
+accessible field net/minecraft/network/ConnectionProtocol PROTOCOL_BY_PACKET Ljava/util/Map;

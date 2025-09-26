@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.entity;
 
-import com.onewhohears.onewholibs.common.network.toclient.ClientBoundAddJsonPresetEntityPacket;
+import com.onewhohears.onewholibs.common.network.toclient.ClientBoundSpawnDataPacket;
 import com.onewhohears.onewholibs.data.jsonpreset.CustomAnimStats;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
@@ -87,6 +87,6 @@ public abstract class CustomAnimProjectile<P extends JsonPresetStats, C extends 
 
     @Override
     public @NotNull Packet<?> getAddEntityPacket() {
-        return new ClientBoundAddJsonPresetEntityPacket(this);
+        return new ClientBoundSpawnDataPacket(this, this);
     }
 }

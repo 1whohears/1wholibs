@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-public interface JsonPresetEntityHolder<P extends JsonPresetStats> {
+public interface JsonPresetEntityHolder<P extends JsonPresetStats> extends AdditionalSpawnDataEntity {
 
     Logger LOGGER = LogUtils.getLogger();
 
@@ -67,10 +67,12 @@ public interface JsonPresetEntityHolder<P extends JsonPresetStats> {
     default void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putString("preset", getStatsId());
     }
+    @Override
     default void readSpawnData(FriendlyByteBuf buffer) {
         setStatsId(buffer.readUtf());
         updateStatsHolder(getStatsId());
     }
+    @Override
     default void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeUtf(getStatsId());
     }
