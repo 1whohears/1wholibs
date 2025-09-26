@@ -1,17 +1,16 @@
 package com.onewhohears.onewholibs.entity;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.world.entity.Entity;
+import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
+import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresetStats;
+import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresets;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class TestEntity extends Entity {
+public class TestEntity extends JsonPresetEntity<TestPresetStats> {
 
     public TestEntity(EntityType<?> entityType, Level level) {
-        super(entityType, level);
+        super(entityType, level, "test0");
     }
 
     @Override
@@ -20,17 +19,8 @@ public class TestEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
-
+    public @NotNull JsonPresetReloadListener<TestPresetStats> getPresets() {
+        return TestPresets.get();
     }
 
-    @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
-
-    }
-
-    @Override
-    public @NotNull Packet<?> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
-    }
 }

@@ -1,6 +1,6 @@
 package com.onewhohears.onewholibs.entity;
 
-import com.onewhohears.onewholibs.common.network.toclient.ClientBoundAddJsonPresetEntityPacket;
+import com.onewhohears.onewholibs.common.network.toclient.ClientBoundSpawnDataPacket;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.PresetStatsHolder;
 import com.onewhohears.onewholibs.util.UtilEntity;
@@ -72,6 +72,6 @@ public abstract class JsonPresetEntity<P extends JsonPresetStats> extends Entity
 
     @Override
     public @NotNull Packet<?> getAddEntityPacket() {
-        return new ClientBoundAddJsonPresetEntityPacket(this);
+        return new ClientBoundSpawnDataPacket(this, this);
     }
 }
