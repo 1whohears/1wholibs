@@ -11,11 +11,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ObjUnbakedModel {
 
@@ -29,12 +27,9 @@ public class ObjUnbakedModel {
         this.mtl = mtl;
     }
 
-    public ResourceLocation getTexture() {
+    public static ResourceLocation getTexture(@Nullable Mtl mtl) {
         String mapKd = "onewholibs:mtl_fail.png";
-        if (obj.getNumMaterialGroups() > 0) {
-            String mtlName = obj.getMaterialGroup(0).getName();
-            if (mtl.containsKey(mtlName)) mapKd = mtl.get(mtlName).getMapKd();
-        }
+        if (mtl != null) mapKd = mtl.getMapKd();
         if (!mapKd.endsWith(".png")) mapKd += ".png";
         String[] split = mapKd.split(":");
         String namespace, path;
@@ -49,18 +44,34 @@ public class ObjUnbakedModel {
         return ResourceLocation.tryBuild(namespace, path);
     }
 
-    public @NotNull ObjBakedModel bake() {
-        //System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
-        ResourceLocation texture = getTexture();
-        TextureAtlasSprite sprite = Minecraft.getInstance()
+    public static TextureAtlasSprite createSprite(ResourceLocation texture) {
+        return Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(texture);
+    }
+
+    public @NotNull ObjBakedModel bake() {
+        //System.out.println("BAKING: "+location+" groups "+obj.getNumGroups());
+        Map<String, Obj> mtlGroups = ObjSplitting.splitByMaterialGroups(obj);
+        Map<String, String> groupMtlMap = new HashMap<>();
+        mtlGroups.forEach((mtlName, o) -> {
+            int numGroups = o.getNumGroups();
+            for (int i = 0; i < numGroups; ++i) {
+                ObjGroup group = o.getGroup(i);
+                groupMtlMap.put(group.getName(), mtlName);
+            }
+        });
+
         ObjBakedModel.Builder builder = ObjBakedModel.builder();
         int numGroups = obj.getNumGroups();
         for (int i = 0; i < numGroups; ++i) {
             ObjGroup group = obj.getGroup(i);
+            String mtlName = groupMtlMap.get(group.getName());
+            ResourceLocation texture = getTexture(mtl.get(mtlName));
+            TextureAtlasSprite sprite = createSprite(texture);
             bakeGroup(builder, group.getName(), group, texture, sprite);
         }
+
         return builder.get();
     }
 
