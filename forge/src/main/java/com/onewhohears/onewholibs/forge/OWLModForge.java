@@ -72,14 +72,7 @@ public final class OWLModForge {
                             ForgeRegistries.ENTITY_TYPES
                     ).get(),
                     context -> new RendererObjEntity<>(context,
-                            //new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim"))
-                            new KeyframeAnimsEntityModel<Entity>("alexis_plane") {
-                                @Override
-                                protected void rotate(Entity entity, float partialTicks, PoseStack poseStack) {
-                                    super.rotate(entity, partialTicks, poseStack);
-                                    poseStack.mulPose(Vec3f.ZP.rotationDegrees(entity.tickCount).convert());
-                                }
-                            })
+                            new KeyframeAnimsEntityModel<>("ciws_test", "turret_test_anim"))
             );
         }
         @SubscribeEvent
