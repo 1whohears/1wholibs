@@ -72,7 +72,7 @@ public class ObjEntityModelsImpl extends ObjEntityModels {
                     try {
                         String name = new File(key.getPath()).getName().replace(MODEL_FILE_TYPE, "");
                         if (unbakedModels.containsKey(name)) {
-                            LOGGER.info("The model {} is overriding {}!", key, unbakedModels.get(name));
+                            LOGGER.info("The model {} is overriding {}!", key, unbakedModels.get(name).getLocation());
                         }
                         Obj obj = ObjReader.read(preprocessObj(resource.openAsReader()));
                         Optional<Resource> mtlRes = manager.getResource(ResourceLocation.tryBuild(
