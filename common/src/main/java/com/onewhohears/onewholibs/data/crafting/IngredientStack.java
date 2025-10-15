@@ -51,7 +51,8 @@ public class IngredientStack extends Ingredient {
     }
 
     public static void toNetwork(FriendlyByteBuf buffer, Ingredient ingredient) {
-        ingredient.toNetwork(buffer);
+        ingredient.dissolve();
+        buffer.writeCollection(Arrays.asList(ingredient.itemStacks), FriendlyByteBuf::writeItem);
         if (ingredient instanceof IngredientStack stack) buffer.writeInt(stack.cost);
         else buffer.writeInt(1);
     }
@@ -84,11 +85,5 @@ public class IngredientStack extends Ingredient {
     public void dissolve() {
         super.dissolve();
         for (ItemStack item : itemStacks) item.setCount(cost);
-    }
-
-    @Override
-    public void toNetwork(FriendlyByteBuf buffer) {
-        dissolve();
-        buffer.writeCollection(Arrays.asList(itemStacks), FriendlyByteBuf::writeItem);
     }
 }

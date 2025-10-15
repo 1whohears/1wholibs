@@ -1,5 +1,11 @@
 {
   "displayName": "preset.onewholibs.test1",
+  "ingredients": [
+    {
+      "item": "minecraft:dirt",
+      "num": 20
+    }
+  ],
   "presetId": "test1",
   "presetType": "test",
   "value": 1

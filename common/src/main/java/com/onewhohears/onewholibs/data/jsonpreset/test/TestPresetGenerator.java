@@ -16,9 +16,18 @@ public class TestPresetGenerator extends JsonPresetGenerator<TestPresetStats> {
 
     @Override
     protected void registerPresets() {
-        addPresetToGenerate(TestPresetStats.Builder.create("test0").setValue(0).build());
-        addPresetToGenerate(TestPresetStats.Builder.create("test1").setValue(1).build());
-        addPresetToGenerate(TestPresetStats.Builder.create("test2").setValue(2).build());
+        addPresetToGenerate(TestPresetStats.Builder.create("test0")
+                .setValue(0)
+                .addIngredient("minecraft:dirt", 10)
+                .build());
+        addPresetToGenerate(TestPresetStats.Builder.create("test1")
+                .setValue(1)
+                .addIngredient("minecraft:dirt", 20)
+                .build());
+        addPresetToGenerate(TestPresetStats.Builder.create("test2")
+                .setValue(2)
+                .addIngredient("minecraft:dirt", 30)
+                .build());
     }
 
     @Override
