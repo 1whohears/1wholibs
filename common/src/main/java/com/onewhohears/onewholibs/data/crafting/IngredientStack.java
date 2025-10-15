@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -84,5 +85,11 @@ public class IngredientStack extends Ingredient {
     public void dissolve() {
         super.dissolve();
         for (ItemStack item : itemStacks) item.setCount(cost);
+    }
+
+    @Override
+    public void toNetwork(FriendlyByteBuf buffer) {
+        dissolve();
+        buffer.writeCollection(Arrays.asList(itemStacks), FriendlyByteBuf::writeItem);
     }
 }
