@@ -2,10 +2,10 @@ package com.onewhohears.onewholibs.data.jsonpreset.test;
 
 import com.google.gson.JsonObject;
 import com.onewhohears.onewholibs.OWLMod;
+import com.onewhohears.onewholibs.data.crafting.IngredientStackBuilder;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetInstance;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetStats;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetType;
-import com.onewhohears.onewholibs.data.jsonpreset.PresetBuilder;
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ public class TestPresetStats extends JsonPresetStats {
         return null;
     }
 
-    public static class Builder<C extends TestPresetStats> extends PresetBuilder<Builder<C>> {
+    public static class Builder<C extends TestPresetStats> extends IngredientStackBuilder<Builder<C>> {
         public static Builder<?> create(String name) {
             return new Builder<>(OWLMod.MOD_ID, name, TEST_TYPE);
         }
