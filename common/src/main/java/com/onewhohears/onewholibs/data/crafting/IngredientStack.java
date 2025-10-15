@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.data.crafting;
 
 import com.onewhohears.onewholibs.util.UtilItem;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +24,10 @@ public class IngredientStack extends Ingredient {
 	public static IngredientStack fromItem(String itemId, int cost) {
 		return new IngredientStack(new Ingredient.ItemValue(UtilItem.getItem(itemId).getDefaultInstance()), cost);
 	}
+
+    public static IngredientStack fromItem(ItemStack item, int cost) {
+        return new IngredientStack(new Ingredient.ItemValue(item), cost);
+    }
 	
 	public static IngredientStack fromTag(String tagId, int cost) {
 		return new IngredientStack(new Ingredient.TagValue(createItemTag(tagId)), cost);
@@ -37,6 +43,16 @@ public class IngredientStack extends Ingredient {
 			values[i] = new Ingredient.ItemValue(ingredient.getItems()[i]);
 		return new IngredientStack(Stream.of(values), 1);
 	}
+
+    public static @NotNull IngredientStack fromNetwork(FriendlyByteBuf buffer) {
+        AtomicInteger cost = new AtomicInteger(0);
+        Stream<Ingredient.Value> stream = buffer.readList(FriendlyByteBuf::readItem).stream()
+                .map(stack -> {
+                    cost.set(stack.getCount());
+                    return new ItemValue(stack);
+                });
+        return new IngredientStack(stream, cost.get());
+    }
 	
 	public final int cost;
 	
