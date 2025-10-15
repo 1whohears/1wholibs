@@ -83,7 +83,8 @@ public class IngredientStack extends Ingredient {
 
     @Override
     public void dissolve() {
-        dissolve(this);
+        super.dissolve();
+        for (ItemStack item : itemStacks) item.setCount(cost);
     }
 
     public static void dissolve(Ingredient ingredient) {
