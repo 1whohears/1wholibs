@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.data.crafting;
 
 import com.onewhohears.onewholibs.util.UtilItem;
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -87,13 +88,8 @@ public class IngredientStack extends Ingredient {
         for (ItemStack item : itemStacks) item.setCount(cost);
     }
 
+    @ExpectPlatform
     public static void dissolve(Ingredient ingredient) {
-        if (ingredient.itemStacks == null) {
-            ingredient.itemStacks = Arrays.stream(ingredient.values)
-                    .flatMap((value) -> value.getItems().stream())
-                    .distinct().toArray(ItemStack[]::new);
-            if (ingredient instanceof IngredientStack stack)
-                for (ItemStack item : ingredient.itemStacks) item.setCount(stack.cost);
-        }
+        throw new AssertionError();
     }
 }

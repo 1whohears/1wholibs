@@ -8,6 +8,7 @@
     "BlockEntityWithoutLevelRendererMixin"
   ],
   "mixins": [
+    "IngredientAccessor"
   ],
   "injectors": {
     "defaultRequire": 0
