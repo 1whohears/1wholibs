@@ -45,13 +45,15 @@ public class IngredientStack extends Ingredient {
 	}
 
     public static @NotNull IngredientStack fromNetwork(FriendlyByteBuf buffer) {
-        AtomicInteger cost = new AtomicInteger(0);
-        Stream<Ingredient.Value> stream = buffer.readList(FriendlyByteBuf::readItem).stream()
-                .map(stack -> {
-                    cost.set(stack.getCount());
-                    return new ItemValue(stack);
-                });
-        return new IngredientStack(stream, cost.get());
+        Stream<Ingredient.Value> stream = buffer.readList(FriendlyByteBuf::readItem).stream().map(ItemValue::new);
+        int cost = buffer.readInt();
+        return new IngredientStack(stream, cost);
+    }
+
+    public static void toNetwork(FriendlyByteBuf buffer, Ingredient ingredient) {
+        ingredient.toNetwork(buffer);
+        if (ingredient instanceof IngredientStack stack) buffer.writeInt(stack.cost);
+        else buffer.writeInt(1);
     }
 	
 	public final int cost;
