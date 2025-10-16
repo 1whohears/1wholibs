@@ -83,6 +83,13 @@ public class IngredientStack extends Ingredient {
 	}
 
     @Override
+    public ItemStack @NotNull [] getItems() {
+        ItemStack[] items = super.getItems();
+        for (ItemStack item : items) item.setCount(cost);
+        return items;
+    }
+
+    @Override
     public void dissolve() {
         super.dissolve();
         for (ItemStack item : itemStacks) item.setCount(cost);
