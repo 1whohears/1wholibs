@@ -599,7 +599,7 @@ public final class Mat4f {
 
     public static Mat4f from(Matrix4f mat4f) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        mat4f.store(buffer);
+        mat4f.get(buffer);
         Mat4f mat = new Mat4f();
         mat.load(buffer);
         return mat;

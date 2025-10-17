@@ -31,7 +31,7 @@ public class TestIngredientStackCommand {
                                     String itemId = UtilItem.getItemKeyString(itemInput.getItem());
                                     IngredientStack ingredientStack = IngredientStack.fromItem(itemId, cost);
                                     if (ingredientStack.test(selected)) {
-                                        ctx.getSource().sendSuccess(UtilMCText.literal("Selected Item Passed Ingredient Test!"), false);
+                                        ctx.getSource().sendSuccess(()->UtilMCText.literal("Selected Item Passed Ingredient Test!"), false);
                                         return 1;
                                     } else {
                                         ctx.getSource().sendFailure(UtilMCText.literal("Selected Item Failed Ingredient Test"));

@@ -6,6 +6,9 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.joml.Matrix3f;
 import org.lwjgl.BufferUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.nio.FloatBuffer;
 
 /**
@@ -615,7 +618,7 @@ public final class Mat3f {
 
     public static Mat3f from(Matrix3f mat3f) {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(9);
-        mat3f.store(buffer);
+        mat3f.get(buffer);
         Mat3f mat = new Mat3f();
         mat.load(buffer);
         return mat;

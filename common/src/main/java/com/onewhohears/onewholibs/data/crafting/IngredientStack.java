@@ -2,7 +2,7 @@ package com.onewhohears.onewholibs.data.crafting;
 
 import com.onewhohears.onewholibs.util.UtilItem;
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -35,7 +35,7 @@ public class IngredientStack extends Ingredient {
 	}
 
     public static TagKey<Item> createItemTag(String id) {
-        return TagKey.create(Registry.ITEM_REGISTRY, ResourceLocation.tryParse(id));
+        return TagKey.create(Registries.ITEM, ResourceLocation.tryParse(id));
     }
 
 	public static IngredientStack fromIngredient(Ingredient ingredient) {
@@ -87,12 +87,6 @@ public class IngredientStack extends Ingredient {
         ItemStack[] items = super.getItems();
         for (ItemStack item : items) item.setCount(cost);
         return items;
-    }
-
-    @Override
-    public void dissolve() {
-        super.dissolve();
-        for (ItemStack item : itemStacks) item.setCount(cost);
     }
 
     @ExpectPlatform

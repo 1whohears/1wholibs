@@ -241,7 +241,7 @@ public final class QuaternionF {
         return new Quaternionf(i, j, k, r);
     }
 
-    public static QuaternionF from(Quaternion q) {
-        return new QuaternionF(q.i(), q.j(), q.k(), q.r());
+    public static QuaternionF from(Quaternionf q) {
+        return new QuaternionF(q.x(), q.y(), q.z(), q.w());
     }
 }
