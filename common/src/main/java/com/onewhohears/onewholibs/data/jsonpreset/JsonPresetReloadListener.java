@@ -96,9 +96,9 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 		setup = false;
 		presetMap.clear();
 		map.forEach((key, je) -> { try {
-            getLogger().info("ADD: {}", key.toString());
 			JsonObject json = UtilParse.GSON.fromJson(je, JsonObject.class);
 			applyJson(key, json);
+            getLogger().info("ADD: {}", key.toString());
 		} catch (Exception e) {
             getLogger().error("ERROR: SKIPPING {} because {}", key.toString(), e.getMessage());
 			e.printStackTrace();
@@ -108,6 +108,7 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 		resetCache();
 		++reloads;
 		setup = true;
+        getLogger().info("FINISHED {}", getNum());
 	}
 
 	/**
@@ -119,15 +120,17 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 	public abstract void registerDefaultPresetTypes();
 	
 	public void writeToBuffer(FriendlyByteBuf buffer) {
+        getLogger().info("WRITING PRESETS TO BUFFER {} {}", getName(), getNum());
 		buffer.writeInt(getNum());
 		presetMap.forEach((id, preset) -> {
 			buffer.writeUtf(preset.getKey().toString());
 			buffer.writeUtf(preset.getJsonData().toString());
+            getLogger().info("WROTE {}", id);
 		});
 	}
 	
 	public void readBuffer(FriendlyByteBuf buffer) {
-		getLogger().debug("RECEIVING DATA FROM SERVER {}", getName());
+		getLogger().info("RECEIVING DATA FROM SERVER {}", getName());
 		setup = false;
 		int length = buffer.readInt();
 		for (int i = 0; i < length; ++i) {
@@ -137,7 +140,7 @@ public abstract class JsonPresetReloadListener<T extends JsonPresetStats> extend
 			JsonObject json = UtilParse.GSON.fromJson(json_string, JsonObject.class);
 			T data = getFromJson(key, json);
 			if (data == null) continue;
-			getLogger().debug("ADD: {}", key.toString());
+			getLogger().info("RECEIVED: {}", key.toString());
 			presetMap.put(data.getId(), data);
 		}
 		allPresets = null;
