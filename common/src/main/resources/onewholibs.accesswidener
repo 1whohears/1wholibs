@@ -9,7 +9,7 @@ accessible  method  net/minecraft/world/item/crafting/Ingredient$ItemValue  <ini
 accessible  class   net/minecraft/world/item/crafting/Ingredient$TagValue
 accessible  method  net/minecraft/world/item/crafting/Ingredient$TagValue   <init>  (Lnet/minecraft/tags/TagKey;)V
 accessible  class   net/minecraft/world/item/crafting/Ingredient$Value
-extendable method net/minecraft/world/item/crafting/Ingredient dissolve ()V
+#extendable method net/minecraft/world/item/crafting/Ingredient dissolve ()V
 accessible field net/minecraft/world/item/crafting/Ingredient itemStacks [Lnet/minecraft/world/item/ItemStack;
 accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minecraft/world/item/crafting/Ingredient$Value;
 # GameRules
