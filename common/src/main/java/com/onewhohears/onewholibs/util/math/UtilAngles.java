@@ -342,15 +342,21 @@ public class UtilAngles {
     
     public static float[] globalToRelativeDegrees(float gx, float gy, QuaternionF ra) {
     	Vec3 dir = rotationToVector(gy, gx);
-    	EulerAngles ea = toRadians(ra);
+
+        /*EulerAngles ea = toRadians(ra);
     	Vec3 yaxis = getYawAxis(ea.pitch, ea.yaw, ea.roll).scale(-1);
     	Vec3 zaxis = getRollAxis(ea.pitch, ea.yaw);
     	Vec3 xaxis = getPitchAxis(ea.pitch, ea.yaw, ea.roll).scale(-1);
     	float rx = (float) UtilGeometry.angleBetweenVecPlaneDegrees(dir, yaxis);
     	double xc = UtilGeometry.vecCompMagDirByNormAxis(dir, xaxis);
     	double zc = UtilGeometry.vecCompMagDirByNormAxis(dir, zaxis);
-    	float ry = (float) Math.toDegrees(Math.atan2(xc, zc));
-    	return new float[] {rx, ry};
+    	float ry = (float) Math.toDegrees(Math.atan2(xc, zc));*/
+
+        Vec3 dirRel = rotateVectorInverse(dir, ra);
+        float rx = getPitch(dirRel);
+        float ry = getYaw(dirRel);
+
+        return new float[] {rx, ry};
     }
     
     public static float[] relativeToGlobalDegrees(float rx, float ry, QuaternionF ra) {
