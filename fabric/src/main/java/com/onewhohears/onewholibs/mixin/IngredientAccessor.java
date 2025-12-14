@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Ingredient.class)
 public interface IngredientAccessor {
-    @Accessor
+    @Accessor(value = "values")
     Ingredient.Value[] getValues();
 }
