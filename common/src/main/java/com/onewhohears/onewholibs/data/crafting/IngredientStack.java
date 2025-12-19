@@ -89,12 +89,6 @@ public class IngredientStack extends Ingredient {
         return items;
     }
 
-    @Override
-    public void dissolve() {
-        super.dissolve();
-        for (ItemStack item : itemStacks) item.setCount(cost);
-    }
-
     @ExpectPlatform
     public static void dissolve(Ingredient ingredient) {
         throw new AssertionError();
