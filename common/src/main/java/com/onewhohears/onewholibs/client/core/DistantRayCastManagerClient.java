@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.client.core;
 
 import com.mojang.logging.LogUtils;
+import com.onewhohears.onewholibs.OWLDependencySafety;
 import com.onewhohears.onewholibs.common.core.RayCastPerspective;
 import com.onewhohears.onewholibs.common.network.toserver.ToServerCanSeePos;
 import com.onewhohears.onewholibs.util.UtilEntity;
@@ -27,8 +28,15 @@ public class DistantRayCastManagerClient {
             return;
         }
         int renderDistanceBlocks = Math.min(192, m.options.getEffectiveRenderDistance() * 16);
-        boolean result = UtilEntity.isLocalVisionBlocked(level, entity.getEyePosition(),
+        Vec3 start = entity.getEyePosition();
+        boolean result = UtilEntity.isLocalVisionBlocked(level, start,
                 targetPos, throWater, throBlock, renderDistanceBlocks);
+        if (result) {
+            boolean dhResult = OWLDependencySafety.distantHorizonsRaycast(start, targetPos, 1000);
+            if (!dhResult) {
+                result = false;
+            }
+        }
         sendRayCastResult(rayCastId, perspective, result);
     }
 

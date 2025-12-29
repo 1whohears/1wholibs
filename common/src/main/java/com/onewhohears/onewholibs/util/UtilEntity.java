@@ -142,6 +142,11 @@ public class UtilEntity {
 		return true;
 	}
 
+    /**
+     * NAME IS MISLEADING.
+     * Result of true means the raycast was not obstructed.
+     * Result of false means the raycast hit something.
+     */
     public static boolean isLocalVisionBlocked(Level level, Vec3 start, Vec3 end,
                                                double throWater, double throBlock, int maxDepth) {
         Vec3 diff = end.subtract(start);
