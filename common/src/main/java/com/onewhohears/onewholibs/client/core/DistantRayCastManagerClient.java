@@ -32,7 +32,7 @@ public class DistantRayCastManagerClient {
         boolean result = UtilEntity.isLocalVisionBlocked(level, start,
                 targetPos, throWater, throBlock, renderDistanceBlocks);
         if (result) {
-            boolean dhResult = OWLDependencySafety.distantHorizonsRaycast(start, targetPos, 1000);
+            boolean dhResult = OWLDependencySafety.distantHorizonsRaycast(start, targetPos, 2048);
             if (!dhResult) {
                 result = false;
             }
