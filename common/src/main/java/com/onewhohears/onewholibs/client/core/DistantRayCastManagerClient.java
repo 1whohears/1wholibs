@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 
 public class DistantRayCastManagerClient {
 
+    public static final int MAX_DH_RAY_CAST_DISTANCE = 8192;
+
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void handleS2CRayCast(int rayCastId, RayCastPerspective perspective,
@@ -32,7 +34,7 @@ public class DistantRayCastManagerClient {
         boolean result = UtilEntity.isLocalVisionBlocked(level, start,
                 targetPos, throWater, throBlock, renderDistanceBlocks);
         if (result) {
-            boolean dhResult = OWLDependencySafety.distantHorizonsRaycast(start, targetPos, 2048);
+            boolean dhResult = OWLDependencySafety.distantHorizonsRaycast(start, targetPos, MAX_DH_RAY_CAST_DISTANCE);
             if (!dhResult) {
                 result = false;
             }
