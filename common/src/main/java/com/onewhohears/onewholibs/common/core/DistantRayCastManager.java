@@ -38,7 +38,7 @@ public class DistantRayCastManager {
     }
 
     public static void distantRayCast(@NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,
-                                      @NotNull RayCastComplete onComplete,
+                                      @NotNull RayCastCompleteLegacy onComplete,
                                       long timeoutTime, long rayCastLifeTime, double throWater, double throBlock) {
         distantRayCast(level, eyeEntity, targetEntity, onComplete, 0,
                 timeoutTime, rayCastLifeTime, throWater, throBlock);
@@ -55,7 +55,7 @@ public class DistantRayCastManager {
     public static void handleC2SRayCast(int rayCastId, RayCastPerspective perspective, boolean success) {
         RayCastData data = RAY_CASTS.get(rayCastId);
         if (data == null) {
-            LOGGER.warn("Received ray cast packet with ID {} that doesn't exist.", rayCastId);
+            LOGGER.debug("Received ray cast packet with ID {} that doesn't exist.", rayCastId);
             return;
         }
         data.handle(perspective, success);
@@ -123,7 +123,7 @@ public class DistantRayCastManager {
         public void apply() {
             completeTime = System.currentTimeMillis();
             onCompleteMap.forEach((id, complete) ->
-                    complete.apply(level, eyeEntity, targetEntity, isConfirmed()));
+                    complete.apply(new RayCastCompleteEvent(level, eyeEntity, targetEntity, isConfirmed(), id)));
             eyeComplete = false;
             targetComplete = false;
         }
@@ -140,8 +140,19 @@ public class DistantRayCastManager {
     }
 
     public interface RayCastComplete {
+        void apply(RayCastCompleteEvent event);
+    }
+
+    public interface RayCastCompleteLegacy extends RayCastComplete {
         void apply(@NotNull ServerLevel level, @NotNull Entity eyeEntity,
-                   @NotNull Entity targetEntity, @NotNull Boolean pass);
+                           @NotNull Entity targetEntity, @NotNull Boolean pass);
+        default void apply(RayCastCompleteEvent event) {
+            apply(event.level, event.eyeEntity, event.targetEntity, event.pass);
+        }
+    }
+
+    public record RayCastCompleteEvent(@NotNull ServerLevel level, @NotNull Entity eyeEntity,
+                                       @NotNull Entity targetEntity, @NotNull Boolean pass, int completeId) {
     }
 
     public static void onServerTick() {
