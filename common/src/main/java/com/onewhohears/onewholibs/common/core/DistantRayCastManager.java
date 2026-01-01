@@ -22,18 +22,26 @@ public class DistantRayCastManager {
     private static int RAY_CAST_ID_COUNTER = 0;
 
     public static void distantRayCast(@NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,
-                               @NotNull RayCastComplete onComplete, long timeoutTime, long rayCastLifeTime,
-                               double throWater, double throBlock) {
+                                      @NotNull RayCastComplete onComplete, int onCompleteId,
+                                      long timeoutTime, long rayCastLifeTime, double throWater, double throBlock) {
         RayCastData data = getRayCastWithEntities(eyeEntity, targetEntity);
         if (data != null) {
+            data.onCompleteMap.put(onCompleteId, onComplete);
             data.sendPayloads();
             return;
         }
         long createdTime = System.currentTimeMillis();
         data = new RayCastData(++RAY_CAST_ID_COUNTER, level, eyeEntity, targetEntity,
-                createdTime, timeoutTime, rayCastLifeTime, throWater, throBlock, onComplete);
+                createdTime, timeoutTime, rayCastLifeTime, throWater, throBlock, onComplete, onCompleteId);
         RAY_CASTS.put(data.rayCastId, data);
         data.sendPayloads();
+    }
+
+    public static void distantRayCast(@NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,
+                                      @NotNull RayCastComplete onComplete,
+                                      long timeoutTime, long rayCastLifeTime, double throWater, double throBlock) {
+        distantRayCast(level, eyeEntity, targetEntity, onComplete, 0,
+                timeoutTime, rayCastLifeTime, throWater, throBlock);
     }
 
     @Nullable
@@ -63,13 +71,13 @@ public class DistantRayCastManager {
         public final long rayCastLifeTime;
         public final double throWater;
         public final double throBlock;
-        @NotNull public final RayCastComplete onComplete;
+        @NotNull public final IntObjectMap<RayCastComplete> onCompleteMap = new IntObjectHashMap<>();
         public boolean eyeConfirm = false, targetConfirm = false;
         public boolean eyeComplete = false, targetComplete = false;
         public long completeTime;
         public RayCastData(int rayCastId, @NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,
                            long createdTime, long timeoutTime, long rayCastLifeTime,
-                           double throWater, double throBlock, @NotNull RayCastComplete onComplete) {
+                           double throWater, double throBlock, @NotNull RayCastComplete onComplete, int onCompleteId) {
             this.rayCastId = rayCastId;
             this.level = level;
             this.eyeEntity = eyeEntity;
@@ -79,7 +87,7 @@ public class DistantRayCastManager {
             this.rayCastLifeTime = rayCastLifeTime;
             this.throWater = throWater;
             this.throBlock = throBlock;
-            this.onComplete = onComplete;
+            this.onCompleteMap.put(onCompleteId, onComplete);
         }
         public boolean isConfirmed() {
             return eyeConfirm && targetConfirm;
@@ -114,7 +122,8 @@ public class DistantRayCastManager {
         }
         public void apply() {
             completeTime = System.currentTimeMillis();
-            onComplete.apply(level, eyeEntity, targetEntity, isConfirmed());
+            onCompleteMap.forEach((id, complete) ->
+                    complete.apply(level, eyeEntity, targetEntity, isConfirmed()));
             eyeComplete = false;
             targetComplete = false;
         }
