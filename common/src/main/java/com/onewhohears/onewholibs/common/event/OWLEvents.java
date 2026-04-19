@@ -23,6 +23,7 @@ public class OWLEvents {
     }
 
     public static void registerAllJsonPresetReloadListeners() {
+        OWLEvents.registerPresetTypesEvent();
         List<JsonPresetReloadListener<?>> listeners = getJsonPresetReloadListeners();
         listeners.forEach(listener -> {
             LOGGER.info("Registering Json Preset Reload Listener: {}", listener.getName());

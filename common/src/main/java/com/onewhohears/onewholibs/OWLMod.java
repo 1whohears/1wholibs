@@ -7,7 +7,6 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.bbanims.
 import com.onewhohears.onewholibs.client.renderer.RendererObjModelItems;
 import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.common.event.OWLCommonEventHandlers;
-import com.onewhohears.onewholibs.common.event.OWLEvents;
 import com.onewhohears.onewholibs.common.event.OWLReloadListener;
 import com.onewhohears.onewholibs.common.event.ServerHolder;
 import com.onewhohears.onewholibs.common.network.OWLPacketHandler;
@@ -33,7 +32,6 @@ public class OWLMod {
         OWLModEntities.init();
         OWLCommonEventHandlers.init();
         OWLReloadListener.register();
-        OWLEvents.registerPresetTypesEvent();
     }
 
     public static void clientInit() {
