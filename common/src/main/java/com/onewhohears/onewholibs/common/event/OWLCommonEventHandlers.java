@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
 import com.onewhohears.onewholibs.common.core.DistantRayCastManager;
+import com.onewhohears.onewholibs.common.core.FutureRunManager;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresets;
 import com.onewhohears.onewholibs.util.UtilSync;
@@ -32,6 +33,7 @@ public class OWLCommonEventHandlers {
 
     public static void onServerTickPre(MinecraftServer server) {
         DistantRayCastManager.onServerTick();
+        FutureRunManager.tick(server);
     }
 
     public static void registerPresetListeners(List<JsonPresetReloadListener<?>> listeners) {
