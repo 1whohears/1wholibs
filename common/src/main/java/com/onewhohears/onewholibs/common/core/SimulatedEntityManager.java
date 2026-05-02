@@ -56,6 +56,10 @@ public class SimulatedEntityManager {
         return null;
     }
 
+    public boolean isSimulated(@NotNull SimulatedEntity entity) {
+        return ENTITIES.containsKey(entity.getId());
+    }
+
     public void stopSimulatingEntity(@NotNull SimulatedEntity entity) {
         ENTITIES.remove(entity.getId());
     }

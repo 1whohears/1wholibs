@@ -29,8 +29,6 @@ public interface SimulatedEntity {
     default void onVanillaTick() {
         if (!isClientSide()) {
             if (isAutoStartSimulateOnVanillaTick() && getLastServerTick() <= 0 && !startSimulate()) {
-                kill();
-                LOGGER.warn("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getUUID(), this);
                 return;
             }
             setLastServerTick(getWorld().getGameTime());
@@ -72,11 +70,23 @@ public interface SimulatedEntity {
      */
     default boolean startSimulate() {
         if (!isClientSide()) {
-            return SimulatedEntityManager.get().startSimulatingEntity(this);
+            boolean result = SimulatedEntityManager.get().startSimulatingEntity(this);
+            if (!result) {
+                kill();
+                LOGGER.warn("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getUUID(), this);
+            }
+            return result;
         }
         return false;
     }
-
+    default void stopSimulate() {
+        if (!isClientSide()) {
+            SimulatedEntityManager.get().stopSimulatingEntity(this);
+        }
+    }
+    default boolean isSimulateEnabled() {
+        return !isClientSide() && SimulatedEntityManager.get().isSimulated(this);
+    }
     /**
      * @return true if the entity can be revived and was successfully revived (ticked by vanilla)
      */
