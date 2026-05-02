@@ -10,9 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class SimulatedEntityManager {
 
@@ -54,6 +53,23 @@ public class SimulatedEntityManager {
             }
         }
         return null;
+    }
+
+    public <E extends Entity> List<E> getAllOfClass(Class<E> type, Predicate<E> filter) {
+        List<E> list = new ArrayList<>();
+        ENTITIES.forEach((id, sim) -> {
+            if (type.isInstance(sim)) {
+                E entity = type.cast(sim);
+                if (filter.test(entity)) {
+                    list.add(entity);
+                }
+            }
+        });
+        return list;
+    }
+
+    public <E extends Entity> List<E> getAllOfClass(Class<E> type) {
+        return getAllOfClass(type, entity -> true);
     }
 
     public boolean isSimulated(@NotNull SimulatedEntity entity) {
