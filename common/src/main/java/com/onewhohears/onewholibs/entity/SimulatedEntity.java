@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -31,7 +30,7 @@ public interface SimulatedEntity {
         if (!isClientSide()) {
             if (isAutoStartSimulateOnVanillaTick() && getLastServerTick() <= 0 && !startSimulate()) {
                 kill();
-                LOGGER.info("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getId(), getUUID());
+                LOGGER.warn("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getUUID(), this);
                 return;
             }
             setLastServerTick(getWorld().getGameTime());
@@ -88,15 +87,13 @@ public interface SimulatedEntity {
         boolean inTickRange = scc.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().toLong());
         ChunkPos cp = entity.chunkPosition();
         boolean hasChunk = sl.hasChunk(cp.x, cp.z);
-        //boolean hasChunk = scc.hasChunk(cp.x, cp.z);
-        LevelChunk chunk = sl.getChunk(cp.x, cp.z);
-        System.out.println("CHECK REVIVE hasChunk "+hasChunk+" inTickRange "+inTickRange+" inhabited time "+chunk.getInhabitedTime());
-        if (hasChunk && inTickRange) {
+        boolean alreadyAdded = sl.getEntity(getUUID()) != null;
+        /*System.out.println("CHECK REVIVE hasChunk "+hasChunk+" inTickRange "+inTickRange+" alreadyAdded "+alreadyAdded
+                +" inhabited time "+chunk.getInhabitedTime());*/
+        if (hasChunk && inTickRange && !alreadyAdded) {
             try {
                 UtilEntity.revive(entity);
-                if (!sl.addFreshEntity(entity)) {
-
-                }
+                sl.addFreshEntity(entity);
             } catch (Exception e) {
                 SimulatedEntityManager.get().stopSimulatingEntity(this);
                 LOGGER.error("Failed to revive simulated entity. Canceling future attempts to simulate: {} | {}",
