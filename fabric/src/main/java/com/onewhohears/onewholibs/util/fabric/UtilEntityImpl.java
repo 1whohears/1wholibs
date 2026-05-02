@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.util.fabric;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.NoSuchElementException;
@@ -23,6 +24,10 @@ public class UtilEntityImpl {
         ResourceLocation rl = ResourceLocation.tryParse(entityTypeKey);
         if (rl == null) return false;
         return BuiltInRegistries.ENTITY_TYPE.containsKey(rl);
+    }
+
+    public static void revive(Entity entity) {
+        entity.unsetRemoved(); // FIXME IDK if this revive will work on fabric
     }
 
 }

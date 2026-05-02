@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.util.forge;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,10 @@ public class UtilEntityImpl {
         ResourceLocation rl = ResourceLocation.tryParse(entityTypeKey);
         if (rl == null) return false;
         return ForgeRegistries.ENTITY_TYPES.containsKey(rl);
+    }
+
+    public static void revive(Entity entity) {
+        entity.revive();
     }
 
 }

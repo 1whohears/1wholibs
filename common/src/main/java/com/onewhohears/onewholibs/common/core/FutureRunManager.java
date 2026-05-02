@@ -44,6 +44,11 @@ public class FutureRunManager {
         if (FUTURE_RUNS.isEmpty()) FOR_REMOVAL.clear();
     }
 
+    public static void init() {
+        FUTURE_RUNS.clear();
+        FOR_REMOVAL.clear();
+    }
+
     public interface CanServerRun {
         boolean test(@NotNull MinecraftServer server);
     }

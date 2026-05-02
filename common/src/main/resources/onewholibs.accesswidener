@@ -21,3 +21,5 @@ accessible  method  net/minecraft/world/level/GameRules$IntegerValue    create  
 accessible field net/minecraft/network/ConnectionProtocol flows Ljava/util/Map;
 accessible class net/minecraft/network/ConnectionProtocol$PacketSet
 accessible field net/minecraft/network/ConnectionProtocol PROTOCOL_BY_PACKET Ljava/util/Map;
+
+accessible method net/minecraft/world/entity/Entity unsetRemoved ()V

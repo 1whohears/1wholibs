@@ -389,4 +389,9 @@ public class UtilEntity {
         return entity.level();
     }
 
+    @ExpectPlatform
+    public static void revive(Entity entity) {
+        throw new AssertionError();
+    }
+
 }
