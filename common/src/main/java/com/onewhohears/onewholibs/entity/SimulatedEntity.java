@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -17,6 +18,8 @@ import java.util.UUID;
 /**
  * Add this interface to any {@link Entity} class if you want it to tick while unloaded.
  * MUST ADD {@code SimulatedEntity.super.onVanillaTick()} TO THE TOP OF YOUR {@link Entity#tick()} OVERRIDE.
+ * If this entity is initially spawned in an unloaded chunk,
+ * you will have to manually call {@link #startSimulate()} after creating the entity.
  * @author 1whohears
  */
 public interface SimulatedEntity {
@@ -26,12 +29,10 @@ public interface SimulatedEntity {
      */
     default void onVanillaTick() {
         if (!isClientSide()) {
-            if (getLastServerTick() <= 0) {
-                if (!startSimulate()) {
-                    kill();
-                    LOGGER.info("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getId(), getUUID());
-                    return;
-                }
+            if (isAutoStartSimulateOnVanillaTick() && getLastServerTick() <= 0 && !startSimulate()) {
+                kill();
+                LOGGER.info("SIMULATED ENTITY ALREADY EXISTS KILL {} {}", getId(), getUUID());
+                return;
             }
             setLastServerTick(getWorld().getGameTime());
         }
@@ -65,7 +66,10 @@ public interface SimulatedEntity {
         }
     }
     /**
-     * used internally
+     * Used by {@link #onVanillaTick()} if {@link #isAutoStartSimulateOnVanillaTick()} is true.
+     * If false this must be called on entity creation.
+     * It must also be called if the entity is initially spawned outside loaded chunks.
+     * @return false if an entity with the same UUID is already being simulated.
      */
     default boolean startSimulate() {
         if (!isClientSide()) {
@@ -73,6 +77,10 @@ public interface SimulatedEntity {
         }
         return false;
     }
+
+    /**
+     * @return true if the entity can be revived and was successfully revived (ticked by vanilla)
+     */
     default boolean checkRevive(@NotNull MinecraftServer server) {
         ServerLevel sl = (ServerLevel) getWorld();
         Entity entity = (Entity) this;
@@ -80,10 +88,15 @@ public interface SimulatedEntity {
         boolean inTickRange = scc.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().toLong());
         ChunkPos cp = entity.chunkPosition();
         boolean hasChunk = sl.hasChunk(cp.x, cp.z);
+        //boolean hasChunk = scc.hasChunk(cp.x, cp.z);
+        LevelChunk chunk = sl.getChunk(cp.x, cp.z);
+        System.out.println("CHECK REVIVE hasChunk "+hasChunk+" inTickRange "+inTickRange+" inhabited time "+chunk.getInhabitedTime());
         if (hasChunk && inTickRange) {
             try {
                 UtilEntity.revive(entity);
-                sl.addFreshEntity(entity);
+                if (!sl.addFreshEntity(entity)) {
+
+                }
             } catch (Exception e) {
                 SimulatedEntityManager.get().stopSimulatingEntity(this);
                 LOGGER.error("Failed to revive simulated entity. Canceling future attempts to simulate: {} | {}",
@@ -96,7 +109,7 @@ public interface SimulatedEntity {
         return false;
     }
     /**
-     * @return true if the entity is not being ticked by the server
+     * @return true if the entity is not being ticked by the vanilla server
      */
     default boolean isUnloaded() {
         if (isClientSide()) return false;
@@ -128,5 +141,8 @@ public interface SimulatedEntity {
     }
     default void kill() {
         ((Entity)this).kill();
+    }
+    default boolean isAutoStartSimulateOnVanillaTick() {
+        return true;
     }
 }

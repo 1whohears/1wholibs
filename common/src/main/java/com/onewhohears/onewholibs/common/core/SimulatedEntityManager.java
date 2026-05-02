@@ -60,6 +60,10 @@ public class SimulatedEntityManager {
         ENTITIES.remove(entity.getId());
     }
 
+    public void serverStop(MinecraftServer server) {
+        LOGGER.warn("{} Simulated Entities may not save if currently unloaded.", ENTITIES.size());
+    }
+
     private static SimulatedEntityManager INSTANCE;
 
     public static void init() {

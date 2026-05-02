@@ -32,6 +32,11 @@ public class OWLCommonEventHandlers {
         TickEvent.SERVER_PRE.register(OWLCommonEventHandlers::onServerTickPre);
         TickEvent.SERVER_POST.register(OWLCommonEventHandlers::onServerTickPost);
         LifecycleEvent.SERVER_STARTING.register(OWLCommonEventHandlers::onServerStarting);
+        LifecycleEvent.SERVER_STOPPING.register(OWLCommonEventHandlers::onServerStopping);
+    }
+
+    private static void onServerStopping(MinecraftServer server) {
+        SimulatedEntityManager.get().serverStop(server);
     }
 
     private static void onSetup() {

@@ -14,11 +14,11 @@ import java.util.function.BiConsumer;
 public class CustomGameRules {
 
     //public static GameRules.Key<GameRules.BooleanValue> TEST_BOOL;
-    //public static GameRules.Key<GameRules.IntegerValue> TEST_INT;
+    public static GameRules.Key<GameRules.IntegerValue> TEST_ENTITY_SPEED;
 
     public static void register() {
         //TEST_BOOL = registerBoolean("onewholibs:test_bool", false);
-        //TEST_INT = registerInteger("onewholibs:test_int", 0, GameRules.Category.MISC);
+        TEST_ENTITY_SPEED = registerInteger("onewholibs:test_entity_speed", 0, GameRules.Category.MISC);
     }
 
     private static final List<GameRules.Key<GameRules.BooleanValue>> SYNC_BOOLS = new ArrayList<>();
