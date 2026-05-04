@@ -36,11 +36,11 @@ public abstract class Serializable {
         UtilCompression.writeCompressedJson(data, buffer);
     }
 
-    public void addSaveDataForPacket(@NotNull JsonObject data) {
+    protected void addSaveDataForPacket(@NotNull JsonObject data) {
         addSaveData(data);
     }
 
-    public void readSaveDataFromPacket(@NotNull JsonObject data) {
+    protected void readSaveDataFromPacket(@NotNull JsonObject data) {
         readSaveData(data);
     }
 
