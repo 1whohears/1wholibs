@@ -27,11 +27,21 @@ public abstract class Serializable {
 
     public final void readPacket(@NotNull FriendlyByteBuf buffer) {
         JsonObject data = UtilCompression.readCompressedJson(buffer);
-        loadSaveData(data);
+        readSaveDataFromPacket(data);
     }
 
     public final void writePacket(@NotNull FriendlyByteBuf buffer) {
-        UtilCompression.writeCompressedJson(getSaveData(), buffer);
+        JsonObject data = new JsonObject();
+        addSaveDataForPacket(data);
+        UtilCompression.writeCompressedJson(data, buffer);
+    }
+
+    public void addSaveDataForPacket(@NotNull JsonObject data) {
+        addSaveData(data);
+    }
+
+    public void readSaveDataFromPacket(@NotNull JsonObject data) {
+        readSaveData(data);
     }
 
     protected abstract void addSaveData(@NotNull JsonObject data);
