@@ -14,6 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+/**
+ * This was a cool experiment, but it was poorly designed. Need to try again.
+ * See {@link DistantVisibleManager}
+ * @author 1whohears
+ */
+@Deprecated()
 public class DistantRayCastManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();

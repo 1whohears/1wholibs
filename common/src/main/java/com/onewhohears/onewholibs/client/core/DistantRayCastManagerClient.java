@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
+@Deprecated
 public class DistantRayCastManagerClient {
 
     public static final int MAX_DH_RAY_CAST_DISTANCE = 8192;
