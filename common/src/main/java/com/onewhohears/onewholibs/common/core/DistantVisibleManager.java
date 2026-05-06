@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -24,13 +25,35 @@ public class DistantVisibleManager {
     private static final IntObjectMap<VisibleData> VISIBLES = new IntObjectHashMap<>();
     private static int ID_COUNTER = 0;
 
-    public static void queryVisible(@NotNull Entity entity1, @NotNull Entity entity2,
-                                    @NotNull Consumer<VisibleUpdateEvent> onVisibleUpdate) {
-
+    public static void queryVisible(@NotNull MinecraftServer server,
+                                    @NotNull Entity entity1, @NotNull Entity entity2,
+                                    @NotNull VisibleRequestData requestData) {
+        VisibleData visibleData = null;
+        boolean flipEntites = false;
+        for (VisibleData data : VISIBLES.values()) {
+            if (data.entityId1 == entity1.getId() && data.entityId2 == entity2.getId()) {
+                visibleData = data;
+                break;
+            } else if (data.entityId1 == entity2.getId() && data.entityId2 == entity1.getId()) {
+                visibleData = data;
+                flipEntites = true;
+                break;
+            }
+        }
+        if (visibleData == null) {
+            visibleData = new VisibleData(entity1, entity2);
+            VISIBLES.put(visibleData.id, visibleData);
+        }
+        visibleData.addRequest(server, flipEntites, requestData);
     }
 
-    public static void onServerTick() {
+    public static void onServerTick(@NotNull MinecraftServer server) {
+        VISIBLES.forEach((id, visible) -> visible.tick(server));
+        removeFailedVisibles();
+    }
 
+    private static void removeFailedVisibles() {
+        VISIBLES.entrySet().removeIf(entry -> entry.getValue().isForRemoval());
     }
 
     public static class VisibleData {
@@ -38,18 +61,41 @@ public class DistantVisibleManager {
         public final int entityId1;
         public final int entityId2;
         public @NotNull final ResourceKey<Level> levelId;
-        public @NotNull final Consumer<VisibleUpdateEvent> onVisibleUpdate;
-        public @NotNull final Consumer<VisibleTestFailEvent> onVisibleTestFail;
-        private VisibleTestFailReason failReason = VisibleTestFailReason.NONE;
-        private VisibleData(@NotNull Entity entity1, @NotNull Entity entity2,
-                            @NotNull Consumer<VisibleUpdateEvent> onVisibleUpdate,
-                            @NotNull Consumer<VisibleTestFailEvent> onVisibleTestFail) {
+        private @NotNull final IntObjectMap<VisibleRequestState> requests = new IntObjectHashMap<>();
+        private @NotNull final IntObjectMap<VisibleRequestState> requestsFlipped = new IntObjectHashMap<>();
+        private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
+        private @NotNull Vec3 entityPos1, entityPos2;
+        private float progress = 0;
+        private int blocksChecked = 0;
+        private int fastestRequestUpdateRate = -1;
+        private int prevUpdateTime = -1000;
+        private void tick(@NotNull MinecraftServer server) {
+            int currentTime = server.getTickCount();
+            removeExpiredRequests(currentTime);
+            // TODO dont start a new ray cast compute until fastestRequestUpdateRate ticks have past after prevUpdateTime
+        }
+        private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
+                                @NotNull VisibleRequestData requestData) {
+            int currentTime = server.getTickCount();
+            IntObjectMap<VisibleRequestState> reqs = flipEntities ? requestsFlipped : requests;
+            VisibleRequestState state = reqs.get(requestData.typeId);
+            if (state == null) {
+                state = new VisibleRequestState(requestData, currentTime);
+                reqs.put(requestData.typeId, state);
+            } else {
+                state.requestTime = currentTime;
+            }
+            if (fastestRequestUpdateRate == -1 || requestData.updateRate < fastestRequestUpdateRate) {
+                fastestRequestUpdateRate = requestData.updateRate;
+            }
+        }
+        private VisibleData(@NotNull Entity entity1, @NotNull Entity entity2) {
             this.id = ++ID_COUNTER;
             this.levelId = UtilEntity.getLevel(entity1).dimension();
             this.entityId1 = entity1.getId();
             this.entityId2 = entity2.getId();
-            this.onVisibleUpdate = onVisibleUpdate;
-            this.onVisibleTestFail = onVisibleTestFail;
+            this.entityPos1 = entity1.getEyePosition();
+            this.entityPos2 = entity2.getEyePosition();
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
@@ -68,35 +114,99 @@ public class DistantVisibleManager {
         private void update(@NotNull MinecraftServer server, boolean visible) {
             ServerLevel level = getLevel(server);
             if (level == null) {
-                setFailed(VisibleTestFailReason.INVALID_LEVEL_ID);
+                setFailed(VisibleTestResult.FAILED_INVALID_LEVEL_ID, server.getTickCount());
                 return;
             }
             Entity entity1 = level.getEntity(entityId1);
             if (entity1 == null) {
-                setFailed(VisibleTestFailReason.ENTITY_1_NOT_FOUND);
+                setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server.getTickCount());
                 return;
             }
             Entity entity2 = level.getEntity(entityId2);
             if (entity2 == null) {
-                setFailed(VisibleTestFailReason.ENTITY_2_NOT_FOUND);
+                setFailed(VisibleTestResult.FAILED_ENTITY_2_NOT_FOUND, server.getTickCount());
                 return;
             }
-            onVisibleUpdate.accept(new VisibleUpdateEvent(level, entity1, entity2, visible));
+            setPassed(visible, level, entity1, entity2, server.getTickCount());
         }
-        private void setFailed(VisibleTestFailReason reason) {
-            failReason = reason;
-            onVisibleTestFail.accept(new VisibleTestFailEvent(levelId, entityId1, entityId2, reason));
+        private void setPassed(boolean visible, @NotNull ServerLevel level,
+                               @NotNull Entity entity1, @NotNull Entity entity2, int currentTime) {
+            this.result = visible ? VisibleTestResult.VISION_PASSED : VisibleTestResult.VISION_OBSTRUCTED;
+            VisibleUpdateEvent event = new VisibleUpdateEvent(this, level, entity1, entity2, result);
+            updateRequestStates(event, currentTime);
+            // reset for next ray cast compute
+            this.entityPos1 = entity1.getEyePosition();
+            this.entityPos2 = entity2.getEyePosition();
+            this.progress = 0;
+            this.blocksChecked = 0;
+            this.prevUpdateTime = currentTime;
+        }
+        private void setFailed(VisibleTestResult result, int currentTime) {
+            this.result = result;
+            VisibleUpdateEvent event = new VisibleUpdateEvent(this, null, null, null, result);
+            updateRequestStates(event, currentTime);
+        }
+        private void updateRequestStates(VisibleUpdateEvent event, int currentTime) {
+            requests.forEach((typeId, state) -> {
+                if (currentTime - state.updateTime < state.requestData.updateRate) return;
+                state.requestData.onVisibleUpdate.accept(event);
+                state.updateTime = currentTime;
+            });
+            VisibleUpdateEvent eventFlipped = event.flipEntities();
+            requestsFlipped.forEach((typeId, state) -> {
+                if (currentTime - state.updateTime < state.requestData.updateRate) return;
+                state.requestData.onVisibleUpdate.accept(eventFlipped);
+                state.updateTime = currentTime;
+            });
+        }
+        private void removeExpiredRequests(int currentTime) {
+            requests.entrySet().removeIf(entry -> {
+               VisibleRequestState state = entry.getValue();
+               return currentTime - state.requestTime > state.requestData.expireTime;
+            });
+            requestsFlipped.entrySet().removeIf(entry -> {
+                VisibleRequestState state = entry.getValue();
+                return currentTime - state.requestTime > state.requestData.expireTime;
+            });
         }
         public boolean isFailed() {
-            return failReason != VisibleTestFailReason.NONE;
+            return result.failed;
         }
-        public VisibleTestFailReason getFailReason() {
-            return failReason;
+        public boolean isEmptyRequests() {
+            return requests.isEmpty() && requestsFlipped.isEmpty();
+        }
+        public boolean isForRemoval() {
+            return isFailed() || isEmptyRequests();
+        }
+        public @NotNull VisibleTestResult getResult() {
+            return result;
+        }
+        public float getProgress() {
+            return progress;
+        }
+        public int getBlocksChecked() {
+            return blocksChecked;
         }
     }
 
-    public record VisibleUpdateEvent(@NotNull ServerLevel level, @NotNull Entity entity1,
-                                     @NotNull Entity entity2, boolean visible) {}
-    public record VisibleTestFailEvent(@NotNull ResourceKey<Level> levelId, int entity1Id, int entity2Id,
-                                       @NotNull VisibleTestFailReason reason) {}
+    public static class VisibleRequestState {
+        public @NotNull final VisibleRequestData requestData;
+        public int requestTime, updateTime;
+        public VisibleRequestState(@NotNull VisibleRequestData requestData, int requestTime) {
+            this.requestData = requestData;
+            this.requestTime = requestTime;
+            this.updateTime = -requestData.updateRate();
+        }
+    }
+
+    public record VisibleRequestData(int typeId, int expireTime, int updateRate,
+                                     @NotNull Consumer<VisibleUpdateEvent> onVisibleUpdate) {}
+
+    public record VisibleUpdateEvent(@NotNull VisibleData data, @Nullable ServerLevel level,
+                                     @Nullable Entity entity1, @Nullable Entity entity2,
+                                     @NotNull VisibleTestResult result) {
+        public VisibleUpdateEvent flipEntities() {
+            return new VisibleUpdateEvent(data, level, entity2, entity1, result);
+        }
+    }
 }
