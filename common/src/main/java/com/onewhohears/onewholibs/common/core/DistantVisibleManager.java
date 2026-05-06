@@ -72,7 +72,8 @@ public class DistantVisibleManager {
         private void tick(@NotNull MinecraftServer server) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(currentTime);
-            // TODO dont start a new ray cast compute until fastestRequestUpdateRate ticks have past after prevUpdateTime
+            if (progress >= 1 && (prevUpdateTime == -1000 || currentTime - prevUpdateTime < fastestRequestUpdateRate)) return;
+            // TODO start checking blocks in the raycast past at a limit of some number of blocks per tick
         }
         private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
                                 @NotNull VisibleRequestData requestData) {
