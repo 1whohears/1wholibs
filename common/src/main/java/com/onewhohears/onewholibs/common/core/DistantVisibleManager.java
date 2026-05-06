@@ -79,6 +79,7 @@ public class DistantVisibleManager {
         private @NotNull final IntObjectMap<VisibleRequestState> requestsFlipped = new IntObjectHashMap<>();
         private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
         private @NotNull Vec3 entityPos1, entityPos2, diff, dir;
+        private float length;
         private float progress = 0;
         private int blocksChecked = 0;
         private int fastestRequestUpdateRate = -1;
@@ -97,16 +98,20 @@ public class DistantVisibleManager {
             int buildFloor = level.getBuildFloor();
             if ((entityPos1.y > buildHeight && entityPos2.y > buildHeight) || (entityPos1.y < buildFloor && entityPos2.y < buildFloor)) {
                 update(server, true);
+                return;
             }
-            // do some math
             while (progress < 1 && BLOCKS_CHECKED < max) {
-                // determine which block to check
-                // if (obstructed) update(server, false);
+                progress += 0.05; // TODO calculate next progress value
+                Vec3 next = entityPos1.add(dir.scale(length * progress));
+                if (next.y > buildHeight || next.y < buildFloor) continue;
+                boolean obstructed = false; // TODO how to check if obstructed
                 ++BLOCKS_CHECKED;
+                if (obstructed) {
+                    update(server, false);
+                    break;
+                }
             }
-            if (progress >= 1) {
-                update(server, true);
-            }
+            if (progress >= 1) update(server, true);
         }
         private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
                                 @NotNull VisibleRequestData requestData) {
@@ -135,6 +140,7 @@ public class DistantVisibleManager {
             entityPos2 = entity2.getEyePosition();
             diff = entityPos2.subtract(entityPos1);
             dir = diff.normalize();
+            length = diff.length();
             // TODO based on distance, determine which blocks need to be checked (lower LOD in the middle)
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
