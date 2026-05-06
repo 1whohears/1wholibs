@@ -24,6 +24,7 @@ public class DistantVisibleManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final IntObjectMap<VisibleData> VISIBLES = new IntObjectHashMap<>();
     private static int ID_COUNTER = 0;
+    private static int BLOCKS_CHECKED = 0;
 
     public static void queryVisible(@NotNull MinecraftServer server,
                                     @NotNull Entity entity1, @NotNull Entity entity2,
@@ -48,8 +49,21 @@ public class DistantVisibleManager {
     }
 
     public static void onServerTick(@NotNull MinecraftServer server) {
-        VISIBLES.forEach((id, visible) -> visible.tick(server));
+        int max = getMaxBlocksPerTick();
+        BLOCKS_CHECKED = 0;
+        for (VisibleData visible : VISIBLES.values()) {
+            visible.tick(server, max);
+            if (BLOCKS_CHECKED >= max) break;
+        }
         removeFailedVisibles();
+    }
+
+    public static int getMaxBlocksPerTick() {
+        return 500;
+    }
+
+    public static void onServerStart(@NotNull MinecraftServer server) {
+        VISIBLES.clear();
     }
 
     private static void removeFailedVisibles() {
@@ -64,16 +78,35 @@ public class DistantVisibleManager {
         private @NotNull final IntObjectMap<VisibleRequestState> requests = new IntObjectHashMap<>();
         private @NotNull final IntObjectMap<VisibleRequestState> requestsFlipped = new IntObjectHashMap<>();
         private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
-        private @NotNull Vec3 entityPos1, entityPos2;
+        private @NotNull Vec3 entityPos1, entityPos2, diff, dir;
         private float progress = 0;
         private int blocksChecked = 0;
         private int fastestRequestUpdateRate = -1;
         private int prevUpdateTime = -1000;
-        private void tick(@NotNull MinecraftServer server) {
+        private void tick(@NotNull MinecraftServer server, int maxBlocks) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(currentTime);
-            if (progress >= 1 && (prevUpdateTime == -1000 || currentTime - prevUpdateTime < fastestRequestUpdateRate)) return;
+            if (progress == 0 && (prevUpdateTime == -1000 || currentTime - prevUpdateTime < fastestRequestUpdateRate)) return;
             // TODO start checking blocks in the raycast past at a limit of some number of blocks per tick
+            ServerLevel level = getLevel(server);
+            if (level == null) {
+                setFailed(VisibleTestResult.FAILED_INVALID_LEVEL_ID, currentTime);
+                return;
+            }
+            int buildHeight = level.getBuildHeight();
+            int buildFloor = level.getBuildFloor();
+            if ((entityPos1.y > buildHeight && entityPos2.y > buildHeight) || (entityPos1.y < buildFloor && entityPos2.y < buildFloor)) {
+                update(server, true);
+            }
+            // do some math
+            while (progress < 1 && BLOCKS_CHECKED < max) {
+                // determine which block to check
+                // if (obstructed) update(server, false);
+                ++BLOCKS_CHECKED;
+            }
+            if (progress >= 1) {
+                update(server, true);
+            }
         }
         private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
                                 @NotNull VisibleRequestData requestData) {
@@ -95,8 +128,14 @@ public class DistantVisibleManager {
             this.levelId = UtilEntity.getLevel(entity1).dimension();
             this.entityId1 = entity1.getId();
             this.entityId2 = entity2.getId();
-            this.entityPos1 = entity1.getEyePosition();
-            this.entityPos2 = entity2.getEyePosition();
+            calcPositions(entity1, entity2);
+        }
+        private void calcPositions(@NotNull Entity entity1, @NotNull Entity entity2) {
+            entityPos1 = entity1.getEyePosition();
+            entityPos2 = entity2.getEyePosition();
+            diff = entityPos2.subtract(entityPos1);
+            dir = diff.normalize();
+            // TODO based on distance, determine which blocks need to be checked (lower LOD in the middle)
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
@@ -136,8 +175,7 @@ public class DistantVisibleManager {
             VisibleUpdateEvent event = new VisibleUpdateEvent(this, level, entity1, entity2, result);
             updateRequestStates(event, currentTime);
             // reset for next ray cast compute
-            this.entityPos1 = entity1.getEyePosition();
-            this.entityPos2 = entity2.getEyePosition();
+            calcPositions(entity1, entity2);
             this.progress = 0;
             this.blocksChecked = 0;
             this.prevUpdateTime = currentTime;
