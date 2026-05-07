@@ -14,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -21,9 +22,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
-
-import static com.onewhohears.onewholibs.common.command.CanSeeCommand.YELLOW;
 
 /**
  * @author 1whohears
@@ -34,8 +35,13 @@ public class DistantVisibleManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final IntObjectMap<VisibleData> VISIBLES = new IntObjectHashMap<>();
+
     private static int ID_COUNTER = 0;
     private static int BLOCKS_CHECKED = 0;
+
+    private static final List<Long> TICK_TIMES = new ArrayList<>();
+    private static final int TICK_TIMES_LENGTH = 200;
+    private static long TICK_TIME_AVG;
 
     public static void queryVisible(@NotNull MinecraftServer server,
                                     @NotNull Entity entity1, @NotNull Entity entity2,
@@ -60,6 +66,8 @@ public class DistantVisibleManager {
     }
 
     public static void onServerTick(@NotNull MinecraftServer server) {
+        long startTime = System.currentTimeMillis();
+
         int max = getMaxBlocksPerTick();
         BLOCKS_CHECKED = 0;
         for (VisibleData visible : VISIBLES.values()) {
@@ -67,10 +75,17 @@ public class DistantVisibleManager {
             if (BLOCKS_CHECKED >= max) break;
         }
         removeFailedVisibles();
+
+        long endTime = System.currentTimeMillis();
+        TICK_TIMES.add(0, endTime - startTime);
+        while (TICK_TIMES.size() > TICK_TIMES_LENGTH) TICK_TIMES.remove(TICK_TIMES.size()-1);
+        long total = 0;
+        for (Long time : TICK_TIMES) total += time;
+        TICK_TIME_AVG = total / TICK_TIMES.size();
     }
 
     public static int getMaxBlocksPerTick() {
-        return 500; // TODO make getMaxBlocksPerTick configurable
+        return 1000; // TODO make getMaxBlocksPerTick configurable
     }
 
     public static void onServerStart(@NotNull MinecraftServer server) {
@@ -89,7 +104,7 @@ public class DistantVisibleManager {
         private @NotNull final IntObjectMap<VisibleRequestState> requests = new IntObjectHashMap<>();
         private @NotNull final IntObjectMap<VisibleRequestState> requestsFlipped = new IntObjectHashMap<>();
         private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
-        private @NotNull Vec3 entityPos1, entityPos2, diff, dir;
+        private Vec3 entityPos1, entityPos2, diff, dir;
         private float length;
         private float progress = 0;
         private int blocksChecked = 0;
@@ -127,7 +142,7 @@ public class DistantVisibleManager {
                 return;
             }
             while (progress < 1 && BLOCKS_CHECKED < maxBlocks) {
-                progress += 0.05f; // TODO calculate next progress value
+                progress += 1 / length; // TODO calculate next progress value
                 Vec3 next = entityPos1.add(dir.scale(length * progress));
                 if (next.y > buildHeight) {
                     if (dir.y >= 0) {
@@ -141,7 +156,14 @@ public class DistantVisibleManager {
                     } continue;
                 }
                 BlockPos nextBlock = UtilGeometry.toBlockPos(next);
-                //ChunkPos nextChunk = new ChunkPos(nextBlock);
+                ChunkPos nextChunk = new ChunkPos(nextBlock);
+                if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
+                    // TODO use a cached low level of detail height map system to determine if obstructed
+                    continue;
+                    // TODO it seems grabbing block states in unloaded chunks is extremely expensive.
+                    //  grabbing block states in loaded chunks seems to be so fast that counting them is pointless.
+                    //  will need to test further.
+                }
                 BlockState state = level.getBlockState(nextBlock);
                 ++BLOCKS_CHECKED;
                 boolean obstructed = UtilEntity.blocksMotion(state);
@@ -315,12 +337,12 @@ public class DistantVisibleManager {
                     }
                 }
                 if (event.result().failed) {
-                    LOGGER.info("Visible Query FAILED: {} | {} | {} | {} | {}", event.result,
-                            time, event.data.id, event.entity1, event.entity2);
+                    LOGGER.info("Visible Query FAILED: {} | {} | {} |  {} | {} | {}", event.result,
+                            event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
                     return;
                 }
-                LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {}", event.result, event.data.id,
-                        time, event.entity1, event.entity2);
+                LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {} | {}", event.result,
+                        event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
             }
     );
 }
