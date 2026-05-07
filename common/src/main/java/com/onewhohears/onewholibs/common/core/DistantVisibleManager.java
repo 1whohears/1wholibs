@@ -112,7 +112,7 @@ public class DistantVisibleManager {
         private int prevUpdateTime = -1000;
         private void tick(@NotNull MinecraftServer server, int maxBlocks) {
             int currentTime = server.getTickCount();
-            removeExpiredRequests(currentTime);
+            removeExpiredRequests(server);
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
             if (progress == 0 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
                 return;
@@ -259,15 +259,20 @@ public class DistantVisibleManager {
                 state.updateTime = currentTime;
             });
         }
-        private void removeExpiredRequests(int currentTime) {
-            requests.entrySet().removeIf(entry -> {
-               VisibleRequestState state = entry.getValue();
-               return currentTime - state.requestTime > state.requestData.expireTime;
+        private void removeExpiredRequests(@NotNull MinecraftServer server) {
+            removeExpiredRequests(server, requests);
+            removeExpiredRequests(server, requestsFlipped);
+        }
+        private void removeExpiredRequests(@NotNull MinecraftServer server,
+                                           @NotNull IntObjectMap<VisibleRequestState> req) {
+            int currentTime = server.getTickCount();
+            req.forEach((id, state) -> {
+                if (!state.isExpired(currentTime)) return;
+                VisibleUpdateEvent event = new VisibleUpdateEvent(this, server,
+                        null, null, null, VisibleTestResult.FAILED_EXPIRED);
+                state.requestData.onVisibleUpdate.accept(event);
             });
-            requestsFlipped.entrySet().removeIf(entry -> {
-                VisibleRequestState state = entry.getValue();
-                return currentTime - state.requestTime > state.requestData.expireTime;
-            });
+            req.entrySet().removeIf(entry -> entry.getValue().isExpired(currentTime));
         }
         public boolean isFailed() {
             return result.failed;
@@ -297,6 +302,9 @@ public class DistantVisibleManager {
             this.requestTime = requestTime;
             this.updateTime = -requestData.updateRate();
         }
+        public boolean isExpired(int currentTime) {
+            return currentTime - requestTime > requestData.expireTime;
+        }
     }
 
     /**
@@ -325,17 +333,6 @@ public class DistantVisibleManager {
     public static final VisibleRequestData CAN_SEE_TEST_DATA = new VisibleRequestData(
             CAN_SEE_COMMAND_TYPE, 200, 20, event -> {
                 int time = event.server.getTickCount();
-                if (event.entity1 instanceof Player player) {
-                    if (event.entity2 != null) {
-                        Style style = event.result.passed ? GREEN : PURPLE;
-                        player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "
-                                +event.entity1.getScoreboardName()+" "+event.entity2.getScoreboardName())
-                                .setStyle(style));
-                    } else {
-                        player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "
-                                +event.entity1.getScoreboardName()).setStyle(RED));
-                    }
-                }
                 if (event.result().failed) {
                     LOGGER.info("Visible Query FAILED: {} | {} | {} |  {} | {} | {}", event.result,
                             event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
@@ -343,6 +340,16 @@ public class DistantVisibleManager {
                 }
                 LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {} | {}", event.result,
                         event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
+                if (event.entity1 instanceof Player player && event.entity2 != null) {
+                    Style style = event.result.passed ? GREEN : PURPLE;
+                    player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "
+                                    +event.entity1.getScoreboardName()+" "+event.entity2.getScoreboardName())
+                            .setStyle(style));
+                } else if (event.level != null && event.level.getEntity(event.data.entityId1) instanceof Player player) {
+                    player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "
+                            +event.entity1.getScoreboardName()).setStyle(RED));
+                }
+
             }
     );
 }
