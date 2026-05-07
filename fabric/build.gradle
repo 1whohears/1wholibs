@@ -15,6 +15,23 @@ loom {
             sourceSet project(":fabric").sourceSets.main
         }
     }
+    runs {
+        client2 {
+            inherit client
+            name 'runClient2'
+            programArgs '--username=ManiacalMonkey'
+        }
+        client3 {
+            inherit client
+            name 'runClient3'
+            programArgs '--username=LunaticDonkey'
+        }
+        client4 {
+            inherit client
+            name 'runClient4'
+            programArgs '--username=ShitAss'
+        }
+    }
 }
 
 configurations {

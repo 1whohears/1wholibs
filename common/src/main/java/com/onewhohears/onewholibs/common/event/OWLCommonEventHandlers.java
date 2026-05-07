@@ -1,9 +1,11 @@
 package com.onewhohears.onewholibs.common.event;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.onewhohears.onewholibs.common.command.CanSeeCommand;
 import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
 import com.onewhohears.onewholibs.common.core.DistantRayCastManager;
+import com.onewhohears.onewholibs.common.core.DistantVisibleManager;
 import com.onewhohears.onewholibs.common.core.FutureRunManager;
 import com.onewhohears.onewholibs.common.core.SimulatedEntityManager;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
@@ -46,11 +48,13 @@ public class OWLCommonEventHandlers {
     private static void onServerStarting(MinecraftServer server) {
         SimulatedEntityManager.init();
         FutureRunManager.init();
+        DistantVisibleManager.onServerStart(server);
     }
 
     public static void onServerTickPre(MinecraftServer server) {
         SimulatedEntityManager.get().tickPre(server);
         DistantRayCastManager.onServerTick();
+        DistantVisibleManager.onServerTick(server);
         FutureRunManager.tick(server);
     }
 
@@ -72,6 +76,7 @@ public class OWLCommonEventHandlers {
                                         Commands.CommandSelection selection) {
         new TestPresetCommand(dispatcher);
         new TestIngredientStackCommand(dispatcher, context);
+        new CanSeeCommand((dispatcher));
     }
 
 }

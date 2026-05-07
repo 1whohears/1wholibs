@@ -1,9 +1,9 @@
 package com.onewhohears.onewholibs.common.core;
 
 public enum VisibleTestResult {
-    NONE(false, true, false),
-    VISION_PASSED(true, true, true),
-    VISION_OBSTRUCTED(true, true, false),
+    NONE(false, false, false),
+    VISION_PASSED(true, false, true),
+    VISION_OBSTRUCTED(true, false, false),
     FAILED_EXPIRED(true, true, false),
     FAILED_INVALID_LEVEL_ID(true, true, false),
     FAILED_ENTITY_1_NOT_FOUND(true, true, false),

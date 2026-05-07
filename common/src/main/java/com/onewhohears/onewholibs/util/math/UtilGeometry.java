@@ -1,9 +1,5 @@
 package com.onewhohears.onewholibs.util.math;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -12,6 +8,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author 1whohears
@@ -495,7 +495,7 @@ public class UtilGeometry {
     }
 
     public static BlockPos toBlockPos(Vec3 vec) {
-        return new BlockPos((int) vec.x, (int) vec.y, (int) vec.z);
+        return new BlockPos((int) Math.floor(vec.x), (int) Math.floor(vec.y), (int) Math.floor(vec.z));
     }
 
 }
