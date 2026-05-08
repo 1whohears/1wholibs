@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -106,7 +107,8 @@ public class DistantVisibleManager {
         private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
         private Vec3 entityPos1, entityPos2, diff, dir;
         private float length;
-        private float progress = 0;
+        private int spreadIndex = 0;
+        private float[] spreads;
         private int blocksChecked = 0;
         private int fastestRequestUpdateRate = -1;
         private int prevUpdateTime = -1000;
@@ -114,7 +116,7 @@ public class DistantVisibleManager {
             int currentTime = server.getTickCount();
             removeExpiredRequests(server);
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
-            if (progress == 0 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
+            if (spreadIndex == 0 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
                 return;
             }
             ServerLevel level = getLevel(server);
@@ -122,7 +124,7 @@ public class DistantVisibleManager {
                 setFailed(VisibleTestResult.FAILED_INVALID_LEVEL_ID, server);
                 return;
             }
-            if (progress == 0) {
+            if (spreadIndex == 0) {
                 Entity entity1 = level.getEntity(entityId1);
                 if (entity1 == null) {
                     setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server);
@@ -137,21 +139,22 @@ public class DistantVisibleManager {
             }
             int buildHeight = level.getMaxBuildHeight();
             int buildFloor = level.getMinBuildHeight();
-            if ((entityPos1.y > buildHeight && entityPos2.y > buildHeight) || (entityPos1.y < buildFloor && entityPos2.y < buildFloor)) {
+            if ((entityPos1.y > buildHeight && entityPos2.y > buildHeight)
+                    || (entityPos1.y < buildFloor && entityPos2.y < buildFloor)) {
                 update(server, level, true);
                 return;
             }
-            while (progress < 1 && BLOCKS_CHECKED < maxBlocks) {
-                progress += 1 / length; // TODO calculate next progress value
-                Vec3 next = entityPos1.add(dir.scale(length * progress));
+            while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks) {
+                ++spreadIndex;
+                Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
                 if (next.y > buildHeight) {
                     if (dir.y >= 0) {
-                        progress = 1;
+                        spreadIndex = spreads.length-1;
                         break;
                     } continue;
                 } else if (next.y < buildFloor) {
                     if (dir.y <= 0) {
-                        progress = 1;
+                        spreadIndex = spreads.length-1;
                         break;
                     } continue;
                 }
@@ -172,7 +175,7 @@ public class DistantVisibleManager {
                     break;
                 }
             }
-            if (progress >= 1) update(server, level, true);
+            if (spreadIndex == spreads.length-1) update(server, level, true);
         }
         private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
                                 @NotNull VisibleRequestData requestData) {
@@ -201,7 +204,9 @@ public class DistantVisibleManager {
             diff = entityPos2.subtract(entityPos1);
             dir = diff.normalize();
             length = (float) diff.length();
-            // TODO based on distance, determine which blocks need to be checked (lower LOD in the middle)
+            spreads = UtilGeometry.generateSpread(length, 1, 16,
+                    UtilGeometry.SpreadMode.BOTH, 1);
+            System.out.println("LENGTH = "+length+" SPREADS = "+ Arrays.toString(spreads));
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
@@ -236,7 +241,7 @@ public class DistantVisibleManager {
             VisibleUpdateEvent event = new VisibleUpdateEvent(this, server, level, entity1, entity2, result);
             updateRequestStates(event, server.getTickCount());
             // reset for next ray cast compute
-            this.progress = 0;
+            this.spreadIndex = 0;
             this.blocksChecked = 0;
             this.prevUpdateTime = server.getTickCount();
         }
@@ -285,9 +290,6 @@ public class DistantVisibleManager {
         }
         public @NotNull VisibleTestResult getResult() {
             return result;
-        }
-        public float getProgress() {
-            return progress;
         }
         public int getBlocksChecked() {
             return blocksChecked;

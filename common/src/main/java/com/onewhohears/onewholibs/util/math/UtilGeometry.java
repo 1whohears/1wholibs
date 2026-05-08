@@ -498,4 +498,47 @@ public class UtilGeometry {
         return new BlockPos((int) Math.floor(vec.x), (int) Math.floor(vec.y), (int) Math.floor(vec.z));
     }
 
+	public enum SpreadMode {
+		EQUAL,
+		FRONT,
+		BACK,
+		BOTH
+	}
+
+	public static float[] generateSpread(float length, float minSpread,
+			float maxSpread, SpreadMode mode, float spreadFactor) {
+		// TODO BOTH mode doesn't work. maybe make all the points without minSpread/maxSpread and then remove
+		if (length <= 0) return new float[0];
+		int maxPoints = Math.max(2, (int)(length / minSpread) + 2);
+		float[] weights = new float[maxPoints];
+		for (int i = 0; i < maxPoints; i++) {
+			float t = i / (float)(maxPoints - 1);
+			float curve = switch (mode) {
+                case FRONT -> (float) Math.pow(t, spreadFactor);
+                case BACK -> (float) Math.pow(1f - t, spreadFactor);
+                case BOTH -> {
+                    float centered = Math.abs(t - 0.5f) * 2f;
+                    yield (float) Math.pow(1f - centered, spreadFactor);
+                }
+                default -> 0f;
+            };
+            weights[i] = minSpread + (maxSpread - minSpread) * curve;
+		}
+		float[] temp = new float[maxPoints];
+		float pos = 0f;
+		int count = 0;
+		for (int i = 0; i < maxPoints; i++) {
+			if (pos > length) break;
+			temp[count++] = pos;
+			pos += weights[i];
+		}
+		if (count < 2) return new float[]{0f, length};
+		float scale = length / temp[count - 1];
+		float[] result = new float[count];
+		for (int i = 0; i < count; i++) {
+			result[i] = temp[i] * scale;
+		}
+		return result;
+	}
+
 }
