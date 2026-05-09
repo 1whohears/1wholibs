@@ -4,22 +4,20 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.onewhohears.onewholibs.common.command.CanSeeCommand;
 import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
-import com.onewhohears.onewholibs.common.core.DistantRayCastManager;
-import com.onewhohears.onewholibs.common.core.DistantVisibleManager;
-import com.onewhohears.onewholibs.common.core.FutureRunManager;
-import com.onewhohears.onewholibs.common.core.SimulatedEntityManager;
+import com.onewhohears.onewholibs.common.core.*;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresets;
 import com.onewhohears.onewholibs.util.UtilSync;
-import dev.architectury.event.events.common.CommandRegistrationEvent;
-import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.event.events.common.PlayerEvent;
-import dev.architectury.event.events.common.TickEvent;
+import dev.architectury.event.events.common.*;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +33,26 @@ public class OWLCommonEventHandlers {
         TickEvent.SERVER_POST.register(OWLCommonEventHandlers::onServerTickPost);
         LifecycleEvent.SERVER_STARTING.register(OWLCommonEventHandlers::onServerStarting);
         LifecycleEvent.SERVER_STOPPING.register(OWLCommonEventHandlers::onServerStopping);
+        ChunkEvent.LOAD_DATA.register(OWLCommonEventHandlers::onChunkLoad);
+        LifecycleEvent.SERVER_LEVEL_LOAD.register(OWLCommonEventHandlers::onServerLevelLoad);
+        LifecycleEvent.SERVER_LEVEL_SAVE.register(OWLCommonEventHandlers::onServerLevelSave);
+        LifecycleEvent.SERVER_LEVEL_UNLOAD.register(OWLCommonEventHandlers::onServerLevelUnload);
+    }
+
+    private static void onServerLevelSave(ServerLevel level) {
+        HeightMapManager.save(level);
+    }
+
+    private static void onServerLevelLoad(ServerLevel level) {
+        HeightMapManager.load(level);
+    }
+
+    private static void onServerLevelUnload(ServerLevel level) {
+        HeightMapManager.unload(level);
+    }
+
+    private static void onChunkLoad(ChunkAccess chunk, @Nullable ServerLevel level, CompoundTag nbt) {
+        HeightMapManager.onChunkLoad(chunk, level);
     }
 
     private static void onServerStopping(MinecraftServer server) {

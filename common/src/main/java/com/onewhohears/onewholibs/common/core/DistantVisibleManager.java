@@ -83,6 +83,9 @@ public class DistantVisibleManager {
         long total = 0;
         for (Long time : TICK_TIMES) total += time;
         TICK_TIME_AVG = total / TICK_TIMES.size();
+        if (TICK_TIME_AVG > 0 && server.getTickCount() % 20 == 0) {
+            LOGGER.warn("Distant Raycasts are taking {} milliseconds to compute.", TICK_TIME_AVG);
+        }
     }
 
     public static int getMaxBlocksPerTick() {
@@ -160,7 +163,10 @@ public class DistantVisibleManager {
                 BlockPos nextBlock = UtilGeometry.toBlockPos(next);
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
-                    // TODO use a cached low level of detail height map system to determine if obstructed
+                    if (HeightMapManager.isCrossed(levelId, next, dir.y <= 0)) {
+                        update(server, level, false);
+                        break;
+                    }
                     continue;
                     // TODO it seems grabbing block states in unloaded chunks is extremely expensive.
                     //  grabbing block states in loaded chunks seems to be so fast that counting them is pointless.
