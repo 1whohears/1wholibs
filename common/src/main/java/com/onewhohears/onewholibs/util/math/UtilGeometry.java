@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -505,40 +506,111 @@ public class UtilGeometry {
 		BOTH
 	}
 
-	public static float[] generateSpread(float length, float minSpread,
-			float maxSpread, SpreadMode mode, float spreadFactor) {
-		// TODO BOTH mode doesn't work. maybe make all the points without minSpread/maxSpread and then remove
+	public static float[] generateSpread(float length, float minSpread, float maxSpread,
+										 SpreadMode mode, float spreadFactor, float spreadGrowthSmooth) {
 		if (length <= 0) return new float[0];
-		int maxPoints = Math.max(2, (int)(length / minSpread) + 2);
-		float[] weights = new float[maxPoints];
-		for (int i = 0; i < maxPoints; i++) {
-			float t = i / (float)(maxPoints - 1);
-			float curve = switch (mode) {
-                case FRONT -> (float) Math.pow(t, spreadFactor);
-                case BACK -> (float) Math.pow(1f - t, spreadFactor);
-                case BOTH -> {
-                    float centered = Math.abs(t - 0.5f) * 2f;
-                    yield (float) Math.pow(1f - centered, spreadFactor);
-                }
-                default -> 0f;
-            };
-            weights[i] = minSpread + (maxSpread - minSpread) * curve;
+        return switch (mode) {
+            case BOTH -> generateBoth(length, minSpread, maxSpread, spreadFactor, spreadGrowthSmooth);
+            case FRONT -> generateFront(length, minSpread, maxSpread, spreadFactor, spreadGrowthSmooth);
+            case BACK -> generateBack(length, minSpread, maxSpread, spreadFactor, spreadGrowthSmooth);
+            default -> generateEqual(length, minSpread);
+        };
+	}
+
+	private static float[] generateBoth(float length, float minSpread, float maxSpread,
+										float spreadFactor, float spreadGrowthSmooth) {
+		if (length <= 0) return new float[]{0f};
+		List<Float> left = new ArrayList<>();
+		List<Float> right = new ArrayList<>();
+		float l = 0f;
+		float r = length;
+		left.add(l);
+		right.add(r);
+		int step = 0;
+		while (true) {
+			float t = step / spreadGrowthSmooth;
+			float curve = (float)Math.pow(t, spreadFactor);
+			float spacing = minSpread + (maxSpread - minSpread) * curve;
+			spacing = Math.max(minSpread, Math.min(maxSpread, spacing));
+			float nextL = l + spacing;
+			float nextR = r - spacing;
+			if (nextL + minSpread > nextR) {
+				break;
+			}
+			left.add(nextL);
+			right.add(nextR);
+			l = nextL;
+			r = nextR;
+			step++;
 		}
-		float[] temp = new float[maxPoints];
-		float pos = 0f;
-		int count = 0;
-		for (int i = 0; i < maxPoints; i++) {
-			if (pos > length) break;
-			temp[count++] = pos;
-			pos += weights[i];
+		if (r - l >= minSpread) {
+			float mid = (l + r) * 0.5f;
+			left.add(mid);
 		}
-		if (count < 2) return new float[]{0f, length};
-		float scale = length / temp[count - 1];
-		float[] result = new float[count];
-		for (int i = 0; i < count; i++) {
-			result[i] = temp[i] * scale;
+		float[] result = new float[left.size() + right.size()];
+		int idx = 0;
+		for (float v : left) result[idx++] = v;
+		for (int i = right.size() - 1; i >= 0; i--) {
+			result[idx++] = right.get(i);
 		}
 		return result;
+	}
+
+	private static float[] generateFront(float length, float minSpread, float maxSpread,
+										 float spreadFactor, float spreadGrowthSmooth) {
+		List<Float> points = new ArrayList<>();
+		float pos = 0f;
+		int step = 0;
+		points.add(pos);
+		while (true) {
+			float t = step / spreadGrowthSmooth;
+			float curve = (float)Math.pow(t, spreadFactor);
+			float spacing = minSpread + (maxSpread - minSpread) * curve;
+			spacing = Math.max(minSpread, Math.min(maxSpread, spacing));
+			float next = pos + spacing;
+			if (length - pos < minSpread) {
+				break;
+			}
+			if (next > length) {
+				break;
+			}
+			points.add(next);
+			pos = next;
+			step++;
+		}
+		if (length - pos >= minSpread) {
+			points.add(length);
+		}
+		return toArray(points);
+	}
+
+	private static float[] generateBack(float length, float minSpread, float maxSpread,
+										float spreadFactor, float spreadGrowthSmooth) {
+		float[] forward = generateFront(length, minSpread, maxSpread, spreadFactor, spreadGrowthSmooth);
+		for (int i = 0; i < forward.length; i++) {
+			forward[i] = length - forward[i];
+		}
+		Arrays.sort(forward);
+		return forward;
+	}
+
+	private static float[] generateEqual(float length, float spacing) {
+		List<Float> points = new ArrayList<>();
+		float pos = 0f;
+		while (pos < length) {
+			points.add(pos);
+			pos += spacing;
+		}
+		points.add(length);
+		return toArray(points);
+	}
+
+	private static float[] toArray(List<Float> list) {
+		float[] arr = new float[list.size()];
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = list.get(i);
+		}
+		return arr;
 	}
 
 }

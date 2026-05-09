@@ -107,16 +107,15 @@ public class DistantVisibleManager {
         private @NotNull VisibleTestResult result = VisibleTestResult.NONE;
         private Vec3 entityPos1, entityPos2, diff, dir;
         private float length;
-        private int spreadIndex = 0;
+        private int spreadIndex = -1;
         private float[] spreads;
-        private int blocksChecked = 0;
         private int fastestRequestUpdateRate = -1;
         private int prevUpdateTime = -1000;
         private void tick(@NotNull MinecraftServer server, int maxBlocks) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(server);
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
-            if (spreadIndex == 0 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
+            if (spreadIndex == -1 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
                 return;
             }
             ServerLevel level = getLevel(server);
@@ -124,7 +123,7 @@ public class DistantVisibleManager {
                 setFailed(VisibleTestResult.FAILED_INVALID_LEVEL_ID, server);
                 return;
             }
-            if (spreadIndex == 0) {
+            if (spreadIndex == -1) {
                 Entity entity1 = level.getEntity(entityId1);
                 if (entity1 == null) {
                     setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server);
@@ -205,8 +204,8 @@ public class DistantVisibleManager {
             dir = diff.normalize();
             length = (float) diff.length();
             spreads = UtilGeometry.generateSpread(length, 1, 16,
-                    UtilGeometry.SpreadMode.BOTH, 1);
-            System.out.println("LENGTH = "+length+" SPREADS = "+ Arrays.toString(spreads));
+                    UtilGeometry.SpreadMode.BOTH, 2, 500);
+            //System.out.println("LENGTH = "+length+" SPREADS "+spreads.length+" = "+ Arrays.toString(spreads));
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
@@ -241,8 +240,7 @@ public class DistantVisibleManager {
             VisibleUpdateEvent event = new VisibleUpdateEvent(this, server, level, entity1, entity2, result);
             updateRequestStates(event, server.getTickCount());
             // reset for next ray cast compute
-            this.spreadIndex = 0;
-            this.blocksChecked = 0;
+            this.spreadIndex = -1;
             this.prevUpdateTime = server.getTickCount();
         }
         private void setFailed(VisibleTestResult result, @NotNull MinecraftServer server) {
@@ -290,9 +288,6 @@ public class DistantVisibleManager {
         }
         public @NotNull VisibleTestResult getResult() {
             return result;
-        }
-        public int getBlocksChecked() {
-            return blocksChecked;
         }
     }
 
