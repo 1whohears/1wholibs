@@ -15,10 +15,14 @@ public class CustomGameRules {
 
     //public static GameRules.Key<GameRules.BooleanValue> TEST_BOOL;
     public static GameRules.Key<GameRules.IntegerValue> TEST_ENTITY_SPEED;
+    public static GameRules.Key<GameRules.IntegerValue> MAX_RAYCAST_BLOCK_CHECKS;
+    public static GameRules.Key<GameRules.IntegerValue> MAX_RAYCAST_HEIGHT_MAP_CHECKS;
 
     public static void register() {
         //TEST_BOOL = registerBoolean("onewholibs:test_bool", false);
         TEST_ENTITY_SPEED = registerInteger("onewholibs:test_entity_speed", 0, GameRules.Category.MISC);
+        MAX_RAYCAST_BLOCK_CHECKS = registerInteger("onewholibs:max_raycast_block_checks", 2048, GameRules.Category.MISC);
+        MAX_RAYCAST_HEIGHT_MAP_CHECKS = registerInteger("onewholibs:max_raycast_height_map_checks", 8192, GameRules.Category.MISC);
     }
 
     private static final List<GameRules.Key<GameRules.BooleanValue>> SYNC_BOOLS = new ArrayList<>();

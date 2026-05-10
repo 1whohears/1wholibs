@@ -31,7 +31,14 @@ public class CanSeeCommand {
                             }
                             Collection<? extends Entity> targets = EntityArgument.getEntities(ctx, "target_entities");
                             for (Entity target : targets) {
-                                DistantVisibleManager.queryVisible(ctx.getSource().getServer(), eye, target, CAN_SEE_TEST_DATA);
+                                try {
+                                    DistantVisibleManager.queryVisible(ctx.getSource().getServer(), eye, target, CAN_SEE_TEST_DATA);
+                                } catch (Exception e) {
+                                    ctx.getSource().sendFailure(UtilMCText.literal("Failed: "+e.getMessage())
+                                            .setStyle(RED));
+                                    e.printStackTrace();
+                                    return 0;
+                                }
                                 ctx.getSource().sendSuccess(() -> UtilMCText.literal(
                                                 "Querying if "+eye.getScoreboardName()+" can see "
                                                         +target.getScoreboardName()+". Check Console for Result.")

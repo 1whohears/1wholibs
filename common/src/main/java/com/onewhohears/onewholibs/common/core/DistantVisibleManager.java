@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.common.core;
 
 import com.mojang.logging.LogUtils;
+import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.util.UtilEntity;
 import com.onewhohears.onewholibs.util.UtilMCText;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
@@ -23,7 +24,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -36,11 +39,13 @@ public class DistantVisibleManager {
     public static final int CAN_SEE_COMMAND_TYPE = 0x1010;
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final IntObjectMap<VisibleData> VISIBLES = new IntObjectHashMap<>();
+    private static final List<VisibleData> VISIBLES = new ArrayList<>();
+    private static final Set<Integer> FOR_REMOVAL = new HashSet<>();
 
     private static int ID_COUNTER = 0;
     private static int BLOCKS_CHECKED = 0;
     private static int HEIGHT_MAP_CHECKS = 0;
+    private static int VISIBLE_CHECKED_INDEX = 0;
 
     private static final List<Long> TICK_TIMES = new ArrayList<>();
     private static final int TICK_TIMES_LENGTH = 200;
@@ -51,7 +56,7 @@ public class DistantVisibleManager {
                                     @NotNull VisibleRequestData requestData) {
         VisibleData visibleData = null;
         boolean flipEntites = false;
-        for (VisibleData data : VISIBLES.values()) {
+        for (VisibleData data : VISIBLES) {
             if (data.entityId1 == entity1.getId() && data.entityId2 == entity2.getId()) {
                 visibleData = data;
                 break;
@@ -63,7 +68,7 @@ public class DistantVisibleManager {
         }
         if (visibleData == null) {
             visibleData = new VisibleData(entity1, entity2);
-            VISIBLES.put(visibleData.id, visibleData);
+            VISIBLES.add(visibleData);
         }
         visibleData.addRequest(server, flipEntites, requestData);
     }
@@ -71,15 +76,26 @@ public class DistantVisibleManager {
     public static void onServerTick(@NotNull MinecraftServer server) {
         long startTime = System.currentTimeMillis();
 
-        int maxBlocks = getMaxBlocksPerTick();
-        int maxMaps = getMaxHeightMapChecksPerTick();
+        int maxBlocks = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_BLOCK_CHECKS);
+        int maxMaps = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_HEIGHT_MAP_CHECKS);
         BLOCKS_CHECKED = 0;
         HEIGHT_MAP_CHECKS = 0;
-        for (VisibleData visible : VISIBLES.values()) {
+        FOR_REMOVAL.clear();
+        if (VISIBLE_CHECKED_INDEX < 0) VISIBLE_CHECKED_INDEX = 0;
+        int k = 0, size = VISIBLES.size();
+        while (k++ < VISIBLES.size()) {
+            int index = VISIBLE_CHECKED_INDEX;
+            if (index >= size) index = 0;
+            VisibleData visible = VISIBLES.get(index);
             visible.tick(server, maxBlocks, maxMaps);
+            if (visible.isForRemoval()) FOR_REMOVAL.add(index);
             if (BLOCKS_CHECKED >= maxBlocks || HEIGHT_MAP_CHECKS >= maxMaps) break;
+            VISIBLE_CHECKED_INDEX = index + 1;
         }
-        removeFailedVisibles();
+        FOR_REMOVAL.forEach(id -> {
+            if (VISIBLE_CHECKED_INDEX >= id) VISIBLE_CHECKED_INDEX--;
+            VISIBLES.remove(id);
+        });
 
         long endTime = System.currentTimeMillis();
         TICK_TIMES.add(0, endTime - startTime);
@@ -88,24 +104,22 @@ public class DistantVisibleManager {
         for (Long time : TICK_TIMES) total += time;
         TICK_TIME_AVG = total / TICK_TIMES.size();
         if (TICK_TIME_AVG > 0 && server.getTickCount() % 20 == 0) {
-            LOGGER.warn("Distant Raycasts are taking {} milliseconds to compute.", TICK_TIME_AVG);
+            LOGGER.warn("Distant Raycasts {} are taking {} milliseconds to compute.", VISIBLES.size(), TICK_TIME_AVG);
         }
-    }
-
-    public static int getMaxBlocksPerTick() {
-        return 1000; // TODO make getMaxBlocksPerTick configurable
-    }
-
-    public static int getMaxHeightMapChecksPerTick() {
-        return 4000; // TODO make getMaxHeightMapChecksPerTick configurable
     }
 
     public static void onServerStart(@NotNull MinecraftServer server) {
         VISIBLES.clear();
     }
 
-    private static void removeFailedVisibles() {
-        VISIBLES.entrySet().removeIf(entry -> entry.getValue().isForRemoval());
+    @Nullable
+    public static VisibleData getById(int id) {
+        for (VisibleData visibleData : VISIBLES) {
+            if (visibleData.id == id) {
+                return visibleData;
+            }
+        }
+        return null;
     }
 
     public static class VisibleData {
