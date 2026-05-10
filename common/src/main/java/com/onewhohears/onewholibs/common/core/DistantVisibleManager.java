@@ -23,11 +23,12 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
+ * This system does the ray casting entirely on the server side.
+ * Blocks in unloaded chunks are checked via a cached low resolution height map via {@link HeightMapManager}.
  * @author 1whohears
  */
 public class DistantVisibleManager {
@@ -39,6 +40,7 @@ public class DistantVisibleManager {
 
     private static int ID_COUNTER = 0;
     private static int BLOCKS_CHECKED = 0;
+    private static int HEIGHT_MAP_CHECKS = 0;
 
     private static final List<Long> TICK_TIMES = new ArrayList<>();
     private static final int TICK_TIMES_LENGTH = 200;
@@ -69,11 +71,13 @@ public class DistantVisibleManager {
     public static void onServerTick(@NotNull MinecraftServer server) {
         long startTime = System.currentTimeMillis();
 
-        int max = getMaxBlocksPerTick();
+        int maxBlocks = getMaxBlocksPerTick();
+        int maxMaps = getMaxHeightMapChecksPerTick();
         BLOCKS_CHECKED = 0;
+        HEIGHT_MAP_CHECKS = 0;
         for (VisibleData visible : VISIBLES.values()) {
-            visible.tick(server, max);
-            if (BLOCKS_CHECKED >= max) break;
+            visible.tick(server, maxBlocks, maxMaps);
+            if (BLOCKS_CHECKED >= maxBlocks || HEIGHT_MAP_CHECKS >= maxMaps) break;
         }
         removeFailedVisibles();
 
@@ -90,6 +94,10 @@ public class DistantVisibleManager {
 
     public static int getMaxBlocksPerTick() {
         return 1000; // TODO make getMaxBlocksPerTick configurable
+    }
+
+    public static int getMaxHeightMapChecksPerTick() {
+        return 4000; // TODO make getMaxHeightMapChecksPerTick configurable
     }
 
     public static void onServerStart(@NotNull MinecraftServer server) {
@@ -114,7 +122,7 @@ public class DistantVisibleManager {
         private float[] spreads;
         private int fastestRequestUpdateRate = -1;
         private int prevUpdateTime = -1000;
-        private void tick(@NotNull MinecraftServer server, int maxBlocks) {
+        private void tick(@NotNull MinecraftServer server, int maxBlocks, int maxMaps) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(server);
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
@@ -146,7 +154,7 @@ public class DistantVisibleManager {
                 update(server, level, true);
                 return;
             }
-            while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks) {
+            while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
                 ++spreadIndex;
                 Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
                 if (next.y > buildHeight) {
@@ -163,16 +171,14 @@ public class DistantVisibleManager {
                 BlockPos nextBlock = UtilGeometry.toBlockPos(next);
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
+                    ++HEIGHT_MAP_CHECKS;
                     if (HeightMapManager.isCrossed(levelId, next, dir.y <= 0)) {
                         update(server, level, false);
                         break;
                     }
                     continue;
-                    // TODO it seems grabbing block states in unloaded chunks is extremely expensive.
-                    //  grabbing block states in loaded chunks seems to be so fast that counting them is pointless.
-                    //  will need to test further.
                 }
-                BlockState state = level.getBlockState(nextBlock);
+                BlockState state = level.getBlockState(nextBlock); // TODO how expensive is this actually?
                 ++BLOCKS_CHECKED;
                 boolean obstructed = UtilEntity.blocksMotion(state);
                 if (obstructed) {
