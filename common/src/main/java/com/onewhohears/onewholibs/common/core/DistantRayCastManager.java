@@ -15,8 +15,10 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * This was a cool experiment, but it was poorly designed. Need to try again.
- * See {@link DistantVisibleManager}
+ * This was a cool experiment, but it was not designed very well.
+ * It turns out server side ray casting of blocks in chunks that are loaded, is not that expensive.
+ * This system has now been completely disabled, and will be removed in the future.
+ * See {@link DistantVisibleManager} for a better system.
  * @author 1whohears
  */
 @Deprecated()
@@ -30,7 +32,8 @@ public class DistantRayCastManager {
     public static void distantRayCast(@NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,
                                       @NotNull RayCastComplete onComplete, int onCompleteId,
                                       long timeoutTime, long rayCastLifeTime, double throWater, double throBlock) {
-        RayCastData data = getRayCastWithEntities(eyeEntity, targetEntity);
+        return;
+        /*RayCastData data = getRayCastWithEntities(eyeEntity, targetEntity);
         if (data != null) {
             data.onCompleteMap.put(onCompleteId, onComplete);
             data.sendPayloads();
@@ -40,7 +43,7 @@ public class DistantRayCastManager {
         data = new RayCastData(++RAY_CAST_ID_COUNTER, level, eyeEntity, targetEntity,
                 createdTime, timeoutTime, rayCastLifeTime, throWater, throBlock, onComplete, onCompleteId);
         RAY_CASTS.put(data.rayCastId, data);
-        data.sendPayloads();
+        data.sendPayloads();*/
     }
 
     public static void distantRayCast(@NotNull ServerLevel level, @NotNull Entity eyeEntity, @NotNull Entity targetEntity,

@@ -21,7 +21,8 @@ public class DistantRayCastManagerClient {
     public static void handleS2CRayCast(int rayCastId, RayCastPerspective perspective,
                                         int perspectiveEntityId, Vec3 targetPos,
                                         double throWater, double throBlock) {
-        Minecraft m = Minecraft.getInstance();
+        return;
+        /*Minecraft m = Minecraft.getInstance();
         ClientLevel level = m.level;
         if (level == null) return;
         Entity entity = level.getEntity(perspectiveEntityId);
@@ -40,7 +41,7 @@ public class DistantRayCastManagerClient {
                 result = false;
             }
         }
-        sendRayCastResult(rayCastId, perspective, result);
+        sendRayCastResult(rayCastId, perspective, result);*/
     }
 
     public static void sendRayCastResult(int rayCastId, RayCastPerspective perspective, boolean result) {
