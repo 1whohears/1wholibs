@@ -117,14 +117,14 @@ public class HeightMapManager {
                 e.printStackTrace();
             }
         }
-        LOGGER.info("{} HEIGHT MAP SIZE AFTER LOAD = {}", drl, map.size());
+        LOGGER.info("{} HEIGHT MAP CHUNKS AFTER LOAD = {}", drl, map.size());
     }
 
     private static void saveRegion(Path file, Map<Long, short[]> chunkMap) throws IOException {
         Path p = Path.of(file.toString()).getParent().normalize();
         new File(p.toUri()).mkdirs();
         try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(file)))) {
-            out.writeInt(1);
+            out.writeInt(RESOLUTION);
             out.writeInt(chunkMap.size());
             for (Map.Entry<Long, short[]> entry : chunkMap.entrySet()) {
                 out.writeLong(entry.getKey());
@@ -140,7 +140,13 @@ public class HeightMapManager {
         if (!Files.exists(file)) return;
         int res2 = RESOLUTION * RESOLUTION;
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(Files.newInputStream(file)))) {
-            int version = in.readInt();
+            int fileResolution = in.readInt();
+            if (fileResolution != RESOLUTION) {
+                in.close();
+                LOGGER.error("Height Map File {} Resolution mismatch. File = {}, Expected = {}. Canceling Read.",
+                        file.getFileName(), fileResolution, RESOLUTION);
+                return;
+            }
             int count = in.readInt();
             for (int i = 0; i < count; i++) {
                 long chunkPos = in.readLong();
