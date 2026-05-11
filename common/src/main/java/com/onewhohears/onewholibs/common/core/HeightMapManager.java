@@ -4,12 +4,14 @@ import com.mojang.logging.LogUtils;
 import com.onewhohears.onewholibs.util.UtilFile;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -53,6 +55,39 @@ public class HeightMapManager {
         return (goingDown && position.y <= height) || (!goingDown && position.y > height);
     }
 
+    public static int massHeightMapLoadWB(@NotNull ServerLevel level) {
+        WorldBorder border = level.getWorldBorder();
+        if (border.getSize() >= border.getAbsoluteMaxSize()) return -1;
+        return massHeightMapLoad(level, border.getCenterX(), border.getCenterZ(), border.getSize());
+    }
+
+    public static int massHeightMapLoad(@NotNull ServerLevel level, double centerX, double centerZ, double diameter) {
+        double radius = diameter / 2;
+        int minX = SectionPos.blockToSectionCoord(centerX - radius);
+        int minZ = SectionPos.blockToSectionCoord(centerZ - radius);
+        int maxX = SectionPos.blockToSectionCoord(minX + diameter);
+        int maxZ = SectionPos.blockToSectionCoord(minZ + diameter);
+        int k = 0;
+        MinecraftServer server = level.getServer();
+        Map<Long, short[]> map = HEIGHT_MAP.computeIfAbsent(level.dimension(), l -> new HashMap<>());
+        for (int x = minX; x <= maxX; ++x) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                long chunkPos = ChunkPos.asLong(x, z);
+                if (map.containsKey(chunkPos)) continue;
+                final int cx = x, cz = z;
+                FutureRunManager.addTimedFutureRunnable(server, k, srv -> {
+                    onChunkLoad(level.getChunk(cx, cz), level);
+                    if (cx == maxX && cx == maxZ) {
+                        LOGGER.info("FINISHED HEIGHT MAP GEN");
+                    }
+                });
+                k++;
+            }
+        }
+        LOGGER.info("GENERATING HEIGHT MAP FOR {} NEW CHUNKS. ETA {} MINUTES", k, k/20/60);
+        return k;
+    }
+
     public static void onChunkLoad(@NotNull ChunkAccess chunk, @Nullable ServerLevel level) {
         if (level == null) return;
         Map<Long, short[]> map = HEIGHT_MAP.computeIfAbsent(level.dimension(), k -> new HashMap<>());
@@ -64,7 +99,7 @@ public class HeightMapManager {
             }
         }
         map.put(chunk.getPos().toLong(), heights);
-        if (map.size() % 1000 == 0) LOGGER.info("height map size {}", map.size());
+        if (map.size() % 1000 == 0) LOGGER.info("HEIGHT MAP SIZE {}", map.size());
     }
 
     public static void save(@NotNull ServerLevel level) {

@@ -1,7 +1,7 @@
 package com.onewhohears.onewholibs.common.event;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.onewhohears.onewholibs.common.command.CanSeeCommand;
+import com.onewhohears.onewholibs.common.command.VisibleCommands;
 import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
 import com.onewhohears.onewholibs.common.core.*;
@@ -94,7 +94,7 @@ public class OWLCommonEventHandlers {
                                         Commands.CommandSelection selection) {
         new TestPresetCommand(dispatcher);
         new TestIngredientStackCommand(dispatcher, context);
-        new CanSeeCommand((dispatcher));
+        new VisibleCommands((dispatcher));
     }
 
 }

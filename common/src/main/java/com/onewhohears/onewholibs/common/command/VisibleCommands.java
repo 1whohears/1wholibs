@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.onewhohears.onewholibs.common.core.DistantVisibleManager;
+import com.onewhohears.onewholibs.common.core.HeightMapManager;
 import com.onewhohears.onewholibs.util.UtilMCText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,11 +16,25 @@ import java.util.Collection;
 import static com.onewhohears.onewholibs.common.core.DistantVisibleManager.CAN_SEE_TEST_DATA;
 import static com.onewhohears.onewholibs.common.core.DistantVisibleManager.RED;
 
-public class CanSeeCommand {
+public class VisibleCommands {
 
     public static final Style YELLOW = Style.EMPTY.withColor(ChatFormatting.YELLOW);
 
-    public CanSeeCommand(CommandDispatcher<CommandSourceStack> d) {
+    public VisibleCommands(CommandDispatcher<CommandSourceStack> d) {
+        d.register(Commands.literal("gen_lod_height_map").requires((stack) -> stack.hasPermission(2))
+                .executes(ctx -> {
+                    int k = HeightMapManager.massHeightMapLoadWB(ctx.getSource().getLevel());
+                    if (k != -1) {
+                        ctx.getSource().sendSuccess(() -> UtilMCText.literal("Started generating a height map " +
+                                        "in the world border! Reading "+k+" chunks! ETA: "+k/20/60+" minutes")
+                                .setStyle(YELLOW), true);
+                        return 1;
+                    }
+                    ctx.getSource().sendFailure(UtilMCText.literal("Can't generate a height map " +
+                                    "in the default world border.").setStyle(RED));
+                    return 0;
+                })
+        );
         d.register(Commands.literal("can_see").requires((stack) -> stack.hasPermission(2))
                 .then(Commands.argument("target_entities", EntityArgument.entities())
                         .executes(ctx -> {
