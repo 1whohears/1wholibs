@@ -27,7 +27,7 @@ public class UtilEntityImpl {
     }
 
     public static void revive(Entity entity) {
-        entity.unsetRemoved(); // FIXME IDK if this revive will work on fabric
+        entity.unsetRemoved();
     }
 
 }
