@@ -30,6 +30,7 @@ public class HeightMapManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final int VERSION = 4;
     private static final int RESOLUTION = 4;
 
     /**
@@ -40,6 +41,23 @@ public class HeightMapManager {
     public static boolean isCrossed(ResourceKey<Level> dimension, Vec3 position, boolean goingDown) {
         short height = getHeight(dimension, position);
         return (goingDown && position.y <= height) || (!goingDown && position.y > height);
+    }
+
+    public static short getHeight(@NotNull ResourceKey<Level> dimension, @NotNull Vec3 pos) {
+        Map<Long,short[]> map = HEIGHT_MAP.get(dimension);
+        if (map == null) return -64;
+        BlockPos blockPos = UtilGeometry.toBlockPos(pos);
+        ChunkPos chunkPos = new ChunkPos(blockPos);
+        long chunkId = chunkPos.toLong();
+        short[] heights = map.get(chunkId);
+        if (heights == null) return -64;
+        int minX = chunkPos.getMinBlockX();
+        int minZ = chunkPos.getMinBlockZ();
+        int relX = blockPos.getX() - minX;
+        int relZ = blockPos.getZ() - minZ;
+        int x = relX / RESOLUTION;
+        int z = relZ / RESOLUTION;
+        return heights[x * z];
     }
 
     public static int massHeightMapLoadWB(@NotNull ServerLevel level) {
@@ -83,27 +101,11 @@ public class HeightMapManager {
             for (int z = 0; z < RESOLUTION; ++z) {
                 heights[x * z] = (short) chunk.getHeight(Heightmap.Types.MOTION_BLOCKING,
                         x * RESOLUTION, z * RESOLUTION);
+                // TODO instead of only saving the max height, need to save the gaps of air between.
             }
         }
         map.put(chunk.getPos().toLong(), heights);
         if (map.size() % 1000 == 0) LOGGER.info("HEIGHT MAP SIZE {}", map.size());
-    }
-
-    public static short getHeight(@NotNull ResourceKey<Level> dimension, @NotNull Vec3 pos) {
-        Map<Long,short[]> map = HEIGHT_MAP.get(dimension);
-        if (map == null) return -64;
-        BlockPos blockPos = UtilGeometry.toBlockPos(pos);
-        ChunkPos chunkPos = new ChunkPos(blockPos);
-        long chunkId = chunkPos.toLong();
-        short[] heights = map.get(chunkId);
-        if (heights == null) return -64;
-        int minX = chunkPos.getMinBlockX();
-        int minZ = chunkPos.getMinBlockZ();
-        int relX = blockPos.getX() - minX;
-        int relZ = blockPos.getZ() - minZ;
-        int x = relX / RESOLUTION;
-        int z = relZ / RESOLUTION;
-        return heights[x * z];
     }
 
     public static void save(@NotNull ServerLevel level) {
@@ -163,7 +165,7 @@ public class HeightMapManager {
         Path p = Path.of(file.toString()).getParent().normalize();
         new File(p.toUri()).mkdirs();
         try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(file)))) {
-            out.writeInt(RESOLUTION);
+            out.writeInt(VERSION);
             out.writeInt(chunkMap.size());
             for (Map.Entry<Long, short[]> entry : chunkMap.entrySet()) {
                 out.writeLong(entry.getKey());
@@ -179,11 +181,11 @@ public class HeightMapManager {
         if (!Files.exists(file)) return;
         int res2 = RESOLUTION * RESOLUTION;
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(Files.newInputStream(file)))) {
-            int fileResolution = in.readInt();
-            if (fileResolution != RESOLUTION) {
+            int version = in.readInt();
+            if (version != VERSION) {
                 in.close();
-                LOGGER.error("Height Map File {} Resolution mismatch. File = {}, Expected = {}. Canceling Read.",
-                        file.getFileName(), fileResolution, RESOLUTION);
+                LOGGER.error("Height Map File {} Version mismatch. File = {}, Expected = {}. Canceling Read.",
+                        file.getFileName(), version, VERSION);
                 return;
             }
             int count = in.readInt();
