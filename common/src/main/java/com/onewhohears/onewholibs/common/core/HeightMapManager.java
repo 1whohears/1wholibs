@@ -38,9 +38,9 @@ public class HeightMapManager {
      */
     private static final Map<ResourceKey<Level>, Map<Long,short[]>> HEIGHT_MAP = new HashMap<>();
 
-    public static boolean isCrossed(ResourceKey<Level> dimension, Vec3 position, boolean goingDown) {
-        short height = getHeight(dimension, position);
-        return (goingDown && position.y <= height) || (!goingDown && position.y > height);
+    public static boolean isCrossed(ResourceKey<Level> dimension, Vec3 startPos, Vec3 endPos) {
+        short height = getHeight(dimension, endPos);
+        return (startPos.y > height && endPos.y <= height) || (startPos.y <= height && endPos.y > height);
     }
 
     public static short getHeight(@NotNull ResourceKey<Level> dimension, @NotNull Vec3 pos) {

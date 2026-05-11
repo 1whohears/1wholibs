@@ -181,7 +181,7 @@ public class DistantVisibleManager {
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
                     ++HEIGHT_MAP_CHECKS;
-                    if (HeightMapManager.isCrossed(levelId, next, dir.y <= 0)) {
+                    if (HeightMapManager.isCrossed(levelId, entityPos1, next)) {
                         update(server, level, false, false, next);
                         break;
                     }
