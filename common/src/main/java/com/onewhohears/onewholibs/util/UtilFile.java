@@ -103,7 +103,7 @@ public class UtilFile {
     public static Set<String> getFileNamesEndingWithInGamePath(String path, String suffix, MinecraftServer server) {
         Path gamePath = getWorldFolder(server);
         Path resolved = gamePath.resolve(path);
-        return getFileNamesEndingWithInAbsolutePath(resolved.toString(), suffix);
+        return getFileNamesEndingWithInAbsolutePath(resolved.toAbsolutePath().toString(), suffix);
     }
 
     public static Set<String> getFileNamesEndingWithInAbsolutePath(String path, String suffix) {
