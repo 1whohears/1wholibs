@@ -163,6 +163,7 @@ public class DistantVisibleManager {
                 update(server, level, true, false, entityPos2);
                 return;
             }
+            Vec3 prev = entityPos1;
             while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
                 ++spreadIndex;
                 Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
@@ -181,7 +182,7 @@ public class DistantVisibleManager {
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
                     ++HEIGHT_MAP_CHECKS;
-                    if (HeightMapManager.isCrossed(levelId, entityPos1, next)) {
+                    if (HeightMapManager.isCrossed(levelId, prev, next)) {
                         update(server, level, false, false, next);
                         break;
                     }
@@ -194,6 +195,7 @@ public class DistantVisibleManager {
                     update(server, level, false, true, next);
                     break;
                 }
+                prev = next;
             }
             if (spreadIndex == spreads.length-1) update(server, level, true, false, entityPos2);
         }
