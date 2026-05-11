@@ -21,8 +21,8 @@ public class CustomGameRules {
     public static void register() {
         //TEST_BOOL = registerBoolean("onewholibs:test_bool", false);
         TEST_ENTITY_SPEED = registerInteger("onewholibs:test_entity_speed", 0, GameRules.Category.MISC);
-        MAX_RAYCAST_BLOCK_CHECKS = registerInteger("onewholibs:max_raycast_block_checks", 2048, GameRules.Category.MISC);
-        MAX_RAYCAST_HEIGHT_MAP_CHECKS = registerInteger("onewholibs:max_raycast_height_map_checks", 8192, GameRules.Category.MISC);
+        MAX_RAYCAST_BLOCK_CHECKS = registerInteger("onewholibs:max_raycast_block_checks", 1024, GameRules.Category.MISC);
+        MAX_RAYCAST_HEIGHT_MAP_CHECKS = registerInteger("onewholibs:max_raycast_height_map_checks", 4096, GameRules.Category.MISC);
     }
 
     private static final List<GameRules.Key<GameRules.BooleanValue>> SYNC_BOOLS = new ArrayList<>();
