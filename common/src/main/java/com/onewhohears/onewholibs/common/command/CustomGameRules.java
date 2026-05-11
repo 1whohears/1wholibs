@@ -13,13 +13,13 @@ import java.util.function.BiConsumer;
  */
 public class CustomGameRules {
 
-    //public static GameRules.Key<GameRules.BooleanValue> TEST_BOOL;
+    public static GameRules.Key<GameRules.BooleanValue> RAYCAST_USE_HEIGHT_MAP;
     public static GameRules.Key<GameRules.IntegerValue> TEST_ENTITY_SPEED;
     public static GameRules.Key<GameRules.IntegerValue> MAX_RAYCAST_BLOCK_CHECKS;
     public static GameRules.Key<GameRules.IntegerValue> MAX_RAYCAST_HEIGHT_MAP_CHECKS;
 
     public static void register() {
-        //TEST_BOOL = registerBoolean("onewholibs:test_bool", false);
+        RAYCAST_USE_HEIGHT_MAP = registerBoolean("onewholibs:raycast_use_height_map", true);
         TEST_ENTITY_SPEED = registerInteger("onewholibs:test_entity_speed", 0, GameRules.Category.MISC);
         MAX_RAYCAST_BLOCK_CHECKS = registerInteger("onewholibs:max_raycast_block_checks", 1024, GameRules.Category.MISC);
         MAX_RAYCAST_HEIGHT_MAP_CHECKS = registerInteger("onewholibs:max_raycast_height_map_checks", 4096, GameRules.Category.MISC);

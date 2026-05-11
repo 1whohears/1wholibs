@@ -74,6 +74,7 @@ public class DistantVisibleManager {
     public static void onServerTick(@NotNull MinecraftServer server) {
         long startTime = System.nanoTime();
 
+        boolean useHeightMap = server.getGameRules().getBoolean(CustomGameRules.RAYCAST_USE_HEIGHT_MAP);
         int maxBlocks = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_BLOCK_CHECKS);
         int maxMaps = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_HEIGHT_MAP_CHECKS);
         BLOCKS_CHECKED = 0;
@@ -85,7 +86,7 @@ public class DistantVisibleManager {
             int index = VISIBLE_CHECKED_INDEX;
             if (index >= size) index = 0;
             VisibleData visible = VISIBLES.get(index);
-            visible.tick(server, maxBlocks, maxMaps);
+            visible.tick(server, maxBlocks, maxMaps, useHeightMap);
             if (visible.isForRemoval()) ++removed;
             if (BLOCKS_CHECKED >= maxBlocks || HEIGHT_MAP_CHECKS >= maxMaps) break;
             VISIBLE_CHECKED_INDEX = index + 1;
@@ -132,7 +133,7 @@ public class DistantVisibleManager {
         private float[] spreads;
         private int fastestRequestUpdateRate = -1;
         private int prevUpdateTime = -1000;
-        private void tick(@NotNull MinecraftServer server, int maxBlocks, int maxMaps) {
+        private void tick(@NotNull MinecraftServer server, int maxBlocks, int maxMaps, boolean checkHeightMap) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(server);
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
@@ -165,6 +166,7 @@ public class DistantVisibleManager {
                 return;
             }
             Vec3 prev = entityPos1;
+            //short prevHeight = HeightMapManager.getHeight(levelId, prev);
             while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
                 ++spreadIndex;
                 Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
@@ -182,10 +184,15 @@ public class DistantVisibleManager {
                 BlockPos nextBlock = UtilGeometry.toBlockPos(next);
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
-                    ++HEIGHT_MAP_CHECKS;
-                    if (HeightMapManager.isCrossed(levelId, prev, next)) {
-                        update(server, level, false, false, next);
-                        break;
+                    if (checkHeightMap) {
+                        ++HEIGHT_MAP_CHECKS;
+                        short height = HeightMapManager.getHeight(levelId, next);
+                        short prevHeight = HeightMapManager.getHeight(levelId, prev);
+                        if ((prev.y > prevHeight && next.y <= height) || (prev.y <= prevHeight && next.y > height)) {
+                            update(server, level, false, false, next);
+                            break;
+                        }
+                        //prevHeight = height;
                     }
                     continue;
                 }
@@ -364,8 +371,8 @@ public class DistantVisibleManager {
                             event.data.id, time, Math.ceil(TICK_TIME_AVG), event.entity1, event.entity2);
                     return;
                 }
-                LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {} | {}", event.result,
-                        event.data.id, time, Math.ceil(TICK_TIME_AVG), event.entity1, event.entity2);
+                LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {} | {} | {}", event.result,
+                        event.data.id, time, Math.ceil(TICK_TIME_AVG), event.approxObstructPos, event.entity1, event.entity2);
                 if (event.entity1 instanceof Player player && event.entity2 != null) {
                     Style style = event.result.passed ? GREEN : PURPLE;
                     player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "

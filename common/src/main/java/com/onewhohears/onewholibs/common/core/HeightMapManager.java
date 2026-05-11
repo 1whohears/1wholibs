@@ -38,19 +38,14 @@ public class HeightMapManager {
      */
     private static final Map<ResourceKey<Level>, Map<Long,short[]>> HEIGHT_MAP = new HashMap<>();
 
-    public static boolean isCrossed(ResourceKey<Level> dimension, Vec3 startPos, Vec3 endPos) {
-        short height = getHeight(dimension, endPos);
-        return (startPos.y > height && endPos.y <= height) || (startPos.y <= height && endPos.y > height);
-    }
-
     public static short getHeight(@NotNull ResourceKey<Level> dimension, @NotNull Vec3 pos) {
         Map<Long,short[]> map = HEIGHT_MAP.get(dimension);
-        if (map == null) return -64;
+        if (map == null) return Short.MIN_VALUE;
         BlockPos blockPos = UtilGeometry.toBlockPos(pos);
         ChunkPos chunkPos = new ChunkPos(blockPos);
         long chunkId = chunkPos.toLong();
         short[] heights = map.get(chunkId);
-        if (heights == null) return -64;
+        if (heights == null) return Short.MIN_VALUE;
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
         int relX = blockPos.getX() - minX;
