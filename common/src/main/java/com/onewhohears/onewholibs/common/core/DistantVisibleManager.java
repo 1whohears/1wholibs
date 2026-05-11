@@ -24,9 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -40,7 +38,6 @@ public class DistantVisibleManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<VisibleData> VISIBLES = new ArrayList<>();
-    private static final Set<Integer> FOR_REMOVAL = new HashSet<>();
 
     private static int ID_COUNTER = 0;
     private static int BLOCKS_CHECKED = 0;
@@ -49,7 +46,7 @@ public class DistantVisibleManager {
 
     private static final List<Long> TICK_TIMES = new ArrayList<>();
     private static final int TICK_TIMES_LENGTH = 200;
-    private static long TICK_TIME_AVG;
+    private static double TICK_TIME_AVG;
 
     public static void queryVisible(@NotNull MinecraftServer server,
                                     @NotNull Entity entity1, @NotNull Entity entity2,
@@ -74,36 +71,34 @@ public class DistantVisibleManager {
     }
 
     public static void onServerTick(@NotNull MinecraftServer server) {
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         int maxBlocks = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_BLOCK_CHECKS);
         int maxMaps = server.getGameRules().getInt(CustomGameRules.MAX_RAYCAST_HEIGHT_MAP_CHECKS);
         BLOCKS_CHECKED = 0;
         HEIGHT_MAP_CHECKS = 0;
-        FOR_REMOVAL.clear();
         if (VISIBLE_CHECKED_INDEX < 0) VISIBLE_CHECKED_INDEX = 0;
         int k = 0, size = VISIBLES.size();
+        int removed = 0;
         while (k++ < VISIBLES.size()) {
             int index = VISIBLE_CHECKED_INDEX;
             if (index >= size) index = 0;
             VisibleData visible = VISIBLES.get(index);
             visible.tick(server, maxBlocks, maxMaps);
-            if (visible.isForRemoval()) FOR_REMOVAL.add(index);
+            if (visible.isForRemoval()) ++removed;
             if (BLOCKS_CHECKED >= maxBlocks || HEIGHT_MAP_CHECKS >= maxMaps) break;
             VISIBLE_CHECKED_INDEX = index + 1;
         }
-        FOR_REMOVAL.forEach(id -> {
-            if (VISIBLE_CHECKED_INDEX >= id) VISIBLE_CHECKED_INDEX--;
-            VISIBLES.remove(id);
-        });
+        VISIBLES.removeIf(VisibleData::isForRemoval);
+        VISIBLE_CHECKED_INDEX -= removed;
 
-        long endTime = System.currentTimeMillis();
+        long endTime = System.nanoTime();
         TICK_TIMES.add(0, endTime - startTime);
         while (TICK_TIMES.size() > TICK_TIMES_LENGTH) TICK_TIMES.remove(TICK_TIMES.size()-1);
         long total = 0;
         for (Long time : TICK_TIMES) total += time;
-        TICK_TIME_AVG = total / TICK_TIMES.size();
-        if (TICK_TIME_AVG > 0 && server.getTickCount() % 20 == 0) {
+        TICK_TIME_AVG = (double) total / TICK_TIMES.size() * 10E-6;
+        if (TICK_TIME_AVG >= 1 && server.getTickCount() % 20 == 0) {
             LOGGER.warn("Distant Raycasts {} are taking {} milliseconds to compute.", VISIBLES.size(), TICK_TIME_AVG);
         }
     }
