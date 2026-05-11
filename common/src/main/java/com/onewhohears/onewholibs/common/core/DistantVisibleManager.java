@@ -160,7 +160,7 @@ public class DistantVisibleManager {
             int buildFloor = level.getMinBuildHeight();
             if ((entityPos1.y > buildHeight && entityPos2.y > buildHeight)
                     || (entityPos1.y < buildFloor && entityPos2.y < buildFloor)) {
-                update(server, level, true);
+                update(server, level, true, false, entityPos2);
                 return;
             }
             while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
@@ -182,7 +182,7 @@ public class DistantVisibleManager {
                 if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
                     ++HEIGHT_MAP_CHECKS;
                     if (HeightMapManager.isCrossed(levelId, next, dir.y <= 0)) {
-                        update(server, level, false);
+                        update(server, level, false, false, next);
                         break;
                     }
                     continue;
@@ -191,11 +191,11 @@ public class DistantVisibleManager {
                 ++BLOCKS_CHECKED;
                 boolean obstructed = UtilEntity.blocksMotion(state);
                 if (obstructed) {
-                    update(server, level, false);
+                    update(server, level, false, true, next);
                     break;
                 }
             }
-            if (spreadIndex == spreads.length-1) update(server, level, true);
+            if (spreadIndex == spreads.length-1) update(server, level, true, false, entityPos2);
         }
         private void addRequest(@NotNull MinecraftServer server, boolean flipEntities,
                                 @NotNull VisibleRequestData requestData) {
@@ -242,7 +242,8 @@ public class DistantVisibleManager {
         public @Nullable Entity getEntity2(@NotNull MinecraftServer server) {
             return getEntity(server, entityId2);
         }
-        private void update(@NotNull MinecraftServer server, @NotNull ServerLevel level, boolean visible) {
+        private void update(@NotNull MinecraftServer server, @NotNull ServerLevel level,
+                            boolean visible, boolean block, @NotNull Vec3 approxObstructPos) {
             Entity entity1 = level.getEntity(entityId1);
             if (entity1 == null) {
                 setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server);
@@ -253,12 +254,15 @@ public class DistantVisibleManager {
                 setFailed(VisibleTestResult.FAILED_ENTITY_2_NOT_FOUND, server);
                 return;
             }
-            setPassed(visible, server, level, entity1, entity2);
+            setPassed(visible, block, server, level, entity1, entity2, approxObstructPos);
         }
-        private void setPassed(boolean visible, @NotNull MinecraftServer server, @NotNull ServerLevel level,
-                               @NotNull Entity entity1, @NotNull Entity entity2) {
-            this.result = visible ? VisibleTestResult.VISION_PASSED : VisibleTestResult.VISION_OBSTRUCTED;
-            VisibleUpdateEvent event = new VisibleUpdateEvent(this, server, level, entity1, entity2, result);
+        private void setPassed(boolean visible, boolean block,
+                               @NotNull MinecraftServer server, @NotNull ServerLevel level,
+                               @NotNull Entity entity1, @NotNull Entity entity2,
+                               @NotNull Vec3 approxObstructPos) {
+            this.result = visible ? VisibleTestResult.VISION_PASSED :
+                    block ? VisibleTestResult.VISION_OBSTRUCTED_BLOCK : VisibleTestResult.VISION_OBSTRUCTED_HEIGHT_MAP;
+            VisibleUpdateEvent event = new VisibleUpdateEvent(this, server, level, entity1, entity2, result, approxObstructPos);
             updateRequestStates(event, server.getTickCount());
             // reset for next ray cast compute
             this.spreadIndex = -1;
@@ -267,7 +271,7 @@ public class DistantVisibleManager {
         private void setFailed(VisibleTestResult result, @NotNull MinecraftServer server) {
             this.result = result;
             VisibleUpdateEvent event = new VisibleUpdateEvent(this, server,
-                    null, null, null, result);
+                    null, null, null, result, Vec3.ZERO);
             updateRequestStates(event, server.getTickCount());
         }
         private void updateRequestStates(VisibleUpdateEvent event, int currentTime) {
@@ -293,7 +297,7 @@ public class DistantVisibleManager {
             req.forEach((id, state) -> {
                 if (!state.isExpired(currentTime)) return;
                 VisibleUpdateEvent event = new VisibleUpdateEvent(this, server,
-                        null, null, null, VisibleTestResult.FAILED_EXPIRED);
+                        null, null, null, VisibleTestResult.FAILED_EXPIRED, Vec3.ZERO);
                 state.requestData.onVisibleUpdate.accept(event);
             });
             req.entrySet().removeIf(entry -> entry.getValue().isExpired(currentTime));
@@ -338,9 +342,9 @@ public class DistantVisibleManager {
      */
     public record VisibleUpdateEvent(@NotNull VisibleData data, @NotNull MinecraftServer server,
                                      ServerLevel level, Entity entity1, Entity entity2,
-                                     @NotNull VisibleTestResult result) {
+                                     @NotNull VisibleTestResult result, @NotNull Vec3 approxObstructPos) {
         public VisibleUpdateEvent flipEntities() {
-            return new VisibleUpdateEvent(data, server, level, entity2, entity1, result);
+            return new VisibleUpdateEvent(data, server, level, entity2, entity1, result, approxObstructPos);
         }
     }
 
