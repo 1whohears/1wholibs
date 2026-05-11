@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.common.core;
 
 import com.mojang.logging.LogUtils;
 import com.onewhohears.onewholibs.common.command.CustomGameRules;
+import com.onewhohears.onewholibs.entity.SimulatedEntity;
 import com.onewhohears.onewholibs.util.UtilEntity;
 import com.onewhohears.onewholibs.util.UtilMCText;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
@@ -144,12 +145,12 @@ public class DistantVisibleManager {
                 return;
             }
             if (spreadIndex == -1) {
-                Entity entity1 = level.getEntity(entityId1);
+                Entity entity1 = getEntity(level, entityId1);
                 if (entity1 == null) {
                     setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server);
                     return;
                 }
-                Entity entity2 = level.getEntity(entityId2);
+                Entity entity2 = getEntity(level, entityId2);
                 if (entity2 == null) {
                     setFailed(VisibleTestResult.FAILED_ENTITY_2_NOT_FOUND, server);
                     return;
@@ -233,25 +234,26 @@ public class DistantVisibleManager {
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
         }
-        public @Nullable Entity getEntity(@NotNull MinecraftServer server, int entityId) {
-            ServerLevel level = getLevel(server);
+        public @Nullable Entity getEntity(@Nullable ServerLevel level, int entityId) {
             if (level == null) return null;
+            SimulatedEntity sim = SimulatedEntityManager.get().getById(entityId);
+            if (sim != null && sim.getWorld().dimension().location().equals(levelId.location())) return (Entity) sim;
             return level.getEntity(entityId);
         }
         public @Nullable Entity getEntity1(@NotNull MinecraftServer server) {
-            return getEntity(server, entityId1);
+            return getEntity(getLevel(server), entityId1);
         }
         public @Nullable Entity getEntity2(@NotNull MinecraftServer server) {
-            return getEntity(server, entityId2);
+            return getEntity(getLevel(server), entityId2);
         }
         private void update(@NotNull MinecraftServer server, @NotNull ServerLevel level,
                             boolean visible, boolean block, @NotNull Vec3 approxObstructPos) {
-            Entity entity1 = level.getEntity(entityId1);
+            Entity entity1 = getEntity(level, entityId1);
             if (entity1 == null) {
                 setFailed(VisibleTestResult.FAILED_ENTITY_1_NOT_FOUND, server);
                 return;
             }
-            Entity entity2 = level.getEntity(entityId2);
+            Entity entity2 = getEntity(level, entityId2);
             if (entity2 == null) {
                 setFailed(VisibleTestResult.FAILED_ENTITY_2_NOT_FOUND, server);
                 return;

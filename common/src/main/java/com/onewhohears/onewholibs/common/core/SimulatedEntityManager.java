@@ -55,6 +55,11 @@ public class SimulatedEntityManager {
         return null;
     }
 
+    @Nullable
+    public SimulatedEntity getById(int id) {
+        return ENTITIES.get(id);
+    }
+
     public <E extends Entity> List<E> getAllOfClass(Class<E> type, Predicate<E> filter) {
         List<E> list = new ArrayList<>();
         ENTITIES.forEach((id, sim) -> {
