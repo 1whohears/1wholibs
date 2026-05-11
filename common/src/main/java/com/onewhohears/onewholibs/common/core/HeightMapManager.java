@@ -38,20 +38,7 @@ public class HeightMapManager {
     private static final Map<ResourceKey<Level>, Map<Long,short[]>> HEIGHT_MAP = new HashMap<>();
 
     public static boolean isCrossed(ResourceKey<Level> dimension, Vec3 position, boolean goingDown) {
-        Map<Long,short[]> map = HEIGHT_MAP.get(dimension);
-        if (map == null) return false;
-        BlockPos blockPos = UtilGeometry.toBlockPos(position);
-        ChunkPos chunkPos = new ChunkPos(blockPos);
-        long chunkId = chunkPos.toLong();
-        short[] heights = map.get(chunkId);
-        if (heights == null) return false;
-        int minX = chunkPos.getMinBlockX();
-        int minZ = chunkPos.getMinBlockZ();
-        int relX = blockPos.getX() - minX;
-        int relZ = blockPos.getZ() - minZ;
-        int x = relX / RESOLUTION;
-        int z = relZ / RESOLUTION;
-        short height = heights[x * z];
+        short height = getHeight(dimension, position);
         return (goingDown && position.y <= height) || (!goingDown && position.y > height);
     }
 
@@ -100,6 +87,23 @@ public class HeightMapManager {
         }
         map.put(chunk.getPos().toLong(), heights);
         if (map.size() % 1000 == 0) LOGGER.info("HEIGHT MAP SIZE {}", map.size());
+    }
+
+    public static short getHeight(@NotNull ResourceKey<Level> dimension, @NotNull Vec3 pos) {
+        Map<Long,short[]> map = HEIGHT_MAP.get(dimension);
+        if (map == null) return -64;
+        BlockPos blockPos = UtilGeometry.toBlockPos(pos);
+        ChunkPos chunkPos = new ChunkPos(blockPos);
+        long chunkId = chunkPos.toLong();
+        short[] heights = map.get(chunkId);
+        if (heights == null) return -64;
+        int minX = chunkPos.getMinBlockX();
+        int minZ = chunkPos.getMinBlockZ();
+        int relX = blockPos.getX() - minX;
+        int relZ = blockPos.getZ() - minZ;
+        int x = relX / RESOLUTION;
+        int z = relZ / RESOLUTION;
+        return heights[x * z];
     }
 
     public static void save(@NotNull ServerLevel level) {

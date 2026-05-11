@@ -10,6 +10,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
 
@@ -62,6 +63,14 @@ public class VisibleCommands {
                             return targets.size();
                         })
                 )
+        );
+        d.register(Commands.literal("get_lod_map_height").requires((stack) -> stack.hasPermission(2))
+                .executes(ctx -> {
+                    Vec3 pos = ctx.getSource().getPosition();
+                    short height = HeightMapManager.getHeight(ctx.getSource().getLevel().dimension(), pos);
+                    ctx.getSource().sendSuccess(() -> UtilMCText.literal(height+"").setStyle(YELLOW), false);
+                    return height;
+                })
         );
     }
 

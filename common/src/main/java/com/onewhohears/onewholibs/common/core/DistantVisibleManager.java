@@ -353,11 +353,11 @@ public class DistantVisibleManager {
                 int time = event.server.getTickCount();
                 if (event.result().failed) {
                     LOGGER.info("Visible Query FAILED: {} | {} | {} |  {} | {} | {}", event.result,
-                            event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
+                            event.data.id, time, Math.ceil(TICK_TIME_AVG), event.entity1, event.entity2);
                     return;
                 }
                 LOGGER.info("Visible Query RESULT: {} | {} | {} | {} | {} | {}", event.result,
-                        event.data.id, time, TICK_TIME_AVG, event.entity1, event.entity2);
+                        event.data.id, time, Math.ceil(TICK_TIME_AVG), event.entity1, event.entity2);
                 if (event.entity1 instanceof Player player && event.entity2 != null) {
                     Style style = event.result.passed ? GREEN : PURPLE;
                     player.sendSystemMessage(UtilMCText.literal("Result "+event.result+" "+time+" "
