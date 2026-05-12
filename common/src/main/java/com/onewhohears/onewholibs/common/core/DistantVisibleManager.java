@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -167,7 +168,6 @@ public class DistantVisibleManager {
                 return;
             }
             Vec3 prev = entityPos1;
-            //short prevHeight = HeightMapManager.getHeight(levelId, prev);
             while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
                 ++spreadIndex;
                 Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
@@ -193,16 +193,22 @@ public class DistantVisibleManager {
                             update(server, level, false, false, next);
                             break;
                         }
-                        //prevHeight = height;
                     }
                     continue;
                 }
-                BlockState state = level.getBlockState(nextBlock); // TODO how expensive is this actually?
                 ++BLOCKS_CHECKED;
-                boolean obstructed = UtilEntity.blocksMotion(state);
-                if (obstructed) {
+                int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING, nextBlock.getX(), nextBlock.getZ());
+                if (nextBlock.getY() == height) {
                     update(server, level, false, true, next);
                     break;
+                }
+                if (nextBlock.getY() < height) {
+                    // TODO ++BLOCKS_CHECKED; again?
+                    BlockState state = level.getBlockState(nextBlock); // TODO how expensive is this actually?
+                    if (UtilEntity.blocksMotion(state)) {
+                        update(server, level, false, true, next);
+                        break;
+                    }
                 }
                 prev = next;
             }
