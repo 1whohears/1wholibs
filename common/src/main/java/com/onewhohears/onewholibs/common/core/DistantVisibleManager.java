@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -234,9 +235,9 @@ public class DistantVisibleManager {
             diff = entityPos2.subtract(entityPos1);
             dir = diff.normalize();
             length = (float) diff.length();
-            spreads = UtilGeometry.generateSpread(length, 1, 16,
-                    UtilGeometry.SpreadMode.BOTH, 2, 500);
-            //System.out.println("LENGTH = "+length+" SPREADS "+spreads.length+" = "+ Arrays.toString(spreads));
+            spreads = UtilGeometry.generateSpread(length, getMinSpread(), getMaxSpread(),
+                    UtilGeometry.SpreadMode.BOTH, getSpreadFactor(), getSpreadGrowthSmooth());
+            System.out.println("LENGTH = "+length+" SPREADS "+spreads.length+" = "+ Arrays.toString(spreads));
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
@@ -325,6 +326,22 @@ public class DistantVisibleManager {
         public @NotNull VisibleTestResult getResult() {
             return result;
         }
+    }
+    // TODO make these spread settings configurable
+    public static int getMinSpread() {
+        return 1;
+    }
+
+    public static int getMaxSpread() {
+        return 64;
+    }
+
+    public static int getSpreadFactor() {
+        return 2;
+    }
+
+    public static int getSpreadGrowthSmooth() {
+        return 500;
     }
 
     public static class VisibleRequestState {
