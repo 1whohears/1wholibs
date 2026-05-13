@@ -243,7 +243,7 @@ public class DistantVisibleManager {
             length = (float) diff.length();
             spreads = UtilGeometry.generateSpread(length, getMinSpread(), getMaxSpread(),
                     UtilGeometry.SpreadMode.BOTH, getSpreadFactor(), getSpreadGrowthSmooth());
-            System.out.println("LENGTH = "+length+" SPREADS "+spreads.length+" = "+ Arrays.toString(spreads));
+            //System.out.println("LENGTH = "+length+" SPREADS "+spreads.length+" = "+ Arrays.toString(spreads));
         }
         public @Nullable ServerLevel getLevel(@NotNull MinecraftServer server) {
             return server.getLevel(levelId);
