@@ -90,7 +90,7 @@ public class SimulatedEntityManager {
     }
 
     public void stopSimulatingEntity(int entityId) {
-        ENTITIES.remove(entityId);
+        FOR_REMOVAL.add(entityId);
     }
 
     public void stopSimulatingEntity(@NotNull Entity entity) {
