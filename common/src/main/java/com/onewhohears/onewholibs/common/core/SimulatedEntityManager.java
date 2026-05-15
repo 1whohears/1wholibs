@@ -78,11 +78,27 @@ public class SimulatedEntityManager {
     }
 
     public boolean isSimulated(@NotNull SimulatedEntity entity) {
-        return ENTITIES.containsKey(entity.getId());
+        return isSimulated(entity.getId());
+    }
+
+    public boolean isSimulated(@NotNull Entity entity) {
+        return isSimulated(entity.getId());
+    }
+
+    public boolean isSimulated(int entityId) {
+        return ENTITIES.containsKey(entityId);
+    }
+
+    public void stopSimulatingEntity(int entityId) {
+        ENTITIES.remove(entityId);
+    }
+
+    public void stopSimulatingEntity(@NotNull Entity entity) {
+        stopSimulatingEntity(entity.getId());
     }
 
     public void stopSimulatingEntity(@NotNull SimulatedEntity entity) {
-        ENTITIES.remove(entity.getId());
+        stopSimulatingEntity(entity.getId());
     }
 
     public void serverStop(MinecraftServer server) {
