@@ -73,6 +73,56 @@ public class DistantVisibleManager {
         visibleData.addRequest(server, flipEntites, requestData);
     }
 
+    public static void cancelFirstEntityQuery(int entityId1, int entityId2, int requestTypeId) {
+        VisibleData visibleData = null;
+        boolean flipEntites = false;
+        for (VisibleData data : VISIBLES) {
+            if (data.entityId1 == entityId1 && data.entityId2 == entityId2) {
+                visibleData = data;
+                break;
+            } else if (data.entityId1 == entityId2 && data.entityId2 == entityId1) {
+                visibleData = data;
+                flipEntites = true;
+                break;
+            }
+        }
+        if (visibleData == null) return;
+        if (flipEntites) visibleData.requestsFlipped.remove(requestTypeId);
+        else visibleData.requests.remove(requestTypeId);
+    }
+
+    public static void cancelBothEntityQueries(int entityId1, int entityId2, int requestTypeId) {
+        VisibleData visibleData = null;
+        for (VisibleData data : VISIBLES) {
+            if (data.entityId1 == entityId1 && data.entityId2 == entityId2) {
+                visibleData = data;
+                break;
+            } else if (data.entityId1 == entityId2 && data.entityId2 == entityId1) {
+                visibleData = data;
+                break;
+            }
+        }
+        if (visibleData == null) return;
+        visibleData.requests.remove(requestTypeId);
+        visibleData.requestsFlipped.remove(requestTypeId);
+    }
+
+    public static void cancelAllEntityQueries(int entityId1, int entityId2) {
+        VisibleData visibleData = null;
+        for (VisibleData data : VISIBLES) {
+            if (data.entityId1 == entityId1 && data.entityId2 == entityId2) {
+                visibleData = data;
+                break;
+            } else if (data.entityId1 == entityId2 && data.entityId2 == entityId1) {
+                visibleData = data;
+                break;
+            }
+        }
+        if (visibleData == null) return;
+        visibleData.requests.clear();
+        visibleData.requestsFlipped.clear();
+    }
+
     public static void onServerTick(@NotNull MinecraftServer server) {
         long startTime = System.nanoTime();
 
@@ -138,6 +188,7 @@ public class DistantVisibleManager {
         private void tick(@NotNull MinecraftServer server, int maxBlocks, int maxMaps, boolean checkHeightMap) {
             int currentTime = server.getTickCount();
             removeExpiredRequests(server);
+            if (isEmptyRequests()) return;
             //System.out.println("TICK "+id+" "+requests.size()+" "+requestsFlipped.size()+" "+progress+" "+BLOCKS_CHECKED);
             if (spreadIndex == -1 && prevUpdateTime != -1000 && currentTime - prevUpdateTime < fastestRequestUpdateRate) {
                 return;
