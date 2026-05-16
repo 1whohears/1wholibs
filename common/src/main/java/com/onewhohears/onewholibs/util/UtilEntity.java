@@ -204,7 +204,7 @@ public class UtilEntity {
 	 */
 	public static int getDistFromGround(Entity entity) {
 		Level l = getLevel(entity);
-		if (!l.isClientSide() && !UtilEntity.isChunkLoaded(l, entity.chunkPosition())) {
+		if (!l.isClientSide() && !UtilEntity.isChunkLoaded(l, entity)) {
 			return (int) entity.getY() - HeightMapManager.getHeight(l.dimension(), entity.position());
 		}
 		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
@@ -412,6 +412,10 @@ public class UtilEntity {
 
 	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos) {
 		return isChunkLoaded(level, chunkPos, FullChunkStatus.FULL);
+	}
+
+	public static boolean isChunkLoaded(@NotNull Level level, @NotNull Entity entity) {
+		return isChunkLoaded(level, UtilGeometry.toChunkPos(entity.position()), FullChunkStatus.FULL);
 	}
 
 }

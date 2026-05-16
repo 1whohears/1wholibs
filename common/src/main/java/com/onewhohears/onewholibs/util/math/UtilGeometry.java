@@ -4,6 +4,7 @@ import com.onewhohears.onewholibs.util.UtilParse;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -498,6 +499,10 @@ public class UtilGeometry {
     public static BlockPos toBlockPos(Vec3 vec) {
         return new BlockPos((int) Math.floor(vec.x), (int) Math.floor(vec.y), (int) Math.floor(vec.z));
     }
+
+	public static ChunkPos toChunkPos(Vec3 vec) {
+		return new ChunkPos(toBlockPos(vec));
+	}
 
 	public enum SpreadMode {
 		EQUAL,

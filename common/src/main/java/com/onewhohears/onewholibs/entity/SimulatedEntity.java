@@ -96,8 +96,7 @@ public interface SimulatedEntity {
         ServerChunkCache scc = sl.getChunkSource();
         boolean inTickRange = scc.chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().toLong());
         if (!inTickRange) return false;
-        ChunkPos cp = entity.chunkPosition();
-        boolean hasChunk = UtilEntity.isChunkLoaded(sl, cp);
+        boolean hasChunk = UtilEntity.isChunkLoaded(sl, entity);
         if (!hasChunk) return false;
         //boolean alreadyAdded = sl.getEntity(getUUID()) != null;
         /*System.out.println("CHECK REVIVE hasChunk "+hasChunk+" inTickRange "+inTickRange+" alreadyAdded "+alreadyAdded
