@@ -23,6 +23,7 @@ public class TestEntity extends JsonPresetEntity<TestPresetStats> implements Sim
 
     @Override
     public void tick() {
+        noPhysics = false;
         SimulatedEntity.super.onVanillaTick();
         super.tick();
         //if (tickCount%20==0) System.out.println("VANILLA TICK "+tickCount+" "+lastServerTick+" "+this);
@@ -48,6 +49,7 @@ public class TestEntity extends JsonPresetEntity<TestPresetStats> implements Sim
 
     @Override
     public void onSimulatedTick(@NotNull MinecraftServer server) {
+        noPhysics = true;
         //if (tickCount%20==0) System.out.println("SIMULATED TICK "+tickCount+" "+lastServerTick+" "+this);
         move(MoverType.SELF, getDeltaMovement());
     }
