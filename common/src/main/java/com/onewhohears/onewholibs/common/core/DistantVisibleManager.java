@@ -235,7 +235,7 @@ public class DistantVisibleManager {
                 }
                 BlockPos nextBlock = UtilGeometry.toBlockPos(next);
                 ChunkPos nextChunk = new ChunkPos(nextBlock);
-                if (!level.hasChunk(nextChunk.x, nextChunk.z)) {
+                if (!UtilEntity.isChunkLoaded(level, nextChunk)) {
                     if (checkHeightMap) {
                         ++HEIGHT_MAP_CHECKS;
                         short height = HeightMapManager.getHeight(levelId, next);

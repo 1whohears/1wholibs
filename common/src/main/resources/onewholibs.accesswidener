@@ -23,3 +23,5 @@ accessible class net/minecraft/network/ConnectionProtocol$PacketSet
 accessible field net/minecraft/network/ConnectionProtocol PROTOCOL_BY_PACKET Ljava/util/Map;
 
 accessible method net/minecraft/world/entity/Entity unsetRemoved ()V
+
+accessible method net/minecraft/server/level/ChunkMap getVisibleChunkIfPresent (J)Lnet/minecraft/server/level/ChunkHolder;

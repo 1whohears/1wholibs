@@ -13,8 +13,7 @@ import com.onewhohears.onewholibs.util.math.UtilAngles;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.*;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -120,7 +119,7 @@ public class UtilEntity {
 			BlockPos bp = UtilGeometry.toBlockPos(pos);
 			ChunkPos cp = new ChunkPos(bp);
 			//level.getChunk(cp.x, cp.z).clipWithInteractionOverride()
-			if (!level.hasChunk(cp.x, cp.z)) {
+			if (!isChunkLoaded(level, cp)) {
                 if (endIfNoChunk) return true;
                 else continue;
             }
@@ -192,7 +191,7 @@ public class UtilEntity {
 	public static boolean posBlocksMotion(Level level, Vec3 pos) {
 		BlockPos bp = UtilGeometry.toBlockPos(pos);
 		ChunkPos cp = new ChunkPos(bp);
-		if (!level.hasChunk(cp.x, cp.z)) return false;
+		if (!isChunkLoaded(level, cp)) return false;
 		BlockState block = level.getBlockState(bp);
 		if (block == null || block.isAir()) return false;
 		return blocksMotion(block);
@@ -393,5 +392,20 @@ public class UtilEntity {
     public static void revive(Entity entity) {
         throw new AssertionError();
     }
+
+	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos,
+										@NotNull FullChunkStatus status) {
+		if (level.isClientSide()) {
+			return level.hasChunk(chunkPos.x, chunkPos.z);
+		}
+		ServerChunkCache cache = (ServerChunkCache) level.getChunkSource();
+		ChunkHolder holder = cache.chunkMap.getVisibleChunkIfPresent(chunkPos.toLong());
+		if (holder == null) return false;
+		return holder.getFullStatus().isOrAfter(status);
+	}
+
+	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos) {
+		return isChunkLoaded(level, chunkPos, FullChunkStatus.FULL);
+	}
 
 }
