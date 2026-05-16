@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 import com.onewhohears.onewholibs.OWLDependencySafety;
+import com.onewhohears.onewholibs.common.core.HeightMapManager;
 import com.onewhohears.onewholibs.util.math.UtilAngles;
 
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
@@ -203,6 +204,9 @@ public class UtilEntity {
 	 */
 	public static int getDistFromGround(Entity entity) {
 		Level l = getLevel(entity);
+		if (!l.isClientSide() && !UtilEntity.isChunkLoaded(l, entity.chunkPosition())) {
+			return (int) entity.getY() - HeightMapManager.getHeight(l.dimension(), entity.position());
+		}
 		int[] pos = {entity.getBlockX(), entity.getBlockY(), entity.getBlockZ()};
 		int dist = 0;
 		while (pos[1] >= -64) {
@@ -238,6 +242,8 @@ public class UtilEntity {
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
 		for (int i = 0; i < max; ++i) {
+			ChunkPos cp = new ChunkPos(UtilGeometry.toBlockPos(pos));
+			if (!isChunkLoaded(level, cp)) return pos;
 			BlockState block = level.getBlockState(UtilGeometry.toBlockPos(pos));
 			if (block != null && !block.isAir()) return pos;
 			pos = pos.add(look);
