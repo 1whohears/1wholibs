@@ -497,7 +497,7 @@ public class UtilGeometry {
     }
 
     public static BlockPos toBlockPos(Vec3 vec) {
-        return new BlockPos((int) Math.floor(vec.x), (int) Math.floor(vec.y), (int) Math.floor(vec.z));
+        return new BlockPos(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
     }
 
 	public static ChunkPos toChunkPos(Vec3 vec) {

@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -218,23 +219,36 @@ public class DistantVisibleManager {
                 return;
             }
             Vec3 prev = entityPos1;
+            BlockPos.MutableBlockPos nextBlock = new BlockPos.MutableBlockPos();
+            int lastChunkX = Integer.MIN_VALUE;
+            int lastChunkZ = Integer.MIN_VALUE;
+            boolean chunkLoaded = false;
+            LevelChunk chunk = null;
             while (spreadIndex < spreads.length-1 && BLOCKS_CHECKED < maxBlocks && HEIGHT_MAP_CHECKS < maxMaps) {
                 ++spreadIndex;
                 Vec3 next = entityPos1.add(dir.scale(spreads[spreadIndex]));
-                if (next.y > buildHeight) {
+                nextBlock.set(next.x, next.y, next.z);
+                if (nextBlock.getY() > buildHeight) {
                     if (dir.y >= 0) {
                         spreadIndex = spreads.length-1;
                         break;
                     } continue;
-                } else if (next.y < buildFloor) {
+                } else if (nextBlock.getY() < buildFloor) {
                     if (dir.y <= 0) {
                         spreadIndex = spreads.length-1;
                         break;
                     } continue;
                 }
-                BlockPos nextBlock = UtilGeometry.toBlockPos(next);
-                ChunkPos nextChunk = new ChunkPos(nextBlock);
-                if (!UtilEntity.isChunkLoaded(level, nextChunk)) {
+                int chunkX = nextBlock.getX() >> 4;
+                int chunkZ = nextBlock.getZ() >> 4;
+                if (chunkX != lastChunkX || chunkZ != lastChunkZ) {
+                    lastChunkX = chunkX;
+                    lastChunkZ = chunkZ;
+                    chunkLoaded = UtilEntity.isChunkLoaded(level, chunkX, chunkZ);
+                    if (chunkLoaded) chunk = level.getChunk(chunkX, chunkZ);
+                    else chunk = null;
+                }
+                if (!chunkLoaded) {
                     if (checkHeightMap) {
                         ++HEIGHT_MAP_CHECKS;
                         short height = HeightMapManager.getHeight(levelId, next);
@@ -247,14 +261,14 @@ public class DistantVisibleManager {
                     continue;
                 }
                 ++BLOCKS_CHECKED;
-                int height = level.getHeight(Heightmap.Types.MOTION_BLOCKING, nextBlock.getX(), nextBlock.getZ());
+                int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, nextBlock.getX(), nextBlock.getZ());
                 if (nextBlock.getY() == height) {
                     update(server, level, false, true, next);
                     break;
                 }
                 if (nextBlock.getY() < height) {
                     // TODO ++BLOCKS_CHECKED; again?
-                    BlockState state = level.getBlockState(nextBlock); // TODO how expensive is this actually?
+                    BlockState state = chunk.getBlockState(nextBlock); // TODO how expensive is this actually?
                     if (UtilEntity.blocksMotion(state)) {
                         update(server, level, false, true, next);
                         break;

@@ -15,6 +15,7 @@ import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.*;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -156,11 +159,11 @@ public class UtilEntity {
     }
 
     public static boolean blocksMotion(BlockState state) {
-        return state.blocksMotion();
+        return !state.isAir() && state.blocksMotion();
     }
 
     public static boolean isLiquid(BlockState state) {
-        return state.liquid();
+        return !state.isAir() && state.liquid();
     }
 
 	/**
@@ -241,11 +244,45 @@ public class UtilEntity {
 		Level level = UtilEntity.getLevel(entity);
 		Vec3 look = entity.getLookAngle();
 		Vec3 pos = entity.getEyePosition();
+		BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
+		int lastChunkX = Integer.MIN_VALUE;
+		int lastChunkZ = Integer.MIN_VALUE;
+		boolean chunkLoaded = false;
+		LevelChunk chunk = null;
 		for (int i = 0; i < max; ++i) {
-			ChunkPos cp = new ChunkPos(UtilGeometry.toBlockPos(pos));
-			if (!isChunkLoaded(level, cp)) return pos;
-			BlockState block = level.getBlockState(UtilGeometry.toBlockPos(pos));
-			if (block != null && !block.isAir()) return pos;
+			blockPos.set(pos.x, pos.y, pos.z);
+			if (blockPos.getY() > level.getMaxBuildHeight() || blockPos.getY() < level.getMinBuildHeight()) {
+				pos = pos.add(look);
+				continue;
+			}
+			int chunkX = blockPos.getX() >> 4;
+			int chunkZ = blockPos.getZ() >> 4;
+			if (chunkX != lastChunkX || chunkZ != lastChunkZ) {
+				lastChunkX = chunkX;
+				lastChunkZ = chunkZ;
+				chunkLoaded = isChunkLoaded(level, chunkX, chunkZ);
+				if (chunkLoaded) chunk = level.getChunk(chunkX, chunkZ);
+				else chunk = null;
+			}
+			if (!chunkLoaded) return pos;
+			int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ());
+			if (blockPos.getY() > height) {
+				double nextX = look.x > 0
+						? (Mth.floor(pos.x) + 1.0 - pos.x) / look.x
+						: look.x < 0
+						? (pos.x - Mth.floor(pos.x)) / -look.x
+						: Double.MAX_VALUE;
+				double nextZ = look.z > 0
+						? (Mth.floor(pos.z) + 1.0 - pos.z) / look.z
+						: look.z < 0
+						? (pos.z - Mth.floor(pos.z)) / -look.z
+						: Double.MAX_VALUE;
+				double scale = Math.min(nextX, nextZ) + 0.001;
+				pos = pos.add(look.scale(scale));
+				continue;
+			}
+			BlockState block = chunk.getBlockState(blockPos);
+			if (blocksMotion(block)) return pos;
 			pos = pos.add(look);
 		}
 		return pos.add(look);
@@ -399,19 +436,28 @@ public class UtilEntity {
         throw new AssertionError();
     }
 
-	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos,
+	public static boolean isChunkLoaded(@NotNull Level level, int chunkX, int chunkZ,
 										@NotNull FullChunkStatus status) {
 		if (level.isClientSide()) {
-			return level.hasChunk(chunkPos.x, chunkPos.z);
+			return level.hasChunk(chunkX, chunkZ);
 		}
 		ServerChunkCache cache = (ServerChunkCache) level.getChunkSource();
-		ChunkHolder holder = cache.chunkMap.getVisibleChunkIfPresent(chunkPos.toLong());
+		ChunkHolder holder = cache.chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(chunkX, chunkZ));
 		if (holder == null) return false;
 		return holder.getFullStatus().isOrAfter(status);
 	}
 
+	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos,
+										@NotNull FullChunkStatus status) {
+		return isChunkLoaded(level, chunkPos.x, chunkPos.z, status);
+	}
+
 	public static boolean isChunkLoaded(@NotNull Level level, @NotNull ChunkPos chunkPos) {
 		return isChunkLoaded(level, chunkPos, FullChunkStatus.FULL);
+	}
+
+	public static boolean isChunkLoaded(@NotNull Level level, int chunkX, int chunkZ) {
+		return isChunkLoaded(level, chunkX, chunkZ, FullChunkStatus.FULL);
 	}
 
 	public static boolean isChunkLoaded(@NotNull Level level, @NotNull Entity entity) {
