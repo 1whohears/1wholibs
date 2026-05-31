@@ -107,7 +107,7 @@ public class VisibleCommands {
                                     int k = HeightMapManager.massHeightMapLoad(ctx.getSource().getLevel(), pos.x, pos.y, diameter);
                                     if (k != -1) {
                                         ctx.getSource().sendSuccess(() -> UtilMCText.literal("Started generating a height map " +
-                                                        "at "+pos+" within radius "+(diameter/2)+"! Reading "+k+" chunks! " +
+                                                        "at ["+pos.x+","+pos.y+"] within radius "+(diameter/2)+"! Reading "+k+" chunks! " +
                                                         "ETA: "+k/20/60+" minutes")
                                                 .setStyle(YELLOW), true);
                                         return 1;

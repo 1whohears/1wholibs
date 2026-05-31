@@ -72,8 +72,8 @@ public class HeightMapManager {
         double radius = diameter / 2;
         int minX = SectionPos.blockToSectionCoord(centerX - radius);
         int minZ = SectionPos.blockToSectionCoord(centerZ - radius);
-        int maxX = SectionPos.blockToSectionCoord(minX + diameter);
-        int maxZ = SectionPos.blockToSectionCoord(minZ + diameter);
+        int maxX = SectionPos.blockToSectionCoord(centerX + radius);
+        int maxZ = SectionPos.blockToSectionCoord(centerZ + radius);
         int k = 0;
         MinecraftServer server = level.getServer();
         Map<Long, short[]> map = HEIGHT_MAP.computeIfAbsent(level.dimension(), l -> new HashMap<>());
