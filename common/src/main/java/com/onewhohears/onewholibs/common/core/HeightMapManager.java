@@ -19,18 +19,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class HeightMapManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final int VERSION = 4;
+    private static final int VERSION = 6;
     private static final int RESOLUTION = 4;
 
     /**
@@ -52,7 +55,11 @@ public class HeightMapManager {
         int relZ = blockPos.getZ() - minZ;
         int x = relX / RESOLUTION;
         int z = relZ / RESOLUTION;
-        return heights[x * z];
+        return heights[getHeightIndex(x, z)];
+    }
+
+    public static int getHeightIndex(int localX, int localZ) {
+        return localX * RESOLUTION + localZ;
     }
 
     public static int massHeightMapLoadWB(@NotNull ServerLevel level) {
@@ -94,13 +101,92 @@ public class HeightMapManager {
         short[] heights = new short[RESOLUTION * RESOLUTION];
         for (int x = 0; x < RESOLUTION; ++x) {
             for (int z = 0; z < RESOLUTION; ++z) {
-                heights[x * z] = (short) chunk.getHeight(Heightmap.Types.MOTION_BLOCKING,
+                heights[getHeightIndex(x, z)] = (short) chunk.getHeight(Heightmap.Types.MOTION_BLOCKING,
                         x * RESOLUTION, z * RESOLUTION);
                 // TODO instead of only saving the max height, need to save the gaps of air between.
             }
         }
         map.put(chunk.getPos().toLong(), heights);
         if (map.size() % 1000 == 0) LOGGER.info("HEIGHT MAP SIZE {}", map.size());
+    }
+
+    public static boolean generateHeightmapImage(@NotNull MinecraftServer server, @NotNull ServerLevel level,
+                                                 @NotNull Consumer<String> debug) {
+        int minBuildHeight = level.getMinBuildHeight();
+        return generateHeightmapImage(server, level, minBuildHeight, debug);
+    }
+
+    public static boolean generateHeightmapImage(@NotNull MinecraftServer server, @NotNull ServerLevel level,
+                                                 int minBuildHeight, @NotNull Consumer<String> debug) {
+        int maxBuildHeight = level.getMaxBuildHeight();
+        return generateHeightmapImage(server, level, minBuildHeight, maxBuildHeight, debug);
+    }
+
+    public static boolean generateHeightmapImage(@NotNull MinecraftServer server, @NotNull ServerLevel level,
+                                                 int minBuildHeight, int maxBuildHeight,
+                                                 @NotNull Consumer<String> debug) {
+        Map<Long, short[]> chunkHeightmaps = HEIGHT_MAP.computeIfAbsent(level.dimension(), k -> new HashMap<>());
+        if (chunkHeightmaps.isEmpty()) {
+            debug.accept("No Heightmap Loaded in this Dimension");
+            return false;
+        }
+
+        int minChunkX = Integer.MAX_VALUE;
+        int minChunkZ = Integer.MAX_VALUE;
+        int maxChunkX = Integer.MIN_VALUE;
+        int maxChunkZ = Integer.MIN_VALUE;
+
+        for (long packedPos : chunkHeightmaps.keySet()) {
+            ChunkPos pos = new ChunkPos(packedPos);
+            minChunkX = Math.min(minChunkX, pos.x);
+            minChunkZ = Math.min(minChunkZ, pos.z);
+            maxChunkX = Math.max(maxChunkX, pos.x);
+            maxChunkZ = Math.max(maxChunkZ, pos.z);
+        }
+
+        int chunkWidth = maxChunkX - minChunkX + 1;
+        int chunkHeight = maxChunkZ - minChunkZ + 1;
+        int imageWidth = chunkWidth * RESOLUTION;
+        int imageHeight = chunkHeight * RESOLUTION;
+        BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+        int buildRange = maxBuildHeight - minBuildHeight;
+        int heightsLength = RESOLUTION * RESOLUTION;
+
+        for (Map.Entry<Long, short[]> entry : chunkHeightmaps.entrySet()) {
+            ChunkPos chunkPos = new ChunkPos(entry.getKey());
+            short[] heights = entry.getValue();
+            if (heights == null || heights.length != heightsLength) continue;
+            int chunkPixelX = (chunkPos.x - minChunkX) * RESOLUTION;
+            int chunkPixelZ = (chunkPos.z - minChunkZ) * RESOLUTION;
+            for (int localX = 0; localX < RESOLUTION; ++localX) {
+                for (int localZ = 0; localZ < RESOLUTION; ++localZ) {
+                    int index = getHeightIndex(localX, localZ);
+                    int height = heights[index];
+                    float normalized = (float)(height - minBuildHeight) / (float)buildRange;
+                    normalized = Math.max(0.0f, Math.min(1.0f, normalized));
+                    int gray = (int)(normalized * 255.0f);
+                    int rgb = (gray << 16) | (gray << 8) | gray;
+                    int pixelX = chunkPixelX + localX;
+                    int pixelY = chunkPixelZ + localZ;
+                    image.setRGB(pixelX, pixelY, rgb);
+                }
+            }
+        }
+        ResourceLocation drl = level.dimension().location();
+        String dateTime = java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        Path outputPath = UtilFile.getWorldFolder(server).resolve("data/heightmap_images/"
+                +drl.getNamespace()+"/"+drl.getPath()+"/"
+                +drl.getNamespace()+"_"+drl.getPath()+"_heightmap_"+dateTime+".png");
+        File outputFile = outputPath.toFile();
+        outputFile.getParentFile().mkdirs();
+        try {
+            ImageIO.write(image, "png", outputFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        debug.accept("Successfully created height map image at "+outputPath);
+        return true;
     }
 
     public static void save(@NotNull ServerLevel level) {

@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.onewhohears.onewholibs.common.core.DistantVisibleManager.CAN_SEE_TEST_DATA;
 import static com.onewhohears.onewholibs.common.core.DistantVisibleManager.RED;
@@ -25,6 +26,51 @@ public class VisibleCommands {
     public static final Style YELLOW = Style.EMPTY.withColor(ChatFormatting.YELLOW);
 
     public VisibleCommands(CommandDispatcher<CommandSourceStack> d) {
+        d.register(Commands.literal("create_lod_height_map_image").requires((stack) -> stack.hasPermission(2))
+                .executes(ctx -> {
+                    AtomicReference<String> debug = new AtomicReference<>();
+                    boolean success = HeightMapManager.generateHeightmapImage(ctx.getSource().getServer(),
+                            ctx.getSource().getLevel(), debug::set);
+                    if (success) {
+                        ctx.getSource().sendSuccess(() -> UtilMCText.literal(debug.get()), false);
+                        return 1;
+                    } else {
+                        ctx.getSource().sendFailure(UtilMCText.literal(debug.get()));
+                        return 0;
+                    }
+                })
+                .then(Commands.argument("min_height", IntegerArgumentType.integer())
+                        .executes(ctx -> {
+                            int min_height = IntegerArgumentType.getInteger(ctx, "min_height");
+                            AtomicReference<String> debug = new AtomicReference<>();
+                            boolean success = HeightMapManager.generateHeightmapImage(ctx.getSource().getServer(),
+                                    ctx.getSource().getLevel(), min_height, debug::set);
+                            if (success) {
+                                ctx.getSource().sendSuccess(() -> UtilMCText.literal(debug.get()), false);
+                                return 1;
+                            } else {
+                                ctx.getSource().sendFailure(UtilMCText.literal(debug.get()));
+                                return 0;
+                            }
+                        })
+                        .then(Commands.argument("max_height", IntegerArgumentType.integer())
+                                .executes(ctx -> {
+                                    int min_height = IntegerArgumentType.getInteger(ctx, "min_height");
+                                    int max_height = IntegerArgumentType.getInteger(ctx, "max_height");
+                                    AtomicReference<String> debug = new AtomicReference<>();
+                                    boolean success = HeightMapManager.generateHeightmapImage(ctx.getSource().getServer(),
+                                            ctx.getSource().getLevel(), min_height, max_height, debug::set);
+                                    if (success) {
+                                        ctx.getSource().sendSuccess(() -> UtilMCText.literal(debug.get()), false);
+                                        return 1;
+                                    } else {
+                                        ctx.getSource().sendFailure(UtilMCText.literal(debug.get()));
+                                        return 0;
+                                    }
+                                })
+                        )
+                )
+        );
         d.register(Commands.literal("gen_lod_height_map").requires((stack) -> stack.hasPermission(2))
                 .executes(ctx -> {
                     int k = HeightMapManager.massHeightMapLoadWB(ctx.getSource().getLevel());
