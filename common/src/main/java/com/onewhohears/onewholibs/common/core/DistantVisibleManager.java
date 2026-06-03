@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 public class DistantVisibleManager {
 
     public static final int CAN_SEE_COMMAND_TYPE = 0x1010;
+    public static final int TICK_TIME_WARN = 2;
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<VisibleData> VISIBLES = new ArrayList<>();
@@ -152,7 +153,7 @@ public class DistantVisibleManager {
         long total = 0;
         for (Long time : TICK_TIMES) total += time;
         TICK_TIME_AVG = (double) total / TICK_TIMES.size() * 10E-6;
-        if (TICK_TIME_AVG >= 1 && server.getTickCount() % 20 == 0) {
+        if (TICK_TIME_AVG >= TICK_TIME_WARN && server.getTickCount() % 100 == 0) {
             LOGGER.warn("Distant Raycasts {} are taking {} milliseconds to compute.", VISIBLES.size(), TICK_TIME_AVG);
         }
     }
