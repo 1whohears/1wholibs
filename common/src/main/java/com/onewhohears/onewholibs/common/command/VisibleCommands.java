@@ -26,6 +26,7 @@ public class VisibleCommands {
     public static final Style YELLOW = Style.EMPTY.withColor(ChatFormatting.YELLOW);
 
     public VisibleCommands(CommandDispatcher<CommandSourceStack> d) {
+        // TODO list all current raycasts command to debug who is currently trying to see who
         d.register(Commands.literal("create_lod_height_map_image").requires((stack) -> stack.hasPermission(2))
                 .executes(ctx -> {
                     AtomicReference<String> debug = new AtomicReference<>();
