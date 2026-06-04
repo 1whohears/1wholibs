@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.onewhohears.onewholibs.common.core.DistantVisibleManager.CAN_SEE_TEST_DATA;
@@ -26,7 +27,15 @@ public class VisibleCommands {
     public static final Style YELLOW = Style.EMPTY.withColor(ChatFormatting.YELLOW);
 
     public VisibleCommands(CommandDispatcher<CommandSourceStack> d) {
-        // TODO list all current raycasts command to debug who is currently trying to see who
+        d.register(Commands.literal("list_visible_tests").requires((stack) -> stack.hasPermission(2))
+                .executes(ctx -> {
+                    List<String> visibleDebugs = DistantVisibleManager.getAllVisibleDebug(ctx.getSource().getServer());
+                    for (String visibleDebug : visibleDebugs) {
+                        ctx.getSource().sendSuccess(() -> UtilMCText.literal(visibleDebug).setStyle(YELLOW), false);
+                    }
+                    return 1;
+                })
+        );
         d.register(Commands.literal("create_lod_height_map_image").requires((stack) -> stack.hasPermission(2))
                 .executes(ctx -> {
                     AtomicReference<String> debug = new AtomicReference<>();

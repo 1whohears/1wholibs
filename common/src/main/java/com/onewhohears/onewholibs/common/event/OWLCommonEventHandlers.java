@@ -1,10 +1,13 @@
 package com.onewhohears.onewholibs.common.event;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.onewhohears.onewholibs.common.command.VisibleCommands;
 import com.onewhohears.onewholibs.common.command.TestIngredientStackCommand;
 import com.onewhohears.onewholibs.common.command.TestPresetCommand;
-import com.onewhohears.onewholibs.common.core.*;
+import com.onewhohears.onewholibs.common.command.VisibleCommands;
+import com.onewhohears.onewholibs.common.core.DistantVisibleManager;
+import com.onewhohears.onewholibs.common.core.FutureRunManager;
+import com.onewhohears.onewholibs.common.core.HeightMapManager;
+import com.onewhohears.onewholibs.common.core.SimulatedEntityManager;
 import com.onewhohears.onewholibs.data.jsonpreset.JsonPresetReloadListener;
 import com.onewhohears.onewholibs.data.jsonpreset.test.TestPresets;
 import com.onewhohears.onewholibs.util.UtilSync;
@@ -57,6 +60,7 @@ public class OWLCommonEventHandlers {
 
     private static void onServerStopping(MinecraftServer server) {
         SimulatedEntityManager.get().serverStop(server);
+        DistantVisibleManager.onServerStop(server);
     }
 
     private static void onSetup() {
@@ -71,7 +75,6 @@ public class OWLCommonEventHandlers {
 
     public static void onServerTickPre(MinecraftServer server) {
         SimulatedEntityManager.get().tickPre(server);
-        DistantRayCastManager.onServerTick();
         DistantVisibleManager.onServerTick(server);
         FutureRunManager.tick(server);
     }
@@ -94,7 +97,7 @@ public class OWLCommonEventHandlers {
                                         Commands.CommandSelection selection) {
         new TestPresetCommand(dispatcher);
         new TestIngredientStackCommand(dispatcher, context);
-        new VisibleCommands((dispatcher));
+        new VisibleCommands(dispatcher);
     }
 
 }

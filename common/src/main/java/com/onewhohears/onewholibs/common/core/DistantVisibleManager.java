@@ -5,18 +5,20 @@ import com.onewhohears.onewholibs.common.command.CustomGameRules;
 import com.onewhohears.onewholibs.entity.SimulatedEntity;
 import com.onewhohears.onewholibs.util.UtilEntity;
 import com.onewhohears.onewholibs.util.UtilMCText;
+import com.onewhohears.onewholibs.util.UtilParse;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -162,6 +164,16 @@ public class DistantVisibleManager {
         VISIBLES.clear();
     }
 
+    public static void onServerStop(@NotNull MinecraftServer server) {
+        VISIBLES.clear();
+    }
+
+    public static List<String> getAllVisibleDebug(@NotNull MinecraftServer server) {
+        List<String> debugs = new ArrayList<>();
+        for (VisibleData visible : VISIBLES) debugs.add(visible.getDebug(server));
+        return debugs;
+    }
+
     @Nullable
     public static VisibleData getById(int id) {
         for (VisibleData visibleData : VISIBLES) {
@@ -170,6 +182,11 @@ public class DistantVisibleManager {
             }
         }
         return null;
+    }
+
+    public static String prettyVec3(@Nullable Vec3 vec) {
+        if (vec != null) return Mth.floor(vec.x)+","+Mth.floor(vec.y)+","+Mth.floor(vec.z);
+        return "null";
     }
 
     public static class VisibleData {
@@ -396,6 +413,19 @@ public class DistantVisibleManager {
         }
         public @NotNull VisibleTestResult getResult() {
             return result;
+        }
+        public String getDebug(@NotNull MinecraftServer server) {
+            String debug = id +" | "+Mth.ceil(length)+" | "+spreadIndex+"/"+spreads.length+" | "+getResult()
+                    +"\n    ["+prettyVec3(entityPos1)+"] ["+prettyVec3(entityPos2)+"]";
+            ServerLevel level = getLevel(server);
+            if (level == null) return debug;
+            Entity entity1 = getEntity(level, entityId1);
+            if (entity1 == null) return debug;
+            debug += "\n    <" + UtilEntity.getEntityIdName(entity1) + " | " + entity1.getScoreboardName() + ">";
+            Entity entity2 = getEntity(level, entityId2);
+            if (entity2 == null) return debug;
+            debug += "\n    <" + UtilEntity.getEntityIdName(entity2) + " | " + entity2.getScoreboardName() + ">";
+            return debug;
         }
     }
     // TODO make these spread settings configurable
