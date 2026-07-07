@@ -10,6 +10,10 @@ import java.util.Map;
 
 public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntityModel<T> {
 
+    public static int ROT_SCALE_X = -1;
+    public static int ROT_SCALE_Y = -1;
+    public static int ROT_SCALE_Z = 1;
+
     private List<KeyframeAnimationPlayer<T>> keyframeAnimations;
     private String[] anim_data_ids;
 

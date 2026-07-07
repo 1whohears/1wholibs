@@ -14,6 +14,8 @@ import net.minecraft.world.phys.Vec2;
 
 import java.util.*;
 
+import static com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KeyframeAnimsEntityModel.*;
+
 public class BBAnim implements KeyframeAnimation {
 
     private final Map<String, Vec3f> pivots;
@@ -201,9 +203,9 @@ public class BBAnim implements KeyframeAnimation {
         @Override
         public Mat4f getTransformAtSecond(float seconds, float pivotX, float pivotY, float pivotZ) {
             Vec3f rotation = interpolate(seconds);
-            Mat4f rot = UtilAngles.pivotPixelsRotX(pivotX, pivotY, pivotZ, -rotation.x());
-            rot.multiply(UtilAngles.pivotPixelsRotY(pivotX, pivotY, pivotZ, -rotation.y()));
-            rot.multiply(UtilAngles.pivotPixelsRotZ(pivotX, pivotY, pivotZ, rotation.z()));
+            Mat4f rot = UtilAngles.pivotPixelsRotX(pivotX, pivotY, pivotZ, rotation.x() * ROT_SCALE_X);
+            rot.multiply(UtilAngles.pivotPixelsRotY(pivotX, pivotY, pivotZ, rotation.y() * ROT_SCALE_Y));
+            rot.multiply(UtilAngles.pivotPixelsRotZ(pivotX, pivotY, pivotZ, rotation.z() * ROT_SCALE_Z));
             return rot;
         }
         @Override
