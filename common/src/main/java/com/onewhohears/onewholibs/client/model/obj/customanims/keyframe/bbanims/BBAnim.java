@@ -165,6 +165,9 @@ public class BBAnim implements KeyframeAnimation {
     }
 
     public static Vec3f getVector(JsonObject json, String name) {
+        if (!json.has(name) && json.has("vector")) {
+            return fromJsonArray(json.getAsJsonArray("vector"));
+        }
         if (!json.has(name)) return Vec3f.ZERO;
         if (json.get(name).isJsonObject()) {
             if (!json.get(name).getAsJsonObject().has("vector")) return Vec3f.ZERO;
