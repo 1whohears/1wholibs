@@ -120,12 +120,8 @@ public class BBAnim implements KeyframeAnimation {
         }
         public Keyframe(float time, JsonObject json) {
             this.time = time;
-            if (json.has("post"))
-                post = fromJsonArray(json.getAsJsonArray("post"));
-            else post = Vec3f.ZERO;
-            if (json.has("pre"))
-                pre = fromJsonArray(json.getAsJsonArray("pre"));
-            else pre = post;
+            post = getVector(json, "post");
+            pre = getVector(json, "pre");
             String mode = UtilParse.getStringSafe(json, "lerp_mode", "");
             if (mode.equals("catmullrom")) lerp_mode = LerpMode.CATMULLROM;
             else lerp_mode = LerpMode.LINEAR;
@@ -166,6 +162,18 @@ public class BBAnim implements KeyframeAnimation {
         cmrs[2] = UtilGeometry.catmullromArray(points, alpha, kfs[0].time, kfs[0].post.z(),
                 kfs[1].time, kfs[1].post.z(), kfs[2].time, kfs[2].post.z(), kfs[3].time, kfs[3].post.z());
         return cmrs;
+    }
+
+    public static Vec3f getVector(JsonObject json, String name) {
+        if (!json.has(name)) return Vec3f.ZERO;
+        if (json.get(name).isJsonObject()) {
+            if (!json.get(name).getAsJsonObject().has("vector")) return Vec3f.ZERO;
+            return fromJsonArray(json.get(name).getAsJsonObject().get("vector").getAsJsonArray());
+        }
+        if (json.get(name).isJsonArray()) {
+            return fromJsonArray(json.getAsJsonArray(name));
+        }
+        return Vec3f.ZERO;
     }
 
     public static Vec3f fromJsonArray(JsonArray json) {
