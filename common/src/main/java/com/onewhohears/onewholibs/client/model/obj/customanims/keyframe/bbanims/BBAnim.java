@@ -77,7 +77,10 @@ public class BBAnim implements KeyframeAnimation {
         public Transform(JsonObject json) {
             Set<Map.Entry<String, JsonElement>> jsons = json.entrySet();
             for (Map.Entry<String, JsonElement> t : jsons) {
-                float time = Float.parseFloat(t.getKey());
+                String key = t.getKey();
+                float time;
+                if (key.equals("vector")) time = 0;
+                else time = Float.parseFloat(key);
                 if (t.getValue().isJsonArray())
                     keyframes.add(new Keyframe(time, t.getValue().getAsJsonArray()));
                 else if (t.getValue().isJsonObject())
