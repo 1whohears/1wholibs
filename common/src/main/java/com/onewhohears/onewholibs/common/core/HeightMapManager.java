@@ -33,8 +33,9 @@ public class HeightMapManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final int VERSION = 6;
+    private static final int VERSION = 7;
     private static final int RESOLUTION = 4;
+    private static final int RESOLUTION_WIDTH = 16 / RESOLUTION;
 
     /**
      * the short[] represents a 4 x 4 grid of heights
@@ -101,8 +102,15 @@ public class HeightMapManager {
         short[] heights = new short[RESOLUTION * RESOLUTION];
         for (int x = 0; x < RESOLUTION; ++x) {
             for (int z = 0; z < RESOLUTION; ++z) {
-                heights[getHeightIndex(x, z)] = (short) chunk.getHeight(Heightmap.Types.MOTION_BLOCKING,
-                        x * RESOLUTION, z * RESOLUTION);
+                int maxHeight = level.getMinBuildHeight();
+                for (int xr = 0; xr < RESOLUTION_WIDTH; ++xr) {
+                    for (int zr = 0; zr < RESOLUTION_WIDTH; ++zr) {
+                        int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING,
+                                x * RESOLUTION + xr, z * RESOLUTION + zr);
+                        if (height > maxHeight) maxHeight = height;
+                    }
+                }
+                heights[getHeightIndex(x, z)] = (short) maxHeight;
                 // TODO instead of only saving the max height, need to save the gaps of air between.
             }
         }
@@ -260,24 +268,38 @@ public class HeightMapManager {
 
     private static void loadRegion(Path file, Map<Long, short[]> map) throws IOException {
         if (!Files.exists(file)) return;
-        int res2 = RESOLUTION * RESOLUTION;
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(Files.newInputStream(file)))) {
             int version = in.readInt();
-            if (version != VERSION) {
+            if (version == VERSION) {
+                int res2 = RESOLUTION * RESOLUTION;
+                int count = in.readInt();
+                for (int i = 0; i < count; i++) {
+                    long chunkPos = in.readLong();
+                    short[] data = new short[res2];
+                    for (int j = 0; j < res2; j++) {
+                        data[j] = in.readShort();
+                    }
+                    map.put(chunkPos, data);
+                }
                 in.close();
-                LOGGER.error("Height Map File {} Version mismatch. File = {}, Expected = {}. Canceling Read.",
-                        file.getFileName(), version, VERSION);
+                return;
+            } else if (version == 6) {
+                int res2 = RESOLUTION * RESOLUTION;
+                int count = in.readInt();
+                for (int i = 0; i < count; i++) {
+                    long chunkPos = in.readLong();
+                    short[] data = new short[res2];
+                    for (int j = 0; j < res2; j++) {
+                        data[j] = in.readShort();
+                    }
+                    map.put(chunkPos, data);
+                }
+                in.close();
                 return;
             }
-            int count = in.readInt();
-            for (int i = 0; i < count; i++) {
-                long chunkPos = in.readLong();
-                short[] data = new short[res2];
-                for (int j = 0; j < res2; j++) {
-                    data[j] = in.readShort();
-                }
-                map.put(chunkPos, data);
-            }
+            in.close();
+            LOGGER.error("Height Map File {} Unsupported Version. File = {}, Expected = {}. Canceling Read.",
+                    file.getFileName(), version, VERSION);
         }
     }
 

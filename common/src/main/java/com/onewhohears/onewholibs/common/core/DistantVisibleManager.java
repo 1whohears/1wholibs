@@ -276,7 +276,15 @@ public class DistantVisibleManager {
                             break;
                         }
                     }
+                    prev = next;
                     continue;
+                } else if (checkHeightMap) {
+                    ++HEIGHT_MAP_CHECKS;
+                    short height = HeightMapManager.getHeight(levelId, next);
+                    if (next.y > height) {
+                        prev = next;
+                        continue;
+                    }
                 }
                 ++BLOCKS_CHECKED;
                 int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, nextBlock.getX(), nextBlock.getZ());
