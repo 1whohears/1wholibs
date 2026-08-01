@@ -6,17 +6,54 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class ListField<L extends List<F>, F extends SerialField<E>, E> extends SerialField<L> {
 
     private final Supplier<F> entryGen;
 
-    private boolean networkChanged;
-
     public ListField(@NotNull String name, @NotNull L defaultValue, @NotNull Supplier<F> entryGen) {
         super(name, defaultValue);
         this.entryGen = entryGen;
+    }
+
+    public E get(int index) {
+        return get().get(index).get();
+    }
+
+    public boolean add(E value) {
+        F field = entryGen.get();
+        field.set(value);
+        setChanged();
+        return get().add(field);
+    }
+
+    public void add(int index, E value) {
+        F field = entryGen.get();
+        field.set(value);
+        get().add(index, field);
+        setChanged();
+    }
+
+    public boolean remove(int index) {
+        boolean removed = get().remove(index) != null;
+        if (removed) setChanged();
+        return removed;
+    }
+
+    public void removeIf(Predicate<E> test) {
+        int sizePre = get().size();
+        get().removeIf(entry -> test.test(entry.get()));
+        if (get().size() != sizePre) setChanged();
+    }
+
+    public int size() {
+        return get().size();
+    }
+
+    public boolean isEmpty() {
+        return get().isEmpty();
     }
 
     @Override

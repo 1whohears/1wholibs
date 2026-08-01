@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,18 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
         int sizePre = get().size();
         get().entrySet().removeIf((entry) -> test.test(entry.getValue().get()));
         if (get().size() != sizePre) setChanged();
+    }
+
+    public int size() {
+        return get().size();
+    }
+
+    public boolean isEmpty() {
+        return get().isEmpty();
+    }
+
+    public Collection<VF> values() {
+        return get().values();
     }
 
     @Override
