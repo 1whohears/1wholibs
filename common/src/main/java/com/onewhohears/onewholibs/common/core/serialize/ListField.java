@@ -12,6 +12,8 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
 
     private final Supplier<F> entryGen;
 
+    private boolean networkChanged;
+
     public ListField(@NotNull String name, @NotNull L defaultValue, @NotNull Supplier<F> entryGen) {
         super(name, defaultValue);
         this.entryGen = entryGen;
@@ -94,6 +96,6 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
 
     @Override
     public boolean isNetworkChanged() {
-        return get().stream().anyMatch(SerialField::isNetworkChanged);
+        return super.isNetworkChanged() || get().stream().anyMatch(SerialField::isNetworkChanged);
     }
 }
