@@ -12,12 +12,6 @@ public abstract class SerialObject {
     private final Map<String,SerialField<?>> fields = new HashMap<>();
     private final Set<String> networkSyncs = new HashSet<>();
 
-    protected SerialObject() {
-        registerFields();
-    }
-
-    protected abstract void registerFields();
-
     protected <E extends SerialField<B>, B> E registerField(E field, boolean networkSync) {
         fields.put(field.getName(), field);
         if (networkSync) networkSyncs.add(field.getName());
