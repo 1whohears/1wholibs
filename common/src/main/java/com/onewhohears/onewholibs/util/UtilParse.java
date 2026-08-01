@@ -194,6 +194,11 @@ public class UtilParse {
 		if (!json.has(name)) return alt;
 		return json.get(name).getAsInt();
 	}
+
+    public static long getLongSafe(JsonObject json, String name, long alt) {
+        if (!json.has(name)) return alt;
+        return json.get(name).getAsLong();
+    }
 	
 	public static float getFloatSafe(JsonObject json, String name, float alt) {
 		if (!json.has(name)) return alt;
