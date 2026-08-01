@@ -88,4 +88,9 @@ public abstract class SerialField<E> {
         changed = false;
     }
 
+    @Override
+    public String toString() {
+        return get().toString();
+    }
+
 }

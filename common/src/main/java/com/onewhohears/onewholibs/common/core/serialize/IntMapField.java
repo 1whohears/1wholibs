@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntObjectMap<VF>> {
@@ -20,6 +21,29 @@ public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntOb
                        @NotNull Supplier<VF> valueFieldGen) {
         super(name, defaultValue);
         this.valueFieldGen = valueFieldGen;
+    }
+
+    public void put(int key, V value) {
+        if (get().containsKey(key)) {
+            get().get(key).set(value);
+        } else {
+            VF valueField = valueFieldGen.get();
+            valueField.set(value);
+            valueField.setChanged();
+            get().put(key, valueField);
+        }
+    }
+
+    public boolean remove(int key) {
+        boolean removed = get().remove(key) != null;
+        if (removed) setChanged();
+        return removed;
+    }
+
+    public void removeIf(Predicate<V> test) {
+        int sizePre = get().size();
+        get().entrySet().removeIf((entry) -> test.test(entry.getValue().get()));
+        if (get().size() != sizePre) setChanged();
     }
 
     @Override
