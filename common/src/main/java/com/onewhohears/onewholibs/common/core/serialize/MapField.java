@@ -48,6 +48,12 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
         if (get().size() != sizePre) setChanged();
     }
 
+    public void clear() {
+        int sizePre = get().size();
+        get().clear();
+        if (get().size() != sizePre) setChanged();
+    }
+
     public int size() {
         return get().size();
     }

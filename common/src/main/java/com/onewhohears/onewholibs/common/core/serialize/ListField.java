@@ -6,6 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -48,12 +49,30 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
         if (get().size() != sizePre) setChanged();
     }
 
+    public void clear() {
+        int sizePre = get().size();
+        get().clear();
+        if (get().size() != sizePre) setChanged();
+    }
+
+    public void addAll(L list) {
+        get().addAll(list);
+        setChanged();
+    }
+
     public int size() {
         return get().size();
     }
 
     public boolean isEmpty() {
         return get().isEmpty();
+    }
+
+    public int indexOf(@NotNull E value) {
+        for (int i = 0; i < size(); ++i)
+            if (Objects.equals(get(i), value))
+                return i;
+        return -1;
     }
 
     @Override
