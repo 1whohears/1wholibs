@@ -1,13 +1,18 @@
 package com.onewhohears.onewholibs.common.core.serialize;
 
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 public abstract class SerialObject {
+
+    public static boolean DEBUG = false;
+    protected static final Logger LOGGER = LogUtils.getLogger();
 
     private final Map<String,SerialField<?>> fields = new HashMap<>();
     private final Set<String> networkSyncs = new HashSet<>();
@@ -30,7 +35,10 @@ public abstract class SerialObject {
     }
 
     public final void readPacket(@NotNull FriendlyByteBuf buffer) {
-        int num = buffer.readInt();
+        long num = buffer.readLong();
+        if (DEBUG) {
+            LOGGER.info("READ PACKET {} fields: {}", getClass().getSimpleName(), num);
+        }
         for (int i = 0; i < num; ++i) {
             String name = buffer.readUtf();
             fields.get(name).decode(buffer);
@@ -47,7 +55,11 @@ public abstract class SerialObject {
                     field.isNetworkChanged() && networkSyncs.contains(field.getName()));
         }
         List<SerialField<?>> toEncode = stream.toList();
-        buffer.writeLong(toEncode.size());
+        long size = toEncode.size();
+        buffer.writeLong(size);
+        if (DEBUG) {
+            LOGGER.info("WRITE PACKET {} fields: {} encodeAll: {}", getClass().getSimpleName(), size, encodeAll);
+        }
         toEncode.forEach(field -> field.encode(buffer, encodeAll));
     }
 
