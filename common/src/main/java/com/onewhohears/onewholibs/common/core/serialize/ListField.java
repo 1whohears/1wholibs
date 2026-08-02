@@ -19,6 +19,11 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
         this.entryGen = entryGen;
     }
 
+    @Override
+    public void set(@NotNull L value) {
+        super.set(value);
+    }
+
     public E get(int index) {
         return get().get(index).get();
     }
@@ -34,6 +39,11 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
         F field = entryGen.get();
         field.set(value);
         get().add(index, field);
+        setChanged();
+    }
+
+    public void set(int index, E value) {
+        get().get(index).set(value);
         setChanged();
     }
 
@@ -106,7 +116,7 @@ public class ListField<L extends List<F>, F extends SerialField<E>, E> extends S
             }
         } else {
             List<F> list = value.stream().filter(SerialField::isChanged).toList();
-
+            // TODO make a list edit stack field to track edits to the list
         }*/
         buffer.writeInt(value.size());
         for (F field : value) {
