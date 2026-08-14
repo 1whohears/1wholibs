@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,6 +24,11 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
         super(name, defaultValue);
         this.keyFieldGen = keyFieldGen;
         this.valueFieldGen = valueFieldGen;
+    }
+
+    public @Nullable V get(K key) {
+        if (get().containsKey(key)) return get().get(key).get();
+        return null;
     }
 
     public void put(K key, V value) {
@@ -148,7 +154,8 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
                 boolean includeValue = buffer.readBoolean();
                 if (includeValue) {
                     if (get().containsKey(key)) {
-                        get().get(key).read(buffer);
+                        VF valueField = get().get(key);
+                        valueField.setNoCheck(valueField.read(buffer));
                     } else {
                         VF valueField = valueFieldGen.get();
                         valueField.setNoCheck(valueField.read(buffer));
