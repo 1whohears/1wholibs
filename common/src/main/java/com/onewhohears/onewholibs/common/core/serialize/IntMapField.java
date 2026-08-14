@@ -117,6 +117,9 @@ public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntOb
     @Override
     protected IntObjectMap<VF> read(@NotNull FriendlyByteBuf buffer) {
         boolean encodeAll = buffer.readBoolean();
+        if (SerialObject.DEBUG) {
+            SerialObject.LOGGER.info("Reading Int Map Field: {} encodeAll: {}", getName(), encodeAll);
+        }
         int num = buffer.readInt();
         if (encodeAll) {
             get().clear();
@@ -139,6 +142,9 @@ public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntOb
                         VF valueField = valueFieldGen.get();
                         valueField.setNoCheck(valueField.read(buffer));
                         get().put(key, valueField);
+                    }
+                    if (SerialObject.DEBUG) {
+                        SerialObject.LOGGER.info("{}: {}", key, get().get(key));
                     }
                 }
             }

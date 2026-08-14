@@ -122,6 +122,9 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
     protected Map<K, VF> read(@NotNull FriendlyByteBuf buffer) {
         KF keyField = keyFieldGen.get();
         boolean encodeAll = buffer.readBoolean();
+        if (SerialObject.DEBUG) {
+            SerialObject.LOGGER.info("Reading Map Field: {} encodeAll: {}", getName(), encodeAll);
+        }
         int num = buffer.readInt();
         if (encodeAll) {
             get().clear();
@@ -144,6 +147,9 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
                         VF valueField = valueFieldGen.get();
                         valueField.setNoCheck(valueField.read(buffer));
                         get().put(key, valueField);
+                    }
+                    if (SerialObject.DEBUG) {
+                        SerialObject.LOGGER.info("{}: {}", key, get().get(key));
                     }
                 }
             }
