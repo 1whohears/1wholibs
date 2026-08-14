@@ -96,6 +96,9 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
 
     @Override
     protected void write(@NotNull FriendlyByteBuf buffer, @NotNull Map<K, VF> map, boolean encodeAll) {
+        if (SerialObject.DEBUG) {
+            SerialObject.LOGGER.info("Writing Map Field: {} encodeAll: {}", getName(), encodeAll);
+        }
         buffer.writeBoolean(encodeAll);
         KF keyField = keyFieldGen.get();
         buffer.writeInt(map.size());
@@ -111,6 +114,9 @@ public class MapField<KF extends SerialField<K>, VF extends SerialField<V>, K, V
                 if (entry.getValue().isNetworkChanged()) {
                     buffer.writeBoolean(true);
                     entry.getValue().write(buffer, entry.getValue().get(), false);
+                    if (SerialObject.DEBUG) {
+                        SerialObject.LOGGER.info("{}: {}", entry.getKey(), entry.getValue().get());
+                    }
                 } else {
                     buffer.writeBoolean(false);
                 }

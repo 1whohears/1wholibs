@@ -93,6 +93,9 @@ public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntOb
 
     @Override
     protected void write(@NotNull FriendlyByteBuf buffer, @NotNull IntObjectMap<VF> map, boolean encodeAll) {
+        if (SerialObject.DEBUG) {
+            SerialObject.LOGGER.info("Writing Map Field: {} encodeAll: {}", getName(), encodeAll);
+        }
         buffer.writeBoolean(encodeAll);
         buffer.writeInt(map.size());
         if (encodeAll) {
@@ -109,6 +112,9 @@ public class IntMapField<VF extends SerialField<V>, V> extends SerialField<IntOb
                     entry.getValue().write(buffer, entry.getValue().get(), false);
                 } else {
                     buffer.writeBoolean(false);
+                }
+                if (SerialObject.DEBUG) {
+                    SerialObject.LOGGER.info("{}: {}", entry.getKey(), entry.getValue().get());
                 }
             }
         }
