@@ -2,6 +2,9 @@ package com.onewhohears.onewholibs.common.core.serialize;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.onewhohears.onewholibs.util.UtilParse;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +48,30 @@ public abstract class SerialField<E> {
 
     public void decode(@NotNull FriendlyByteBuf buffer) {
         this.value = read(buffer);
+    }
+
+    public void save(@NotNull CompoundTag parentData) {
+        JsonElement valueJson = write(get());
+        String valueStr = valueJson.toString();
+        parentData.putString(getName(), valueStr);
+    }
+
+    public void load(@NotNull CompoundTag parentData) {
+        String valueStr = parentData.getString(getName());
+        if (valueStr.isEmpty()) {
+            set(getDefaultValue());
+            return;
+        }
+        JsonElement valueJson;
+        try {
+            valueJson = UtilParse.GSON.fromJson(valueStr, JsonElement.class);
+        } catch (JsonSyntaxException e) {
+            valueJson = null;
+            SerialObject.LOGGER.error("Serial Field {} could not parse json string: {}", getName(), valueStr);
+            e.printStackTrace();
+        }
+        if (valueJson == null) set(getDefaultValue());
+        else set(read(valueJson));
     }
 
     public @NotNull E getDefaultValue() {
