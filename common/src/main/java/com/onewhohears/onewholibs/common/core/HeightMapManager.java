@@ -1,6 +1,7 @@
 package com.onewhohears.onewholibs.common.core;
 
 import com.mojang.logging.LogUtils;
+import com.onewhohears.onewholibs.util.UtilEntity;
 import com.onewhohears.onewholibs.util.UtilFile;
 import com.onewhohears.onewholibs.util.math.UtilGeometry;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.border.WorldBorder;
@@ -116,6 +118,48 @@ public class HeightMapManager {
         }
         map.put(chunk.getPos().toLong(), heights);
         if (map.size() % 1000 == 0) LOGGER.info("HEIGHT MAP SIZE {}", map.size());
+    }
+
+    public static void onBlockUpdate(@NotNull BlockPos pos, @NotNull ServerLevel level, boolean place) {
+        Map<Long, short[]> map = HEIGHT_MAP.computeIfAbsent(level.dimension(), k -> new HashMap<>());
+        ChunkPos chunkPos = new ChunkPos(pos);
+        int chunkMinX = chunkPos.getMinBlockX();
+        int chunkMinZ = chunkPos.getMinBlockZ();
+        int xr = Mth.floor((pos.getX() - chunkMinX) / (float) RESOLUTION);
+        int zr = Mth.floor((pos.getZ() - chunkMinZ) / (float) RESOLUTION);
+        short[] heights = map.get(chunkPos.toLong());
+        int index = getHeightIndex(xr, zr);
+        if (place) {
+            if (pos.getY() > heights[index]) heights[index] = (short) pos.getY();
+            return;
+        }
+        int maxHeight = level.getMinBuildHeight();
+        int nextMaxHeight = level.getMinBuildHeight();
+        boolean maxHeightRepeat = false;
+        ChunkAccess chunk = level.getChunk(chunkPos.x, chunkPos.z);
+        for (int x = 0; x < RESOLUTION_WIDTH; ++x) {
+            for (int z = 0; z < RESOLUTION_WIDTH; ++z) {
+                int xc = x + xr * RESOLUTION + chunkMinX;
+                int zc = z + zr * RESOLUTION + chunkMinZ;
+                int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, xc, zc);
+                if (height == maxHeight) maxHeightRepeat = true;
+                if (height > maxHeight) {
+                    nextMaxHeight = maxHeight;
+                    maxHeight = height;
+                    maxHeightRepeat = false;
+                } else if (height > nextMaxHeight) {
+                    nextMaxHeight = height;
+                }
+            }
+        }
+        if (!maxHeightRepeat && maxHeight == pos.getY()) {
+            while (--maxHeight > nextMaxHeight) {
+                if (UtilEntity.blocksMotion(chunk.getBlockState(pos.atY(maxHeight)))) {
+                    break;
+                }
+            }
+        }
+        heights[index] = (short) maxHeight;
     }
 
     public static boolean generateHeightmapImage(@NotNull MinecraftServer server, @NotNull ServerLevel level,
