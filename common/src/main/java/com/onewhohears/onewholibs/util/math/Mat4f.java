@@ -604,4 +604,27 @@ public final class Mat4f {
         mat.load(buffer);
         return mat;
     }
+
+    public void lerp(Mat4f end, float percent) {
+        if (percent == 0) return;
+        this.m00 += (end.m00 - this.m00) * percent;
+        this.m01 += (end.m01 - this.m01) * percent;
+        this.m02 += (end.m02 - this.m02) * percent;
+        this.m03 += (end.m03 - this.m03) * percent;
+
+        this.m10 += (end.m10 - this.m10) * percent;
+        this.m11 += (end.m11 - this.m11) * percent;
+        this.m12 += (end.m12 - this.m12) * percent;
+        this.m13 += (end.m13 - this.m13) * percent;
+
+        this.m20 += (end.m20 - this.m20) * percent;
+        this.m21 += (end.m21 - this.m21) * percent;
+        this.m22 += (end.m22 - this.m22) * percent;
+        this.m23 += (end.m23 - this.m23) * percent;
+
+        this.m30 += (end.m30 - this.m30) * percent;
+        this.m31 += (end.m31 - this.m31) * percent;
+        this.m32 += (end.m32 - this.m32) * percent;
+        this.m33 += (end.m33 - this.m33) * percent;
+    }
 }

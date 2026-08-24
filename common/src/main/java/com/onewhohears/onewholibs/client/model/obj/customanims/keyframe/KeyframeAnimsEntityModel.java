@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.onewhohears.onewholibs.client.model.obj.customanims.CustomAnimsEntityModel;
 import com.onewhohears.onewholibs.util.math.Mat4f;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -48,5 +50,14 @@ public class KeyframeAnimsEntityModel<T extends Entity> extends CustomAnimsEntit
         if (keyframeAnimations == null && anim_data_ids != null)
             keyframeAnimations = KFAnimPlayers.getAnimPlayersFromDataIds(anim_data_ids);
         return keyframeAnimations;
+    }
+
+    public @Nullable KeyframeAnimationPlayer<T> getPlayerById(@NotNull String id) {
+        for (KeyframeAnimationPlayer<T> anim : getKeyframeAnimations()) {
+            if (anim.getAnimationStats().getId().equals(id)) {
+                return anim;
+            }
+        }
+        return null;
     }
 }

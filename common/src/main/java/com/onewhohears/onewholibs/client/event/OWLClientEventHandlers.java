@@ -5,6 +5,7 @@ import com.onewhohears.onewholibs.client.model.obj.customanims.EntityModelTransf
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.BasicControllers;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.ControllableAnimPlayer;
 import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.KFAnimPlayers;
+import com.onewhohears.onewholibs.client.model.obj.customanims.keyframe.state_machine.StateMachineAnimPlayer;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import net.minecraft.client.Minecraft;
 
@@ -18,14 +19,15 @@ public class OWLClientEventHandlers {
         // REGISTER BUILT IN CLIENT ANIMATION STUFF
         CustomAnims.addAnim("continuous_rotation", EntityModelTransform.ContinuousRotation::new);
         CustomAnims.addAnim("always_hide", EntityModelTransform.AlwaysHide::new);
-        KFAnimPlayers.addAnimationPlayerFactory("always", (data) -> new ControllableAnimPlayer<>(data,
+        KFAnimPlayers.addAnimationPlayerFactory("always", data -> new ControllableAnimPlayer<>(data,
                 entity -> true, BasicControllers.continuous()));
-        KFAnimPlayers.addAnimationPlayerFactory("ground_move", (data) -> new ControllableAnimPlayer<>(data,
+        KFAnimPlayers.addAnimationPlayerFactory("ground_move", data -> new ControllableAnimPlayer<>(data,
                 entity -> entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
-        KFAnimPlayers.addAnimationPlayerFactory("air_move", (data) -> new ControllableAnimPlayer<>(data,
+        KFAnimPlayers.addAnimationPlayerFactory("air_move", data -> new ControllableAnimPlayer<>(data,
                 entity -> !entity.onGround() && entity.getDeltaMovement().lengthSqr() > 0.0001,
                 BasicControllers.continuous()));
+        KFAnimPlayers.addAnimationPlayerFactory("state_machine", StateMachineAnimPlayer::new);
     }
 
 }
