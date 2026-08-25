@@ -44,7 +44,7 @@ public class StateMachineAnimEntityModel<T extends Entity & StateMachineAnimEnti
         startTransforms.clear();
         endTransforms.clear();
         transStart.getAnimation().applyAnimationAtSecond(startTransforms, entity.getTransitionStartSeconds());
-        transEnd.getAnimation().applyAnimationAtPercent(endTransforms, 0);
+        transEnd.getAnimation().applyAnimationAtSecond(endTransforms, 0.01f);
         startTransforms.keySet().forEach(key -> {
             if (!endTransforms.containsKey(key)) endTransforms.put(key, NOTHING);
         });
@@ -54,8 +54,9 @@ public class StateMachineAnimEntityModel<T extends Entity & StateMachineAnimEnti
         float percent = entity.getTransitionPercent(partialTicks);
         startTransforms.forEach((key, startMat) -> {
             Mat4f endMat = endTransforms.get(key);
-            startMat.lerp(endMat, percent);
-            transforms.put(key, startMat);
+            Mat4f lerpMat = new Mat4f(startMat);
+            lerpMat.lerp(endMat, percent);
+            transforms.put(key, lerpMat);
         });
     }
 }
