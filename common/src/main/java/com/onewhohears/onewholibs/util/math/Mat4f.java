@@ -1,5 +1,6 @@
 package com.onewhohears.onewholibs.util.math;
 
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
@@ -12,7 +13,9 @@ import java.nio.FloatBuffer;
  * right mind is going to copy right math.
  */
 public final class Mat4f {
+
     private static final int ORDER = 4;
+
     float m00;
     float m01;
     float m02;
@@ -33,23 +36,23 @@ public final class Mat4f {
     public Mat4f() {
     }
 
-    public Mat4f(Mat4f Mat4f) {
-        this.m00 = Mat4f.m00;
-        this.m01 = Mat4f.m01;
-        this.m02 = Mat4f.m02;
-        this.m03 = Mat4f.m03;
-        this.m10 = Mat4f.m10;
-        this.m11 = Mat4f.m11;
-        this.m12 = Mat4f.m12;
-        this.m13 = Mat4f.m13;
-        this.m20 = Mat4f.m20;
-        this.m21 = Mat4f.m21;
-        this.m22 = Mat4f.m22;
-        this.m23 = Mat4f.m23;
-        this.m30 = Mat4f.m30;
-        this.m31 = Mat4f.m31;
-        this.m32 = Mat4f.m32;
-        this.m33 = Mat4f.m33;
+    public Mat4f(Mat4f mat4f) {
+        this.m00 = mat4f.m00;
+        this.m01 = mat4f.m01;
+        this.m02 = mat4f.m02;
+        this.m03 = mat4f.m03;
+        this.m10 = mat4f.m10;
+        this.m11 = mat4f.m11;
+        this.m12 = mat4f.m12;
+        this.m13 = mat4f.m13;
+        this.m20 = mat4f.m20;
+        this.m21 = mat4f.m21;
+        this.m22 = mat4f.m22;
+        this.m23 = mat4f.m23;
+        this.m30 = mat4f.m30;
+        this.m31 = mat4f.m31;
+        this.m32 = mat4f.m32;
+        this.m33 = mat4f.m33;
     }
 
     public Mat4f(QuaternionF quaternion) {
@@ -626,5 +629,116 @@ public final class Mat4f {
         this.m31 += (end.m31 - this.m31) * percent;
         this.m32 += (end.m32 - this.m32) * percent;
         this.m33 += (end.m33 - this.m33) * percent;
+    }
+
+    /**
+     * this is much more expensive than normal lerp...but avoids weird scaling issues
+     */
+    public void lerpAnim(Mat4f end, float percent) {
+        if (percent == 0) return;
+        Transform a = this.decompose();
+        Transform b = end.decompose();
+
+        Vec3 translation = a.translation().lerp(b.translation(), percent);
+        Vec3 scale = a.scale().lerp(b.scale(), percent);
+
+        QuaternionF rotation = new QuaternionF(a.rotation());
+        rotation.slerp(b.rotation(), percent);
+
+        setTransform(translation, rotation, scale);
+    }
+
+    public record Transform(Vec3 translation, QuaternionF rotation, Vec3 scale) {}
+
+    public Transform decompose() {
+        Vec3 translation = new Vec3(m03, m13, m23);
+
+        float sx = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
+        float sy = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
+        float sz = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
+
+        Vec3 scale = new Vec3(sx, sy, sz);
+
+        float r00 = m00 / sx;
+        float r01 = m01 / sy;
+        float r02 = m02 / sz;
+
+        float r10 = m10 / sx;
+        float r11 = m11 / sy;
+        float r12 = m12 / sz;
+
+        float r20 = m20 / sx;
+        float r21 = m21 / sy;
+        float r22 = m22 / sz;
+
+        QuaternionF rotation = new QuaternionF().setFromNormalized(new Mat3f(r00, r01, r02, r10, r11, r12, r20, r21, r22));
+
+        return new Transform(translation, rotation, scale);
+    }
+
+    public void setTransform(Vec3 translation, QuaternionF rotation, Vec3 scale) {
+        Mat4f matrix = new Mat4f().translationRotateScale(translation, rotation, scale);
+
+        this.m00 = matrix.m00;
+        this.m01 = matrix.m01;
+        this.m02 = matrix.m02;
+        this.m03 = matrix.m03;
+
+        this.m10 = matrix.m10;
+        this.m11 = matrix.m11;
+        this.m12 = matrix.m12;
+        this.m13 = matrix.m13;
+
+        this.m20 = matrix.m20;
+        this.m21 = matrix.m21;
+        this.m22 = matrix.m22;
+        this.m23 = matrix.m23;
+
+        this.m30 = matrix.m30;
+        this.m31 = matrix.m31;
+        this.m32 = matrix.m32;
+        this.m33 = matrix.m33;
+    }
+
+    public Mat4f translationRotateScale(float tx, float ty, float tz,
+                                        float qx, float qy, float qz, float qw,
+                                        float sx, float sy, float sz) {
+        float dqx = qx + qx;
+        float dqy = qy + qy;
+        float dqz = qz + qz;
+        float q00 = dqx * qx;
+        float q11 = dqy * qy;
+        float q22 = dqz * qz;
+        float q01 = dqx * qy;
+        float q02 = dqx * qz;
+        float q03 = dqx * qw;
+        float q12 = dqy * qz;
+        float q13 = dqy * qw;
+        float q23 = dqz * qw;
+        m00 = sx - (q11 + q22) * sx;
+        m01 = (q01 + q23) * sx;
+        m02 = (q02 - q13) * sx;
+        m03 = 0.0f;
+        m10 = (q01 - q23) * sy;
+        m11 = sy - (q22 + q00) * sy;
+        m12 = (q12 + q03) * sy;
+        m13 = 0.0f;
+        m20 = (q02 + q13) * sz;
+        m21 = (q12 - q03) * sz;
+        m22 = sz - (q11 + q00) * sz;
+        m23 = 0.0f;
+        m30 = tx;
+        m31 = ty;
+        m32 = tz;
+        m33 = 1.0f;
+        return this;
+    }
+
+    public Mat4f translationRotateScale(Vec3 translation, QuaternionF quat, Vec3 scale) {
+        return translationRotateScale(
+                (float) translation.x(), (float) translation.y(), (float) translation.z(),
+                quat.i(), quat.j(), quat.k(), quat.r(),
+                (float) scale.x(), (float) scale.y(), (float) scale.z()
+        );
     }
 }

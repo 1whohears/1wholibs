@@ -16,6 +16,10 @@ public final class QuaternionF {
     private float k;
     private float r;
 
+    public QuaternionF() {
+        this.r = 1;
+    }
+
     public QuaternionF(float f, float g, float h, float i) {
         this.i = f;
         this.j = g;
@@ -243,5 +247,46 @@ public final class QuaternionF {
 
     public static QuaternionF from(Quaternionf q) {
         return new QuaternionF(q.x(), q.y(), q.z(), q.w());
+    }
+
+    public QuaternionF setFromNormalized(Mat3f mat) {
+        setFromNormalized(mat.m00, mat.m01, mat.m02, mat.m10, mat.m11, mat.m12, mat.m20, mat.m21, mat.m22);
+        return this;
+    }
+
+    private void setFromNormalized(float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22) {
+        float t;
+        float tr = m00 + m11 + m22;
+        if (tr >= 0.0f) {
+            t = org.joml.Math.sqrt(tr + 1.0f);
+            r = t * 0.5f;
+            t = 0.5f / t;
+            i = (m12 - m21) * t;
+            j = (m20 - m02) * t;
+            k = (m01 - m10) * t;
+        } else {
+            if (m00 >= m11 && m00 >= m22) {
+                t = org.joml.Math.sqrt(m00 - (m11 + m22) + 1.0f);
+                i = t * 0.5f;
+                t = 0.5f / t;
+                j = (m10 + m01) * t;
+                k = (m02 + m20) * t;
+                r = (m12 - m21) * t;
+            } else if (m11 > m22) {
+                t = org.joml.Math.sqrt(m11 - (m22 + m00) + 1.0f);
+                j = t * 0.5f;
+                t = 0.5f / t;
+                k = (m21 + m12) * t;
+                i = (m10 + m01) * t;
+                r = (m20 - m02) * t;
+            } else {
+                t = org.joml.Math.sqrt(m22 - (m00 + m11) + 1.0f);
+                k = t * 0.5f;
+                t = 0.5f / t;
+                i = (m02 + m20) * t;
+                j = (m21 + m12) * t;
+                r = (m01 - m10) * t;
+            }
+        }
     }
 }
