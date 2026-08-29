@@ -55,7 +55,7 @@ public class StateMachineAnimEntityModel<T extends Entity & StateMachineAnimEnti
         startTransforms.forEach((key, startMat) -> {
             Mat4f endMat = endTransforms.get(key);
             Mat4f lerpMat = new Mat4f(startMat);
-            lerpMat.lerp(endMat, percent);
+            lerpMat.lerpAnim(endMat, percent);
             transforms.put(key, lerpMat);
         });
     }
