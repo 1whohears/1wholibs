@@ -642,8 +642,7 @@ public final class Mat4f {
         Vec3 translation = a.translation().lerp(b.translation(), percent);
         Vec3 scale = a.scale().lerp(b.scale(), percent);
 
-        QuaternionF rotation = new QuaternionF(a.rotation());
-        rotation.slerp(b.rotation(), percent);
+        QuaternionF rotation = UtilAngles.lerpQ(percent, a.rotation(), b.rotation());
 
         setTransform(translation, rotation, scale);
     }
