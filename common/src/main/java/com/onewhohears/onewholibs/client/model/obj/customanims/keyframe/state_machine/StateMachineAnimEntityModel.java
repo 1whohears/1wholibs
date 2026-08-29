@@ -55,7 +55,10 @@ public class StateMachineAnimEntityModel<T extends Entity & StateMachineAnimEnti
         startTransforms.forEach((key, startMat) -> {
             Mat4f endMat = endTransforms.get(key);
             Mat4f lerpMat = new Mat4f(startMat);
-            lerpMat.lerpAnim(endMat, percent);
+            lerpMat.lerp(endMat, percent);
+            //lerpMat.lerpAnim(endMat, percent);
+            // FIXME turns out Mat4f#lerpAnim doesn't work because pivot points aren't respected.
+            //  need to separate by translation, rotation, and scale on a base level.
             transforms.put(key, lerpMat);
         });
     }
