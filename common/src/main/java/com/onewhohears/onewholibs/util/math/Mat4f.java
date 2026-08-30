@@ -2,6 +2,7 @@ package com.onewhohears.onewholibs.util.math;
 
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -739,5 +740,9 @@ public final class Mat4f {
                 quat.i(), quat.j(), quat.k(), quat.r(),
                 (float) scale.x(), (float) scale.y(), (float) scale.z()
         );
+    }
+
+    public Vec3f transformPosition(Vec3f v) {
+        return v.mulPosition(this);
     }
 }

@@ -6,6 +6,8 @@ import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Math;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
 /**
@@ -204,6 +206,14 @@ public final class Vec3f {
         this.x = float2FloatFunction.get(this.x);
         this.y = float2FloatFunction.get(this.y);
         this.z = float2FloatFunction.get(this.z);
+    }
+
+    public Vec3f mulPosition(Mat4f mat) {
+        float x = this.x, y = this.y, z = this.z;
+        this.x = org.joml.Math.fma(mat.m00, x, org.joml.Math.fma(mat.m10, y, org.joml.Math.fma(mat.m20, z, mat.m30)));
+        this.y = org.joml.Math.fma(mat.m01, x, org.joml.Math.fma(mat.m11, y, org.joml.Math.fma(mat.m21, z, mat.m31)));
+        this.z = org.joml.Math.fma(mat.m02, x, org.joml.Math.fma(mat.m12, y, Math.fma(mat.m22, z, mat.m32)));
+        return this;
     }
 
     public String toString() {
